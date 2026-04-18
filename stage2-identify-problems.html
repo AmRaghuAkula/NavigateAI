@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stage 2: Identify Problem Statements — NavigateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:     #111118;
+  --paper:   #f8f8f7;
+  --gold:    #12828a;
+  --gold-lt: #38b5bc;
+  --teal:    #12828a;
+  --teal-lt: #38b5bc;
+  --rust:    #0c5f66;
+  --slate:   #444450;
+  --mist:    #e0e0de;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:'Epilogue',sans-serif;overflow-x:hidden;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 4rem;
+  background:rgba(247,244,238,0.94);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--mist);
+}
+.nav-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.3rem;font-weight:700;color:var(--ink);
+  text-decoration:none;letter-spacing:-0.01em;
+}
+.nav-logo span{color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:2rem;}
+.nav-link{
+  text-decoration:none;color:var(--slate);
+  font-size:0.82rem;font-weight:500;transition:color 0.2s;
+}
+.nav-link:hover{color:var(--teal);}
+.nav-cta{
+  background:var(--ink);color:var(--paper);
+  padding:0.55rem 1.3rem;border-radius:2px;
+  font-size:0.78rem;font-weight:500;text-decoration:none;
+  transition:background 0.2s;
+}
+.nav-cta:hover{background:var(--teal);}
+
+/* ── STAGE STRIP ── */
+.stage-strip{
+  margin-top:4.4rem;background:var(--ink);
+  padding:0.75rem 4rem;display:flex;gap:0;overflow-x:auto;
+}
+.ss{
+  display:flex;align-items:center;gap:0.45rem;
+  font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;
+  color:rgba(220,224,232,0.50);padding:0 1rem;white-space:nowrap;
+  border-right:1px solid rgba(255,255,255,0.06);
+  text-decoration:none;transition:color 0.2s;
+}
+.ss:last-child{border-right:none;}
+.ss.done{color:rgba(255,255,255,0.4);}
+.ss.active{color:var(--gold-lt);}
+.ss:hover:not(.active){color:rgba(255,255,255,0.5);}
+.ss-n{font-family:'Cormorant Garamond',serif;font-size:0.85rem;font-weight:600;}
+
+/* ── HERO ── */
+.hero{
+  padding:6rem 6rem 4rem;
+  max-width:1320px;margin:0 auto;
+  display:grid;grid-template-columns:5fr 4fr;gap:6rem;align-items:center;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--gold);background:rgba(18,130,138,0.1);
+  border:1px solid rgba(18,130,138,0.22);
+  padding:0.28rem 0.8rem;border-radius:2px;margin-bottom:1.6rem;
+}
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.8rem,5vw,4.8rem);
+  font-weight:700;line-height:1.0;letter-spacing:-0.02em;
+  margin-bottom:1.3rem;
+}
+.hero-title em{color:var(--teal);font-style:italic;}
+.hero-sub{
+  font-size:1rem;line-height:1.75;color:var(--slate);
+  font-weight:300;max-width:460px;margin-bottom:2.5rem;
+}
+.hero-quote{
+  padding:1.4rem 1.8rem;
+  border-left:3px solid var(--gold);
+  background:rgba(18,130,138,0.05);
+  border-radius:0 4px 4px 0;
+}
+.hq-text{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-style:italic;color:var(--ink);
+  line-height:1.6;margin-bottom:0.6rem;
+}
+.hq-attr{font-size:0.68rem;letter-spacing:0.06em;color:var(--slate);opacity:0.55;}
+
+/* before/after grid */
+.ba{border:1px solid var(--mist);border-radius:6px;overflow:hidden;}
+.ba-header{display:grid;grid-template-columns:1fr 1fr;}
+.ba-col{
+  padding:0.75rem 1.1rem;
+  font-size:0.65rem;letter-spacing:0.09em;text-transform:uppercase;font-weight:600;
+}
+.ba-col.bad{background:#eef8f8;color:var(--rust);border-bottom:2px solid #f5b8a8;}
+.ba-col.good{background:#f0f7f8;color:var(--teal);border-bottom:2px solid #b8dde0;}
+.ba-row{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--mist);}
+.ba-cell{padding:0.8rem 1.1rem;font-size:0.81rem;line-height:1.5;color:var(--slate);}
+.ba-cell.bad{background:#fffaf9;border-right:1px solid var(--mist);}
+.ba-cell.good{background:#f8fcfc;}
+.ba-cell.bad::before{content:'✗ ';color:#c06050;font-weight:700;}
+.ba-cell.good::before{content:'✓ ';color:var(--teal);font-weight:700;}
+
+/* ── SECTION SHARED ── */
+.section{
+  padding:5rem 6rem;border-top:1px solid var(--mist);
+  max-width:1320px;margin:0 auto;
+}
+.section.dark{
+  background:var(--ink);max-width:none;
+  padding:5rem 6rem;border-top:none;
+}
+.sec-label{
+  font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--gold);display:block;margin-bottom:0.8rem;
+}
+.dark .sec-label{color:var(--gold-lt);opacity:0.7;}
+.sec-heading{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;
+  line-height:1.1;letter-spacing:-0.02em;margin-bottom:0.9rem;
+}
+.dark .sec-heading{color:white;}
+.sec-intro{
+  font-size:0.95rem;line-height:1.75;color:var(--slate);
+  font-weight:300;max-width:580px;margin-bottom:0;
+}
+.dark .sec-intro{color:rgba(220,224,232,0.82);}
+
+/* ── PROBLEM ANATOMY TOOL ── */
+/* The four lenses for identifying a strong AI problem statement */
+.lenses{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:2px;background:var(--mist);
+  border:1px solid var(--mist);border-radius:8px;
+  overflow:hidden;margin-top:3rem;
+}
+.lens{
+  background:white;padding:2rem 1.6rem;
+  position:relative;transition:box-shadow 0.2s;
+}
+.lens:hover{box-shadow:0 4px 20px rgba(0,0,0,0.07);}
+.lens::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+}
+.lens:nth-child(1)::after{background:var(--gold);}
+.lens:nth-child(2)::after{background:var(--teal);}
+.lens:nth-child(3)::after{background:var(--rust);}
+.lens:nth-child(4)::after{background:#5a6a8a;}
+.lens-n{
+  font-family:'Cormorant Garamond',serif;
+  font-size:3rem;font-weight:700;line-height:1;
+  opacity:0.07;margin-bottom:0.3rem;
+}
+.lens:nth-child(1) .lens-n{color:var(--gold);}
+.lens:nth-child(2) .lens-n{color:var(--teal);}
+.lens:nth-child(3) .lens-n{color:var(--rust);}
+.lens:nth-child(4) .lens-n{color:#5a6a8a;}
+.lens-tag{
+  font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;
+  font-weight:600;margin-bottom:0.3rem;display:block;
+}
+.lens:nth-child(1) .lens-tag{color:var(--gold);}
+.lens:nth-child(2) .lens-tag{color:var(--teal);}
+.lens:nth-child(3) .lens-tag{color:var(--rust);}
+.lens:nth-child(4) .lens-tag{color:#5a6a8a;}
+.lens-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.5rem;font-weight:700;line-height:1.15;
+  margin-bottom:0.7rem;
+}
+.lens-desc{font-size:0.83rem;line-height:1.7;color:var(--slate);margin-bottom:1.2rem;}
+.lens-signal{
+  font-size:0.78rem;color:var(--slate);line-height:1.6;
+  padding:0.6rem 0.8rem;background:#fafaf8;
+  border-radius:3px;border-left:2px solid var(--mist);
+  font-style:italic;
+}
+
+/* lens anchor */
+.lens-anchor{
+  margin-top:1.5rem;
+  background:var(--ink);border-radius:4px;
+  padding:1.4rem 2rem;
+  display:flex;align-items:center;gap:1.5rem;
+}
+.la-label{
+  font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--gold-lt);opacity:0.7;white-space:nowrap;
+}
+.la-rule{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-style:italic;color:white;line-height:1.4;
+}
+
+/* ── AI PROBLEM TYPES ── */
+/* The four classes of AI problem — our original naming */
+.types{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;overflow:hidden;margin-top:3rem;
+}
+.ptype{
+  background:rgba(255,255,255,0.02);
+  padding:2rem 1.6rem;
+  border-right:1px solid rgba(255,255,255,0.06);
+  transition:background 0.2s;
+}
+.ptype:last-child{border-right:none;}
+.ptype:hover{background:rgba(255,255,255,0.05);}
+.ptype-icon{font-size:1.6rem;margin-bottom:0.8rem;}
+.ptype-tag{
+  display:inline-block;font-size:0.6rem;letter-spacing:0.09em;
+  text-transform:uppercase;padding:0.18rem 0.6rem;
+  border-radius:2px;margin-bottom:0.7rem;
+}
+.ptype:nth-child(1) .ptype-tag{background:rgba(18,130,138,0.15);color:var(--gold-lt);}
+.ptype:nth-child(2) .ptype-tag{background:rgba(42,155,165,0.15);color:var(--teal-lt);}
+.ptype:nth-child(3) .ptype-tag{background:rgba(12,95,102,0.15);color:#e08878;}
+.ptype:nth-child(4) .ptype-tag{background:rgba(200,200,255,0.08);color:#a0a8cc;}
+.ptype-title{
+  font-family:'Cormorant Garamond',serif;
+  color:white;font-size:1.15rem;font-weight:700;margin-bottom:0.5rem;
+}
+.ptype-desc{font-size:0.78rem;color:rgba(220,224,232,0.82);line-height:1.6;margin-bottom:1rem;}
+.ptype-example{
+  padding:0.7rem 0.8rem;
+  background:rgba(255,255,255,0.04);border-radius:3px;
+  font-size:0.72rem;color:rgba(220,224,232,0.60);
+  font-style:italic;line-height:1.5;
+}
+.ptype-ask{
+  margin-top:0.8rem;
+  font-size:0.72rem;color:rgba(220,224,232,0.50);
+  line-height:1.55;border-top:1px solid rgba(255,255,255,0.06);
+  padding-top:0.7rem;
+}
+.ptype-ask strong{color:rgba(255,255,255,0.4);}
+
+/* ── ACTION: CHECKLIST + PROBLEM STATEMENT BUILDER ── */
+.action-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;
+  margin-top:3rem;
+}
+
+/* checklist */
+.cl-group{margin-bottom:1.5rem;}
+.cl-group:last-child{margin-bottom:0;}
+.cl-head{
+  font-size:0.62rem;letter-spacing:0.09em;text-transform:uppercase;
+  font-weight:600;padding:0.6rem 1rem;border-radius:3px 3px 0 0;
+}
+.cl-head.s1{background:#eaf7f8;color:var(--gold);}
+.cl-head.s2{background:#f0f7f8;color:var(--teal);}
+.cl-item{
+  display:flex;align-items:flex-start;gap:0.7rem;
+  padding:0.7rem 1rem;border:1px solid var(--mist);border-top:none;
+  font-size:0.82rem;color:var(--slate);line-height:1.45;
+  cursor:pointer;transition:background 0.12s;background:white;
+}
+.cl-item:last-child{border-radius:0 0 3px 3px;}
+.cl-item:hover{background:#fafaf8;}
+.cl-item.done{color:#b0b8c0;text-decoration:line-through;}
+.cl-box{
+  width:16px;height:16px;border:1.5px solid var(--mist);
+  border-radius:2px;flex-shrink:0;margin-top:0.1rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.12s;
+}
+.cl-item.done .cl-box{background:var(--teal);border-color:var(--teal);}
+.cl-item.done .cl-box::after{content:'✓';color:white;font-size:0.6rem;font-weight:700;}
+
+/* problem statement builder */
+.psb{background:white;border:1px solid var(--mist);border-radius:6px;overflow:hidden;}
+.psb-head{
+  background:var(--ink);padding:1.2rem 1.6rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.psb-title{
+  font-family:'Cormorant Garamond',serif;
+  color:white;font-size:1.1rem;font-weight:600;
+}
+.psb-badge{
+  font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;
+  color:var(--gold-lt);background:rgba(18,130,138,0.15);
+  border:1px solid rgba(18,130,138,0.25);
+  padding:0.2rem 0.6rem;border-radius:2px;
+}
+.psb-body{padding:1.5rem;}
+.psb-intro{
+  font-size:0.8rem;color:var(--slate);line-height:1.6;
+  margin-bottom:1.3rem;padding:0.8rem 1rem;
+  background:#fafaf8;border-radius:3px;
+  border-left:2px solid var(--gold);
+}
+.psb-field{margin-bottom:1rem;}
+.psb-field:last-of-type{margin-bottom:0;}
+.psb-lbl{
+  font-size:0.68rem;letter-spacing:0.07em;text-transform:uppercase;
+  color:var(--slate);font-weight:600;margin-bottom:0.35rem;display:block;
+}
+.psb-lbl span{font-weight:400;color:#aaa;text-transform:none;letter-spacing:0;}
+.psb-in{
+  width:100%;background:#fafaf8;border:1px solid var(--mist);
+  border-radius:3px;padding:0.7rem 0.9rem;resize:vertical;
+  font-family:'Epilogue',sans-serif;font-size:0.83rem;
+  color:var(--ink);outline:none;transition:border-color 0.18s;
+  min-height:52px;
+}
+.psb-in:focus{border-color:var(--teal);}
+.psb-in::placeholder{color:#ccc;font-style:italic;}
+.psb-footer{
+  padding:1rem 1.5rem;border-top:1px solid var(--mist);
+  display:flex;gap:0.8rem;
+}
+.psb-btn{
+  padding:0.65rem 1.3rem;border-radius:3px;
+  font-family:'Epilogue',sans-serif;font-size:0.8rem;
+  font-weight:500;cursor:pointer;border:none;transition:all 0.2s;
+}
+.psb-btn.p{background:var(--ink);color:white;}
+.psb-btn.p:hover{background:var(--teal);}
+.psb-btn.s{background:none;color:var(--slate);border:1px solid var(--mist);}
+.psb-btn.s:hover{border-color:var(--teal);color:var(--teal);}
+
+/* go deeper */
+.go-deeper{
+  margin-top:2rem;
+  border:1px solid var(--mist);border-radius:5px;overflow:hidden;
+}
+.gd-toggle{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 1.4rem;background:white;cursor:pointer;
+  font-size:0.82rem;color:var(--slate);font-weight:500;
+  border:none;font-family:'Epilogue',sans-serif;transition:background 0.15s;
+}
+.gd-toggle:hover{background:#fafaf8;}
+.gd-icon{font-size:0.75rem;transition:transform 0.25s;color:var(--gold);}
+.gd-icon.open{transform:rotate(180deg);}
+.gd-body{display:none;padding:1.4rem;border-top:1px solid var(--mist);background:white;}
+.gd-body.open{display:block;}
+.gd-resource{
+  display:flex;align-items:flex-start;gap:0.8rem;
+  padding:0.6rem 0;border-bottom:1px solid var(--mist);
+  font-size:0.82rem;color:var(--slate);line-height:1.5;
+}
+.gd-resource:last-child{border-bottom:none;}
+.gd-resource a{color:var(--teal);text-decoration:none;}
+.gd-resource a:hover{text-decoration:underline;}
+.gd-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:0.45rem;}
+
+/* ── NEXT STAGE ── */
+.next{
+  background:var(--ink);padding:4rem 6rem;
+  display:flex;align-items:center;justify-content:space-between;gap:4rem;
+}
+.nl{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-lt);opacity:0.6;margin-bottom:0.6rem;display:block;}
+.next h2{font-family:'Cormorant Garamond',serif;font-size:2rem;color:white;font-weight:700;letter-spacing:-0.02em;margin-bottom:0.5rem;}
+.next p{font-size:0.85rem;color:rgba(220,224,232,0.75);line-height:1.6;max-width:500px;}
+.next-actions{display:flex;gap:1rem;align-items:center;flex-shrink:0;}
+.btn-p{background:var(--gold);color:var(--ink);padding:0.9rem 2rem;border-radius:3px;text-decoration:none;font-size:0.88rem;font-weight:600;transition:all 0.2s;white-space:nowrap;}
+.btn-p:hover{background:var(--gold-lt);transform:translateY(-1px);}
+.btn-s{color:rgba(255,255,255,0.3);text-decoration:none;font-size:0.82rem;transition:color 0.2s;white-space:nowrap;}
+.btn-s:hover{color:white;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.hero-left>*{animation:fadeUp 0.65s ease both;}
+.hero-left>*:nth-child(1){animation-delay:0.05s;}
+.hero-left>*:nth-child(2){animation-delay:0.15s;}
+.hero-left>*:nth-child(3){animation-delay:0.25s;}
+.hero-left>*:nth-child(4){animation-delay:0.35s;}
+.hero-right{animation:fadeUp 0.65s 0.25s ease both;}
+.reveal{opacity:0;transform:translateY(22px);transition:all 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <div class="nav-right">
+    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="our-model.html" class="nav-link">Our Model</a>
+    <a href="navigate-hub.html" class="nav-link">Framework</a>
+    <a href="about-us.html" class="nav-link">About</a>
+    <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+  </div>
+</nav>
+
+<!-- STAGE STRIP -->
+<div class="stage-strip">
+  <a href="stage1-define-strategy.html" class="ss done"><span class="ss-n">01</span> Define Strategy</a>
+  <a href="#" class="ss active"><span class="ss-n">02</span> Identify Problems</a>
+  <a href="#" class="ss"><span class="ss-n">03</span> Quantify & Prioritise</a>
+  <a href="#" class="ss"><span class="ss-n">04</span> Select Tools</a>
+  <a href="#" class="ss"><span class="ss-n">05</span> Data & Security</a>
+  <a href="#" class="ss"><span class="ss-n">06</span> Design & Test</a>
+  <a href="#" class="ss"><span class="ss-n">07</span> Monitor & Evolve</a>
+</div>
+
+<!-- ── SECTION 1: HERO ── -->
+<section style="padding-top:0;">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">✦ Stage 02 · Discovery</div>
+      <h1 class="hero-title">Name the<br><em>real problem.</em><br>Not the symptom.</h1>
+      <p class="hero-sub">Solving the wrong problem with excellence is still failure. This stage gives you a structured method to identify the right problems — and frame them in a way that AI can actually address.</p>
+      <div class="hero-quote">
+        <div class="hq-text">"The AI use cases that generate real business value are force multipliers — they drive multiple outcomes at once. The ones that fail are built around vague ambitions with no measurable baseline to improve on."</div>
+        <div class="hq-attr">Isaac Sacolick · Founder of StarCIO, Author of Digital Trailblazer</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="ba">
+        <div class="ba-header">
+          <div class="ba-col bad">⚠ Weak problem statements</div>
+          <div class="ba-col good">✦ Strong problem statements</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">"We want to use AI for customer service"</div>
+          <div class="ba-cell good">"We handle 200 tickets/week — 60% are the same 10 questions taking 8 mins each"</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">"Our reporting is inefficient"</div>
+          <div class="ba-cell good">"Our ops manager spends 4 hours every Monday pulling data from 3 systems manually"</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">"We need to improve our sales process"</div>
+          <div class="ba-cell good">"We lose 30% of leads because follow-up takes 48+ hours — it's a timing problem"</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">"Our team wastes too much time on admin"</div>
+          <div class="ba-cell good">"Proposal writing takes 3 hours per deal — same structure every time, only data changes"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 2: THE PROBLEM ANATOMY TOOL ── -->
+<section class="section reveal" id="anatomy">
+  <span class="sec-label">The NavigateAI Framework</span>
+  <h2 class="sec-heading">The Problem Anatomy Tool</h2>
+  <p class="sec-intro">A strong AI problem statement passes four tests. Run every candidate problem through all four lenses before deciding it's worth pursuing. Weak problems fail at least one.</p>
+
+  <div class="lenses">
+    <div class="lens">
+      <div class="lens-n">L1</div>
+      <span class="lens-tag">Decision</span>
+      <div class="lens-title">What decision does this improve?</div>
+      <div class="lens-desc">Every valuable AI problem sits behind a real decision someone needs to make better, faster, or more consistently. If you can't name the decision, you haven't found the problem yet.</div>
+      <div class="lens-signal">"If AI solved this, who would make a different decision — and what would they decide differently?"</div>
+    </div>
+    <div class="lens">
+      <div class="lens-n">L2</div>
+      <span class="lens-tag">Frequency</span>
+      <div class="lens-title">How often does this happen?</div>
+      <div class="lens-desc">AI delivers the most value on problems that repeat. A task done once a year is not an AI candidate. A task done 200 times a week almost always is. Frequency is what turns a fix into a force multiplier.</div>
+      <div class="lens-signal">"How many times per week does this occur — and what does each occurrence cost in time, money, or quality?"</div>
+    </div>
+    <div class="lens">
+      <div class="lens-n">L3</div>
+      <span class="lens-tag">Data</span>
+      <div class="lens-title">Is there data to learn from?</div>
+      <div class="lens-desc">AI systems learn from patterns in past examples. If the problem has never been documented, measured, or logged, there is nothing for AI to work with. Data availability is a hard prerequisite, not an afterthought.</div>
+      <div class="lens-signal">"Does a record exist of how this has been handled before — and is that record accessible and consistent?"</div>
+    </div>
+    <div class="lens">
+      <div class="lens-n">L4</div>
+      <span class="lens-tag">Impact</span>
+      <div class="lens-title">Does solving it actually matter?</div>
+      <div class="lens-desc">Not every inefficiency is worth fixing with AI. The best problems have a clear downstream impact — on revenue, customer experience, employee time, or risk. If solving it doesn't visibly move a metric, reconsider.</div>
+      <div class="lens-signal">"If this problem were solved tomorrow, what would get measurably better — and how would you know?"</div>
+    </div>
+  </div>
+
+  <div class="lens-anchor">
+    <span class="la-label">The rule of thumb</span>
+    <span class="la-q">A strong AI problem is one you can describe in a single sentence: who has the problem, what they're doing instead, how often, and what it costs. If it takes a paragraph, keep digging.</span>
+  </div>
+</section>
+
+<!-- ── SECTION 3: FOUR AI PROBLEM TYPES ── -->
+<section class="section dark reveal" id="types">
+  <div style="max-width:1200px;margin:0 auto;">
+    <span class="sec-label">Match Problem to AI Type</span>
+    <h2 class="sec-heading">The Four Problem Classes</h2>
+    <p class="sec-intro">Not all problems need the same kind of AI. Matching the problem class to the right AI approach is what separates fast wins from expensive experiments. Identify your class before you look at tools.</p>
+
+    <div class="types">
+      <div class="ptype">
+        <div class="ptype-icon">⚙️</div>
+        <span class="ptype-tag">Automation</span>
+        <div class="ptype-title">Repetitive Tasks</div>
+        <div class="ptype-desc">The same structured steps, repeated at volume. Human involvement adds no judgment value — only time and cost.</div>
+        <div class="ptype-example">"We manually copy invoice data from email into our accounting system — 50 invoices a day."</div>
+        <div class="ptype-ask"><strong>Ask:</strong> Could this be done without any human thinking — just following a consistent rule or pattern?</div>
+      </div>
+      <div class="ptype">
+        <div class="ptype-icon">🔭</div>
+        <span class="ptype-tag">Insight</span>
+        <div class="ptype-title">Slow or Blind Decisions</div>
+        <div class="ptype-desc">Decisions that are delayed, inconsistent, or risky because the right information isn't surfaced at the right time.</div>
+        <div class="ptype-example">"We make inventory decisions on Mondays using data that's already 5 days old."</div>
+        <div class="ptype-ask"><strong>Ask:</strong> Is a decision being made slower or worse than it should be because someone lacks timely, accurate information?</div>
+      </div>
+      <div class="ptype">
+        <div class="ptype-icon">✍️</div>
+        <span class="ptype-tag">Creation</span>
+        <div class="ptype-title">Repetitive Content Work</div>
+        <div class="ptype-desc">Writing, summarising, translating, or formatting the same types of content repeatedly — where structure is consistent but data changes.</div>
+        <div class="ptype-example">"Every proposal has the same sections. Only the client details and pricing change."</div>
+        <div class="ptype-ask"><strong>Ask:</strong> Is a human producing content that follows a predictable structure most of the time — just with different inputs?</div>
+      </div>
+      <div class="ptype">
+        <div class="ptype-icon">🔗</div>
+        <span class="ptype-tag">Coordination</span>
+        <div class="ptype-title">Multi-Step Workflows</div>
+        <div class="ptype-desc">Complex processes that span multiple tools, people, or systems — where handoffs are manual, slow, or prone to something falling through the cracks.</div>
+        <div class="ptype-example">"Onboarding a new client touches 4 systems and 3 people across 2 weeks. Steps get missed."</div>
+        <div class="ptype-ask"><strong>Ask:</strong> Is something getting dropped, delayed, or done inconsistently because coordination depends on human memory?</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 4: ACTION ── -->
+<section class="section reveal" id="action">
+  <span class="sec-label">Stage 2 — Take Action</span>
+  <h2 class="sec-heading">Find your problems. Frame them properly.</h2>
+  <p class="sec-intro">Use the checklist to confirm you've identified the right candidates, then use the Problem Statement Builder to write them up clearly — one per problem, ready to take into Stage 3.</p>
+
+  <div class="action-grid">
+    <!-- CHECKLIST -->
+    <div>
+      <div class="cl-group">
+        <div class="cl-head s1">✦ Your problem is ready when…</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>You can describe it in one sentence — who, what, how often, what it costs</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>You've named the decision it improves — not just the task it replaces</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>It happens frequently enough that solving it compounds over time</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>There is existing data or a clear path to create it</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>You know which of the four problem classes it belongs to</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Solving it moves a metric your business already cares about</div>
+      </div>
+      <div class="cl-group">
+        <div class="cl-head s2">✓ Common mistakes to avoid</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not chasing a problem because a tool exists for it</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not confusing symptoms ("slow reporting") for root problems</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not selecting problems that only happen occasionally</div>
+      </div>
+
+      <div class="go-deeper">
+        <button class="gd-toggle" onclick="toggleDeeper(this)">
+          <span>📚 Go deeper — expert reading on problem identification</span>
+          <span class="gd-icon">▼</span>
+        </button>
+        <div class="gd-body">
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>Micheline Casey</strong> — Value-driven AI: building data products that solve real business problems. <a href="https://www.linkedin.com/in/michelinecasey/" target="_blank">linkedin.com/in/michelinecasey</a></div>
+          </div>
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>Isaac Sacolick</strong> — 8 AI use cases to drive digital transformation: look for force multipliers. <a href="https://drive.starcio.com" target="_blank">drive.starcio.com</a></div>
+          </div>
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>Pascal Bornet</strong> — 500+ real-world AI use cases across industries, from automation to agentic AI. <a href="https://pascalbornet.com" target="_blank">pascalbornet.com</a></div>
+          </div>
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>McKinsey QuantumBlack</strong> — Seizing the Agentic AI Advantage: how to identify workflow automation candidates. <a href="https://mckinsey.com/capabilities/quantumblack" target="_blank">mckinsey.com</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROBLEM STATEMENT BUILDER -->
+    <div class="psb">
+      <div class="psb-head">
+        <div class="psb-title">✦ Problem Statement Builder</div>
+        <div class="psb-badge">One per problem</div>
+      </div>
+      <div class="psb-body">
+        <div class="psb-intro">
+          Complete one of these for every candidate problem before Stage 3. The goal is one clear sentence per problem that a non-technical stakeholder could understand and agree with.
+        </div>
+        <div class="psb-field">
+          <label class="psb-lbl">The problem <span>· describe in plain language</span></label>
+          <textarea class="psb-in" placeholder="e.g. Our ops team manually compiles a weekly status report by pulling data from three separate systems…"></textarea>
+        </div>
+        <div class="psb-field">
+          <label class="psb-lbl">Who has this problem <span>· role and team</span></label>
+          <textarea class="psb-in" style="min-height:42px;" placeholder="e.g. Our Operations Manager, every Monday morning…"></textarea>
+        </div>
+        <div class="psb-field">
+          <label class="psb-lbl">Frequency & cost <span>· how often, how long, what it costs</span></label>
+          <textarea class="psb-in" style="min-height:42px;" placeholder="e.g. 3 hours every Monday — roughly 150 hours per year of senior ops time…"></textarea>
+        </div>
+        <div class="psb-field">
+          <label class="psb-lbl">The decision it improves <span>· what gets better downstream</span></label>
+          <textarea class="psb-in" style="min-height:42px;" placeholder="e.g. Leadership gets same-day visibility into ops status instead of waiting until Tuesday…"></textarea>
+        </div>
+        <div class="psb-field">
+          <label class="psb-lbl">Problem class <span>· Automation / Insight / Creation / Coordination</span></label>
+          <textarea class="psb-in" style="min-height:42px;" placeholder="e.g. Automation — the task is structured and repetitive, no judgment required…"></textarea>
+        </div>
+      </div>
+      <div class="psb-footer">
+        <button class="psb-btn p" onclick="alert('Production: saves & downloads PDF')">Save Statement →</button>
+        <button class="psb-btn s" onclick="alert('Production: adds another problem')">+ Add Another</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT STAGE -->
+<div class="next">
+  <div>
+    <span class="nl">Up next · Stage 03</span>
+    <h2>Quantify & Prioritise</h2>
+    <p>With your problem statements in hand, Stage 3 gives you a scoring method to rank them — separating the quick wins worth investing in now from the longer bets worth planning for later.</p>
+  </div>
+  <div class="next-actions">
+    <a href="stage3-quantify-prioritise.html" class="btn-p">Continue to Stage 3 →</a>
+    <a href="stage1-define-strategy.html" class="btn-s">← Back to Stage 1</a>
+  </div>
+</div>
+
+<script>
+function tick(el) { el.classList.toggle('done'); }
+function toggleDeeper(btn) {
+  const body = btn.nextElementSibling;
+  const icon = btn.querySelector('.gd-icon');
+  body.classList.toggle('open');
+  icon.classList.toggle('open');
+}
+const obs = new IntersectionObserver(
+  entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }),
+  { threshold: 0.08 }
+);
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

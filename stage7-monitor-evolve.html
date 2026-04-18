@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stage 7: Monitor & Evolve — NavigateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* Shared CSS for Stages 5, 6, 7 */
+:root{--ink:#111118;--paper:#f8f8f7;--gold:#12828a;--gold-lt:#38b5bc;--teal:#12828a;--teal-lt:#38b5bc;--rust:#0c5f66;--slate:#444450;--mist:#e0e0de;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:'Epilogue',sans-serif;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 4rem;background:rgba(247,244,238,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--mist);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-0.01em;}
+.nav-logo span{color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:2rem;}
+.nav-link{text-decoration:none;color:var(--slate);font-size:0.82rem;font-weight:500;transition:color 0.2s;}
+.nav-link:hover{color:var(--teal);}
+.nav-cta{background:var(--ink);color:var(--paper);padding:0.55rem 1.3rem;border-radius:2px;font-size:0.78rem;font-weight:500;text-decoration:none;transition:background 0.2s;}
+.nav-cta:hover{background:var(--teal);}
+.stage-strip{margin-top:4.4rem;background:var(--ink);padding:0.75rem 4rem;display:flex;gap:0;overflow-x:auto;}
+.ss{display:flex;align-items:center;gap:0.45rem;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(220,224,232,0.50);padding:0 1rem;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.06);text-decoration:none;transition:color 0.2s;}
+.ss:last-child{border-right:none;}.ss.done{color:rgba(255,255,255,0.4);}.ss.active{color:var(--gold-lt);}
+.ss-n{font-family:'Cormorant Garamond',serif;font-size:0.85rem;font-weight:600;}
+.hero{padding:6rem 6rem 4rem;max-width:1320px;margin:0 auto;display:grid;grid-template-columns:5fr 4fr;gap:6rem;align-items:center;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);background:rgba(18,130,138,0.1);border:1px solid rgba(18,130,138,0.22);padding:0.28rem 0.8rem;border-radius:2px;margin-bottom:1.6rem;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5vw,4.8rem);font-weight:700;line-height:1.0;letter-spacing:-0.02em;margin-bottom:1.3rem;}
+.hero-title em{color:var(--teal);font-style:italic;}
+.hero-sub{font-size:1rem;line-height:1.75;color:var(--slate);font-weight:300;max-width:460px;margin-bottom:2.5rem;}
+.hero-quote{padding:1.4rem 1.8rem;border-left:3px solid var(--gold);background:rgba(18,130,138,0.05);border-radius:0 4px 4px 0;}
+.hq-text{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;color:var(--ink);line-height:1.6;margin-bottom:0.6rem;}
+.hq-attr{font-size:0.68rem;letter-spacing:0.06em;color:var(--slate);opacity:0.55;}
+.ba{border:1px solid var(--mist);border-radius:6px;overflow:hidden;}
+.ba-header{display:grid;grid-template-columns:1fr 1fr;}
+.ba-col{padding:0.75rem 1.1rem;font-size:0.65rem;letter-spacing:0.09em;text-transform:uppercase;font-weight:600;}
+.ba-col.bad{background:#eef8f8;color:var(--rust);border-bottom:2px solid #f5b8a8;}
+.ba-col.good{background:#f0f7f8;color:var(--teal);border-bottom:2px solid #b8dde0;}
+.ba-row{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--mist);}
+.ba-cell{padding:0.8rem 1.1rem;font-size:0.81rem;line-height:1.5;color:var(--slate);}
+.ba-cell.bad{background:#fffaf9;border-right:1px solid var(--mist);}
+.ba-cell.good{background:#f8fcfc;}
+.ba-cell.bad::before{content:'✗ ';color:#c06050;font-weight:700;}
+.ba-cell.good::before{content:'✓ ';color:var(--teal);font-weight:700;}
+.section{padding:5rem 6rem;border-top:1px solid var(--mist);max-width:1320px;margin:0 auto;}
+.section.dark{background:var(--ink);max-width:none;padding:5rem 6rem;border-top:none;}
+.sec-label{font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:0.8rem;}
+.dark .sec-label{color:var(--gold-lt);opacity:0.7;}
+.sec-heading{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;line-height:1.1;letter-spacing:-0.02em;margin-bottom:0.9rem;}
+.dark .sec-heading{color:white;}
+.sec-intro{font-size:0.95rem;line-height:1.75;color:var(--slate);font-weight:300;max-width:580px;}
+.dark .sec-intro{color:rgba(220,224,232,0.82);}
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;margin-top:3rem;}
+.cl-group{margin-bottom:1.5rem;}.cl-group:last-child{margin-bottom:0;}
+.cl-head{font-size:0.62rem;letter-spacing:0.09em;text-transform:uppercase;font-weight:600;padding:0.6rem 1rem;border-radius:3px 3px 0 0;}
+.cl-head.s1{background:#eaf7f8;color:var(--gold);}.cl-head.s2{background:#f0f7f8;color:var(--teal);}
+.cl-item{display:flex;align-items:flex-start;gap:0.7rem;padding:0.7rem 1rem;border:1px solid var(--mist);border-top:none;font-size:0.82rem;color:var(--slate);line-height:1.45;cursor:pointer;transition:background 0.12s;background:white;}
+.cl-item:last-child{border-radius:0 0 3px 3px;}.cl-item:hover{background:#fafaf8;}.cl-item.done{color:#b0b8c0;text-decoration:line-through;}
+.cl-box{width:16px;height:16px;border:1.5px solid var(--mist);border-radius:2px;flex-shrink:0;margin-top:0.1rem;display:flex;align-items:center;justify-content:center;transition:all 0.12s;}
+.cl-item.done .cl-box{background:var(--teal);border-color:var(--teal);}
+.cl-item.done .cl-box::after{content:'✓';color:white;font-size:0.6rem;font-weight:700;}
+.worksheet{background:white;border:1px solid var(--mist);border-radius:6px;overflow:hidden;}
+.ws-head{background:var(--ink);padding:1.2rem 1.6rem;display:flex;align-items:center;justify-content:space-between;}
+.ws-title{font-family:'Cormorant Garamond',serif;color:white;font-size:1.1rem;font-weight:600;}
+.ws-badge{font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--gold-lt);background:rgba(18,130,138,0.15);border:1px solid rgba(18,130,138,0.25);padding:0.2rem 0.6rem;border-radius:2px;}
+.ws-body{padding:1.5rem;}
+.ws-intro{font-size:0.8rem;color:var(--slate);line-height:1.6;margin-bottom:1.2rem;padding:0.8rem 1rem;background:#fafaf8;border-radius:3px;border-left:2px solid var(--gold);}
+.ws-field{margin-bottom:1rem;}.ws-field:last-of-type{margin-bottom:0;}
+.ws-lbl{font-size:0.68rem;letter-spacing:0.07em;text-transform:uppercase;color:var(--slate);font-weight:600;margin-bottom:0.35rem;display:block;}
+.ws-lbl span{font-weight:400;color:#aaa;text-transform:none;letter-spacing:0;}
+.ws-in{width:100%;background:#fafaf8;border:1px solid var(--mist);border-radius:3px;padding:0.7rem 0.9rem;resize:vertical;font-family:'Epilogue',sans-serif;font-size:0.83rem;color:var(--ink);outline:none;transition:border-color 0.18s;min-height:52px;}
+.ws-in:focus{border-color:var(--teal);}.ws-in::placeholder{color:#ccc;font-style:italic;}
+.ws-footer{padding:1rem 1.5rem;border-top:1px solid var(--mist);display:flex;gap:0.8rem;}
+.ws-btn{padding:0.65rem 1.3rem;border-radius:3px;font-family:'Epilogue',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;border:none;transition:all 0.2s;}
+.ws-btn.p{background:var(--ink);color:white;}.ws-btn.p:hover{background:var(--teal);}
+.ws-btn.s{background:none;color:var(--slate);border:1px solid var(--mist);}.ws-btn.s:hover{border-color:var(--teal);color:var(--teal);}
+.go-deeper{margin-top:2rem;border:1px solid var(--mist);border-radius:5px;overflow:hidden;}
+.gd-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.4rem;background:white;cursor:pointer;font-size:0.82rem;color:var(--slate);font-weight:500;border:none;font-family:'Epilogue',sans-serif;transition:background 0.15s;}
+.gd-toggle:hover{background:#fafaf8;}.gd-icon{font-size:0.75rem;transition:transform 0.25s;color:var(--gold);}.gd-icon.open{transform:rotate(180deg);}
+.gd-body{display:none;padding:1.4rem;border-top:1px solid var(--mist);background:white;}.gd-body.open{display:block;}
+.gd-resource{display:flex;align-items:flex-start;gap:0.8rem;padding:0.6rem 0;border-bottom:1px solid var(--mist);font-size:0.82rem;color:var(--slate);line-height:1.5;}
+.gd-resource:last-child{border-bottom:none;}.gd-resource a{color:var(--teal);text-decoration:none;}.gd-resource a:hover{text-decoration:underline;}
+.gd-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:0.45rem;}
+.next{background:var(--ink);padding:4rem 6rem;display:flex;align-items:center;justify-content:space-between;gap:4rem;}
+.nl{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-lt);opacity:0.6;margin-bottom:0.6rem;display:block;}
+.next h2{font-family:'Cormorant Garamond',serif;font-size:2rem;color:white;font-weight:700;letter-spacing:-0.02em;margin-bottom:0.5rem;}
+.next p{font-size:0.85rem;color:rgba(220,224,232,0.75);line-height:1.6;max-width:500px;}
+.next-actions{display:flex;gap:1rem;align-items:center;flex-shrink:0;}
+.btn-p{background:var(--gold);color:var(--ink);padding:0.9rem 2rem;border-radius:3px;text-decoration:none;font-size:0.88rem;font-weight:600;transition:all 0.2s;white-space:nowrap;}
+.btn-p:hover{background:var(--gold-lt);transform:translateY(-1px);}
+.btn-s{color:rgba(255,255,255,0.3);text-decoration:none;font-size:0.82rem;transition:color 0.2s;white-space:nowrap;}
+.btn-s:hover{color:white;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.hero-left>*{animation:fadeUp 0.65s ease both;}
+.hero-left>*:nth-child(1){animation-delay:0.05s;}.hero-left>*:nth-child(2){animation-delay:0.15s;}
+.hero-left>*:nth-child(3){animation-delay:0.25s;}.hero-left>*:nth-child(4){animation-delay:0.35s;}
+.hero-right{animation:fadeUp 0.65s 0.25s ease both;}
+.reveal{opacity:0;transform:translateY(22px);transition:all 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* Stage 7 specific */
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--mist);border:1px solid var(--mist);border-radius:8px;overflow:hidden;margin-top:3rem;}
+.metric{background:white;padding:2rem 1.6rem;position:relative;transition:box-shadow 0.2s;}
+.metric:hover{box-shadow:0 4px 20px rgba(0,0,0,0.07);}
+.metric::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.metric:nth-child(1)::after{background:var(--gold);}
+.metric:nth-child(2)::after{background:var(--teal);}
+.metric:nth-child(3)::after{background:var(--rust);}
+.metric:nth-child(4)::after{background:#5a6a8a;}
+.metric:nth-child(5)::after{background:#7a9a5a;}
+.metric-n{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:700;line-height:1;opacity:0.07;margin-bottom:0.3rem;}
+.metric:nth-child(1) .metric-n{color:var(--gold);}
+.metric:nth-child(2) .metric-n{color:var(--teal);}
+.metric:nth-child(3) .metric-n{color:var(--rust);}
+.metric:nth-child(4) .metric-n{color:#5a6a8a;}
+.metric:nth-child(5) .metric-n{color:#7a9a5a;}
+.metric-tag{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;margin-bottom:0.3rem;display:block;}
+.metric:nth-child(1) .metric-tag{color:var(--gold);}
+.metric:nth-child(2) .metric-tag{color:var(--teal);}
+.metric:nth-child(3) .metric-tag{color:var(--rust);}
+.metric:nth-child(4) .metric-tag{color:#5a6a8a;}
+.metric:nth-child(5) .metric-tag{color:#7a9a5a;}
+.metric-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;line-height:1.1;margin-bottom:0.6rem;}
+.metric-desc{font-size:0.82rem;line-height:1.65;color:var(--slate);margin-bottom:0.8rem;}
+.metric-example{font-size:0.75rem;color:#aaa;font-style:italic;line-height:1.5;padding:0.6rem 0.8rem;background:#fafaf8;border-radius:3px;}
+.anchor-bar{margin-top:1.5rem;background:var(--ink);border-radius:4px;padding:1.4rem 2rem;display:flex;align-items:center;gap:1.5rem;}
+.ab-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-lt);opacity:0.7;white-space:nowrap;}
+.ab-rule{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;color:white;line-height:1.4;}
+.review-cycles{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;margin-top:3rem;}
+.cycle{padding:2rem 1.8rem;background:rgba(255,255,255,0.02);}
+.cycle-period{font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;padding:0.18rem 0.6rem;border-radius:2px;margin-bottom:0.8rem;display:inline-block;}
+.cycle:nth-child(1) .cycle-period{background:rgba(18,130,138,0.15);color:var(--gold-lt);}
+.cycle:nth-child(2) .cycle-period{background:rgba(42,155,165,0.15);color:var(--teal-lt);}
+.cycle:nth-child(3) .cycle-period{background:rgba(122,154,90,0.15);color:#9aba70;}
+.cycle-title{font-family:'Cormorant Garamond',serif;color:white;font-size:1.15rem;font-weight:700;margin-bottom:0.5rem;}
+.cycle-desc{font-size:0.78rem;color:rgba(220,224,232,0.82);line-height:1.6;margin-bottom:1rem;}
+.cycle-item{font-size:0.75rem;color:rgba(220,224,232,0.60);padding:0.4rem 0;border-top:1px solid rgba(255,255,255,0.05);display:flex;gap:0.5rem;line-height:1.4;}
+.cycle-item::before{content:'·';flex-shrink:0;}
+/* completion badge */
+.completion-banner{margin-top:3rem;background:linear-gradient(135deg,rgba(18,130,138,0.15),rgba(18,130,138,0.1));border:1px solid rgba(18,130,138,0.2);border-radius:8px;padding:2.5rem;text-align:center;}
+.cb-icon{font-size:2.5rem;margin-bottom:1rem;}
+.cb-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;margin-bottom:0.7rem;}
+.cb-desc{font-size:0.9rem;color:var(--slate);line-height:1.7;max-width:540px;margin:0 auto 2rem;}
+.cb-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+.cb-btn{padding:0.85rem 1.8rem;border-radius:3px;font-family:'Epilogue',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-decoration:none;}
+.cb-btn.primary{background:var(--teal);color:white;border:none;}
+.cb-btn.primary:hover{background:var(--teal-lt);transform:translateY(-1px);}
+.cb-btn.secondary{background:none;color:var(--slate);border:1px solid var(--mist);}
+.cb-btn.secondary:hover{border-color:var(--teal);color:var(--teal);}
+</style>
+</head>
+<body>
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <div class="nav-right">
+    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="our-model.html" class="nav-link">Our Model</a>
+    <a href="navigate-hub.html" class="nav-link">Framework</a>
+    <a href="about-us.html" class="nav-link">About</a>
+    <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+  </div>
+</nav>
+<div class="stage-strip">
+  <a href="stage1-define-strategy.html" class="ss done"><span class="ss-n">01</span> Define Strategy</a>
+  <a href="stage2-identify-problems.html" class="ss done"><span class="ss-n">02</span> Identify Problems</a>
+  <a href="stage3-quantify-prioritise.html" class="ss done"><span class="ss-n">03</span> Quantify & Prioritise</a>
+  <a href="stage4-select-tools.html" class="ss done"><span class="ss-n">04</span> Select Tools</a>
+  <a href="stage5-data-security.html" class="ss done"><span class="ss-n">05</span> Data & Security</a>
+  <a href="stage6-design-test.html" class="ss done"><span class="ss-n">06</span> Design & Test</a>
+  <a href="#" class="ss active"><span class="ss-n">07</span> Monitor & Evolve</a>
+</div>
+<section style="padding-top:0;">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">✦ Stage 07 · Operations</div>
+      <h1 class="hero-title">Deployment is<br>not the<br><em>finish line.</em></h1>
+      <p class="hero-sub">The organisations that get the most from AI treat every deployed system as the beginning of a learning cycle, not a completed project. Stage 7 gives you the monitoring habits that turn a first deployment into compounding value.</p>
+      <div class="hero-quote">
+        <div class="hq-text">"The companies that thrive with AI are not those that automate the fastest. They are the ones that measure relentlessly, learn continuously, and use each implementation to make the next one smarter."</div>
+        <div class="hq-attr">Bernard Marr · Futurist & Strategic Advisor · Author of AI Strategy, AI in Practice</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="ba">
+        <div class="ba-header">
+          <div class="ba-col bad">⚠ Set and forget</div>
+          <div class="ba-col good">✦ Monitor and evolve</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">No one checks performance after launch — degradation goes unnoticed for months</div>
+          <div class="ba-cell good">Weekly performance check takes 15 minutes — issues caught before they compound</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">Model drift: the system keeps running but the quality of outputs has quietly declined</div>
+          <div class="ba-cell good">Baseline metrics established at launch — any drift is visible immediately</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">Users stop trusting the output but nobody tells the owner — adoption quietly dies</div>
+          <div class="ba-cell good">Monthly user feedback loop surfaces trust issues before they become adoption failures</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">First deployment is treated as finished — no learning captured for the next initiative</div>
+          <div class="ba-cell good">Every deployment generates learnings that make the next initiative faster and cheaper</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: THE 5 HEALTH METRICS -->
+<section class="section reveal" id="metrics">
+  <span class="sec-label">The NavigateAI Framework</span>
+  <h2 class="sec-heading">The AI Health Dashboard</h2>
+  <p class="sec-intro">Every live AI system should be tracked on five metrics. They take under 15 minutes to check weekly — and they catch 95% of the issues that cause live systems to quietly fail.</p>
+  <div class="metrics-grid">
+    <div class="metric">
+      <div class="metric-n">M1</div>
+      <span class="metric-tag">Outcome</span>
+      <div class="metric-title">Is it still hitting the target?</div>
+      <div class="metric-desc">Track the primary metric you defined in Stage 6 against your baseline. If the gap between target and actual is widening, something has changed — in the data, the tool, or the workflow.</div>
+      <div class="metric-example">e.g. "Report generated within 2 hours of Monday 9am — achieved 7/8 weeks. One failure due to API outage — documented."</div>
+    </div>
+    <div class="metric">
+      <div class="metric-n">M2</div>
+      <span class="metric-tag">Accuracy</span>
+      <div class="metric-title">Are the outputs still correct?</div>
+      <div class="metric-desc">Spot-check a sample of outputs against what a human would produce. If accuracy is declining, the model may be drifting or the underlying data may have changed in ways the system wasn't designed to handle.</div>
+      <div class="metric-example">e.g. "Spot-checked 10 outputs this week — 9/10 correct. One anomaly in the new product category data — flagged for investigation."</div>
+    </div>
+    <div class="metric">
+      <div class="metric-n">M3</div>
+      <span class="metric-tag">Adoption</span>
+      <div class="metric-title">Are people actually using it?</div>
+      <div class="metric-desc">A system that runs perfectly but isn't used has failed in the most important way. Track usage frequency and ask users directly whether the output is useful — not just whether the system is running.</div>
+      <div class="metric-example">e.g. "Report used by all 4 intended recipients every week. 3/4 say it saves significant time. 1 prefers manual version — investigating why."</div>
+    </div>
+    <div class="metric">
+      <div class="metric-n">M4</div>
+      <span class="metric-tag">Cost</span>
+      <div class="metric-title">Is the cost still justified?</div>
+      <div class="metric-desc">Track actual usage-based costs (API calls, compute, storage) against your model. AI tool costs can compound quickly at scale. Confirm the ROI case holds as usage grows.</div>
+      <div class="metric-example">e.g. "Monthly cost: $340 vs $320 estimated. Within tolerance. At projected growth rate, will hit $500 by Q3 — reassess pricing tier."</div>
+    </div>
+    <div class="metric">
+      <div class="metric-n">M5</div>
+      <span class="metric-tag">Trust</span>
+      <div class="metric-title">Do users trust the output?</div>
+      <div class="metric-desc">If users are double-checking every output or quietly reverting to manual processes, trust has eroded. This is the leading indicator of adoption failure — and it's invisible unless you ask.</div>
+      <div class="metric-example">e.g. "Monthly pulse: 'Do you trust this output without checking?' — 3/4 yes, 1 sometimes. No regression from last month."</div>
+    </div>
+  </div>
+  <div class="anchor-bar">
+    <span class="ab-label">The monitoring rule</span>
+    <span class="ab-rule">15 minutes per week reviewing five metrics is all it takes to catch 95% of the issues that cause live AI systems to quietly fail. The cost of not monitoring is always higher.</span>
+  </div>
+</section>
+
+<!-- SECTION 3: REVIEW CYCLES -->
+<section class="section dark reveal" id="cycles">
+  <div style="max-width:1200px;margin:0 auto;">
+    <span class="sec-label">Sustaining Performance Over Time</span>
+    <h2 class="sec-heading">Three Review Cycles</h2>
+    <p class="sec-intro">Different questions require different cadences. These three review cycles ensure your AI system stays relevant, accurate, and aligned with your business as both evolve.</p>
+    <div class="review-cycles">
+      <div class="cycle">
+        <span class="cycle-period">Weekly · 15 minutes</span>
+        <div class="cycle-title">The Health Check</div>
+        <div class="cycle-desc">A quick scan of the five health metrics. Flag any anomaly. Log it. No action required unless something is clearly wrong.</div>
+        <div class="cycle-item">Check outcome metric against baseline</div>
+        <div class="cycle-item">Spot-check 3–5 recent outputs for accuracy</div>
+        <div class="cycle-item">Confirm usage is on track</div>
+        <div class="cycle-item">Review any system errors or failures from the week</div>
+      </div>
+      <div class="cycle">
+        <span class="cycle-period">Monthly · 1 hour</span>
+        <div class="cycle-title">The Performance Review</div>
+        <div class="cycle-desc">A deeper look at trends across all five metrics. Is performance stable, improving, or declining? Does anything need to be escalated to the AI sponsor?</div>
+        <div class="cycle-item">Review metric trends over the past 4 weeks</div>
+        <div class="cycle-item">Collect user feedback — ask directly, not just via surveys</div>
+        <div class="cycle-item">Review cost trajectory against the original ROI model</div>
+        <div class="cycle-item">Identify any data quality changes that may be affecting outputs</div>
+      </div>
+      <div class="cycle">
+        <span class="cycle-period">Quarterly · Half-day</span>
+        <div class="cycle-title">The Strategic Review</div>
+        <div class="cycle-desc">A broader assessment — is this system still solving the right problem? Has the business changed in ways that require the AI to be retrained, reconfigured, or replaced?</div>
+        <div class="cycle-item">Review against the original problem statement from Stage 2</div>
+        <div class="cycle-item">Assess whether the tool or model needs updating</div>
+        <div class="cycle-item">Identify the next initiative to add to the pipeline from Stage 3</div>
+        <div class="cycle-item">Update the AI Sponsor on the full portfolio status</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: ACTION + COMPLETION -->
+<section class="section reveal" id="action">
+  <span class="sec-label">Stage 7 — Take Action</span>
+  <h2 class="sec-heading">Establish your monitoring. Build the habit.</h2>
+  <p class="sec-intro">Monitoring is a habit, not a system. Use the checklist to confirm your monitoring structure is in place, then use the worksheet to document your health dashboard for this deployment.</p>
+  <div class="action-grid">
+    <div>
+      <div class="cl-group">
+        <div class="cl-head s1">✦ Monitoring is active when…</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>All five health metrics have baselines recorded at launch</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>A named production owner has a weekly 15-minute monitoring slot blocked</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>A monthly performance review is scheduled with the AI Sponsor</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>A threshold for "pull from production" is documented — not just implied</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Learnings from this deployment are captured for the next initiative</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>The next problem from Stage 3 has been identified and the cycle begins again</div>
+      </div>
+      <div class="cl-group">
+        <div class="cl-head s2">✓ Common mistakes to avoid</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not treating deployment as a milestone — monitoring starts on day one</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not waiting for something to break before establishing the review habit</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not letting the first deployment be the last — the value compounds with each one</div>
+      </div>
+      <div class="go-deeper">
+        <button class="gd-toggle" onclick="toggleDeeper(this)">
+          <span>📚 Go deeper — expert reading on AI monitoring & value</span>
+          <span class="gd-icon">▼</span>
+        </button>
+        <div class="gd-body">
+          <div class="gd-resource"><div class="gd-dot"></div><div><strong>Bernard Marr</strong> — AI in Practice: 50 case studies of organisations measuring and compounding AI value. <a href="https://bernardmarr.com" target="_blank">bernardmarr.com</a></div></div>
+          <div class="gd-resource"><div class="gd-dot"></div><div><strong>Nick Dani · Deloitte</strong> — AI and data practice: scaling AI from pilots to enterprise-wide operations. <a href="https://www.deloitte.com/us/en/services/consulting/artificial-intelligence.html" target="_blank">deloitte.com</a></div></div>
+          <div class="gd-resource"><div class="gd-dot"></div><div><strong>Allie K. Miller</strong> — Measuring AI impact: practical frameworks for tracking value beyond the initial deployment. <a href="https://www.alliekmiller.com" target="_blank">alliekmiller.com</a></div></div>
+          <div class="gd-resource"><div class="gd-dot"></div><div><strong>Stanford HAI</strong> — AI Index Report: benchmarks and measurement frameworks for AI in organisations. <a href="https://hai.stanford.edu" target="_blank">hai.stanford.edu</a></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="worksheet">
+      <div class="ws-head">
+        <div class="ws-title">✦ AI Health Dashboard</div>
+        <div class="ws-badge">Set at launch — review weekly</div>
+      </div>
+      <div class="ws-body">
+        <div class="ws-intro">Record your baselines at launch. Review these five figures every week. If any metric moves significantly from baseline, it's a signal — not a crisis, but a signal that needs attention.</div>
+        <div class="ws-field">
+          <label class="ws-lbl">M1 — Outcome baseline <span>· target metric at launch</span></label>
+          <textarea class="ws-in" style="min-height:42px;" placeholder="e.g. Report generated within 2 hours of Monday 9am, 100% of weeks. Baseline: 0% (manual process)…"></textarea>
+        </div>
+        <div class="ws-field">
+          <label class="ws-lbl">M2 — Accuracy baseline <span>· spot-check result at launch</span></label>
+          <textarea class="ws-in" style="min-height:42px;" placeholder="e.g. 10/10 outputs matched manual version in week 1 validation. Baseline: 100%…"></textarea>
+        </div>
+        <div class="ws-field">
+          <label class="ws-lbl">M3 — Adoption baseline <span>· usage rate at launch</span></label>
+          <textarea class="ws-in" style="min-height:42px;" placeholder="e.g. 4/4 intended users accessed report in week 1. Baseline: 100%…"></textarea>
+        </div>
+        <div class="ws-field">
+          <label class="ws-lbl">M4 — Cost baseline <span>· actual monthly cost at launch vs estimate</span></label>
+          <textarea class="ws-in" style="min-height:42px;" placeholder="e.g. Month 1 actual: $310. Estimate: $299. 4% over — within acceptable range…"></textarea>
+        </div>
+        <div class="ws-field">
+          <label class="ws-lbl">Pull-from-production threshold <span>· when you would take the system offline</span></label>
+          <textarea class="ws-in" style="min-height:42px;" placeholder="e.g. If accuracy drops below 85% for 2 consecutive weeks, or if trust score drops to below 50% of users. Owner: Operations Manager…"></textarea>
+        </div>
+      </div>
+      <div class="ws-footer">
+        <button class="ws-btn p" onclick="alert('Production: saves health dashboard')">Save Dashboard →</button>
+        <button class="ws-btn s" onclick="alert('Production: sets weekly reminder')">Set Weekly Reminder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLETION BANNER -->
+  <div class="completion-banner">
+    <div class="cb-icon">🎯</div>
+    <h2 class="cb-title">You've completed the NavigateAI Framework</h2>
+    <p class="cb-desc">You now have a complete, end-to-end methodology for navigating your AI journey — from strategy through to live monitoring. The next step is to return to Stage 3 and begin your second initiative, compounding the value of everything you've learned.</p>
+    <div class="cb-actions">
+      <a href="ai-diagnostic-quiz-v6.html" class="cb-btn primary">Retake the Diagnostic — see how you've grown →</a>
+      <a href="stage3-quantify-prioritise.html" class="cb-btn secondary">Start your next initiative</a>
+      <a href="ai-framework-homepage.html" class="cb-btn secondary">Back to Framework Overview</a>
+    </div>
+  </div>
+</section>
+<script>
+function tick(el){el.classList.toggle('done');}
+function toggleDeeper(btn){const b=btn.nextElementSibling;const i=btn.querySelector('.gd-icon');b.classList.toggle('open');i.classList.toggle('open');}
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

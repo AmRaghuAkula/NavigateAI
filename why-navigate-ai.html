@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why NavigateAI — What Makes Us Different</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111118;--paper:#f8f8f7;--gold:#12828a;--gold-lt:#38b5bc;--teal:#12828a;--teal-lt:#38b5bc;--rust:#0c5f66;--slate:#444450;--mist:#e0e0de;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:'Epilogue',sans-serif;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 4rem;background:rgba(248,248,247,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--mist);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-0.01em;}
+.nav-logo span{color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:2rem;}
+.nav-link{text-decoration:none;color:var(--slate);font-size:0.82rem;font-weight:500;transition:color 0.2s;}
+.nav-link:hover{color:var(--teal);}
+.nav-cta{background:var(--ink);color:var(--paper);padding:0.55rem 1.3rem;border-radius:2px;font-size:0.78rem;font-weight:500;text-decoration:none;transition:background 0.2s;}
+.nav-cta:hover{background:var(--teal);}
+
+/* HERO */
+.hero{padding:8rem 6rem 5rem;background:var(--ink);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 5% 50%,rgba(18,130,138,0.12) 0%,transparent 60%),radial-gradient(ellipse 40% 50% at 95% 20%,rgba(56,181,188,0.06) 0%,transparent 55%);pointer-events:none;}
+.hero-inner{max-width:1320px;margin:0 auto;position:relative;z-index:1;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal-lt);background:rgba(56,181,188,0.12);border:1px solid rgba(56,181,188,0.22);padding:0.28rem 0.8rem;border-radius:2px;margin-bottom:1.6rem;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,5.5vw,5rem);font-weight:700;line-height:1.0;letter-spacing:-0.02em;color:white;margin-bottom:1.3rem;}
+.hero-title em{color:var(--teal-lt);font-style:italic;}
+.hero-sub{font-size:1rem;line-height:1.8;color:rgba(220,224,232,0.82);font-weight:300;max-width:600px;}
+
+/* SECTIONS */
+.section{padding:5rem 6rem;max-width:1320px;margin:0 auto;}
+.section.dark{background:var(--ink);max-width:none;padding:5rem 6rem;}
+.section.edge{border-top:1px solid var(--mist);}
+.sec-label{font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:0.8rem;}
+.dark .sec-label{color:var(--teal-lt);opacity:0.7;}
+.sec-heading{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;line-height:1.1;letter-spacing:-0.02em;margin-bottom:0.9rem;}
+.dark .sec-heading{color:white;}
+.sec-intro{font-size:0.95rem;line-height:1.75;color:var(--slate);font-weight:300;max-width:600px;}
+.dark .sec-intro{color:rgba(220,224,232,0.80);}
+
+/* THE GAP GRID — what everyone else offers vs us */
+.gap-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--mist);border-radius:8px;overflow:hidden;margin-top:3rem;}
+.gap-col{background:white;padding:0;}
+.gap-col.them{background:#fafaf9;}
+.gap-col.us{background:white;}
+.gap-head{padding:1.2rem 1.8rem;display:flex;align-items:center;gap:0.7rem;}
+.gap-head.them{background:#f2f2f0;border-bottom:2px solid #d0d0ce;}
+.gap-head.us{background:#eaf7f8;border-bottom:2px solid var(--teal);}
+.gap-head-label{font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;}
+.gap-head.them .gap-head-label{color:#888;}
+.gap-head.us .gap-head-label{color:var(--teal);}
+.gap-row{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--mist);}
+.gap-cell{padding:1rem 1.8rem;font-size:0.84rem;line-height:1.6;color:var(--slate);}
+.gap-cell.them{background:#fafaf9;border-right:1px solid var(--mist);color:#888;}
+.gap-cell.them::before{content:'✗  ';color:#c0b8b0;font-weight:600;}
+.gap-cell.us::before{content:'✓  ';color:var(--teal);font-weight:700;}
+
+/* CORE PRINCIPLES */
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.07);border-radius:8px;overflow:hidden;margin-top:3rem;}
+.principle{background:rgba(255,255,255,0.03);padding:2.2rem 1.8rem;border-right:1px solid rgba(255,255,255,0.07);}
+.principle:last-child{border-right:none;}
+.pr-n{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:700;color:rgba(255,255,255,0.06);line-height:1;margin-bottom:0.5rem;}
+.pr-title{font-family:'Cormorant Garamond',serif;color:white;font-size:1.2rem;font-weight:700;margin-bottom:0.6rem;line-height:1.2;}
+.pr-body{font-size:0.8rem;color:rgba(220,224,232,0.75);line-height:1.65;}
+.pr-tag{display:inline-block;font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;padding:0.18rem 0.6rem;border-radius:2px;margin-bottom:0.7rem;background:rgba(56,181,188,0.15);color:var(--teal-lt);}
+
+/* ICP SELF QUALIFIER */
+.icp-wrap{margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;}
+.icp-yes{background:white;border:1px solid var(--mist);border-radius:8px;overflow:hidden;}
+.icp-no{background:#fafal9;border:1px solid var(--mist);border-radius:8px;overflow:hidden;}
+.icp-head{padding:1.2rem 1.6rem;}
+.icp-head.yes{background:var(--teal);color:white;}
+.icp-head.no{background:#444450;color:white;}
+.icp-head-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;}
+.icp-head-sub{font-size:0.72rem;opacity:0.75;margin-top:0.2rem;}
+.icp-body{padding:1.4rem 1.6rem;}
+.icp-item{display:flex;align-items:flex-start;gap:0.8rem;padding:0.65rem 0;border-bottom:1px solid var(--mist);font-size:0.84rem;color:var(--slate);line-height:1.5;}
+.icp-item:last-child{border-bottom:none;}
+.icp-icon{font-size:0.9rem;flex-shrink:0;margin-top:0.1rem;}
+.icp-cta-wrap{margin-top:2rem;padding:1.8rem;background:rgba(18,130,138,0.05);border:1px solid rgba(18,130,138,0.15);border-radius:6px;text-align:center;}
+.icp-cta-text{font-size:0.9rem;color:var(--slate);line-height:1.65;margin-bottom:1.2rem;}
+.icp-cta-text strong{color:var(--ink);}
+.icp-btn{background:var(--teal);color:white;padding:0.85rem 2rem;border-radius:3px;text-decoration:none;font-size:0.88rem;font-weight:600;display:inline-block;transition:all 0.2s;}
+.icp-btn:hover{background:var(--teal-lt);transform:translateY(-1px);}
+
+/* BOTTOM CTA BAND */
+.cta-band{background:var(--ink);padding:4rem 6rem;display:flex;align-items:center;justify-content:space-between;gap:4rem;}
+.cb-left .cb-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;display:block;margin-bottom:0.6rem;}
+.cb-left h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:0.4rem;}
+.cb-left p{font-size:0.85rem;color:rgba(220,224,232,0.65);max-width:480px;line-height:1.65;}
+.cb-actions{display:flex;gap:1rem;align-items:center;flex-shrink:0;}
+.btn-p{background:var(--teal-lt);color:var(--ink);padding:0.9rem 2rem;border-radius:3px;text-decoration:none;font-size:0.88rem;font-weight:600;white-space:nowrap;transition:all 0.2s;}
+.btn-p:hover{opacity:0.9;transform:translateY(-1px);}
+.btn-s{color:rgba(255,255,255,0.4);text-decoration:none;font-size:0.82rem;transition:color 0.2s;white-space:nowrap;}
+.btn-s:hover{color:white;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.hero-inner>*{animation:fadeUp 0.65s ease both;}
+.hero-inner>*:nth-child(1){animation-delay:0.05s;}
+.hero-inner>*:nth-child(2){animation-delay:0.15s;}
+.hero-inner>*:nth-child(3){animation-delay:0.25s;}
+.reveal{opacity:0;transform:translateY(22px);transition:all 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <div class="nav-right">
+    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="our-model.html" class="nav-link">Our Model</a>
+    <a href="navigate-hub.html" class="nav-link">Framework</a>
+    <a href="about-us.html" class="nav-link">About</a>
+    <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">✦ Why NavigateAI</div>
+    <h1 class="hero-title">The gap between<br><em>strategy</em> and<br>production is<br>where value dies.</h1>
+    <p class="hero-sub">Most AI projects don't fail because of bad technology. They fail because the people who design the strategy don't build the system — and the people who build the system don't understand the business. We close that gap. End to end.</p>
+  </div>
+</div>
+
+<!-- THE GAP: WHAT OTHERS OFFER VS NAVIGATEAI -->
+<section class="section reveal" style="padding-top:5rem;">
+  <span class="sec-label">The honest comparison</span>
+  <h2 class="sec-heading">Why the existing options leave mid-market firms stuck</h2>
+  <p class="sec-intro">If you've explored AI support before and felt like something was missing — either the price was wrong, or the delivery was incomplete — this is why.</p>
+
+  <div class="gap-grid">
+    <div class="gap-head them"><span class="gap-head-label">What you've probably been offered</span></div>
+    <div class="gap-head us"><span class="gap-head-label">✦ What NavigateAI delivers</span></div>
+    <div class="gap-row">
+      <div class="gap-cell them">Enterprise AI vendors who require $500K+ commitments and ignore companies under 1,000 employees</div>
+      <div class="gap-cell us">Mid-market pricing with enterprise-grade capability — built specifically for 50 to 1,000 person organisations</div>
+    </div>
+    <div class="gap-row">
+      <div class="gap-cell them">Consultants who deliver a strategy deck or roadmap and disappear before a single line is built</div>
+      <div class="gap-cell us">We advise, build, host, and run your AI — one partner from first conversation to live production system</div>
+    </div>
+    <div class="gap-row">
+      <div class="gap-cell them">Generic AI tools (copilots, chatbots) not trained on your workflows, your data, or your business rules</div>
+      <div class="gap-cell us">AI agents trained on how your organisation actually works — not generic assistants retrofitted to your processes</div>
+    </div>
+    <div class="gap-row">
+      <div class="gap-cell them">Pilots that run for six months and never reach production — perpetual experimentation with no measurable return</div>
+      <div class="gap-cell us">A 90-day path from first conversation to working AI in production — with pre-defined success criteria before we start</div>
+    </div>
+    <div class="gap-row">
+      <div class="gap-cell them">DIY approaches that require a dedicated AI team, cloud architects, and security infrastructure most mid-market firms can't sustain</div>
+      <div class="gap-cell us">Fully managed: we build it, host it on your dedicated cloud infrastructure, and run it — no internal AI team required</div>
+    </div>
+  </div>
+</section>
+
+<!-- CORE PRINCIPLES -->
+<section class="section dark reveal">
+  <div style="max-width:1200px;margin:0 auto;">
+    <span class="sec-label">Our operating principles</span>
+    <h2 class="sec-heading">What we believe — and how it shapes what we build</h2>
+    <p class="sec-intro">These aren't values on a wall. They're the decisions we make when we scope a project, when a client wants to cut corners, and when something goes wrong in production.</p>
+
+    <div class="principles">
+      <div class="principle">
+        <div class="pr-n">01</div>
+        <span class="pr-tag">Outcomes first</span>
+        <div class="pr-title">Results, not reports.</div>
+        <div class="pr-body">We don't get paid to produce strategy documents. We get paid when AI is running in production and doing the thing it was built to do. Every engagement is scoped around a measurable outcome — defined upfront, not renegotiated after the bill is sent.</div>
+      </div>
+      <div class="principle">
+        <div class="pr-n">02</div>
+        <span class="pr-tag">End to end</span>
+        <div class="pr-title">Advise. Build. Host. Run.</div>
+        <div class="pr-body">The reason most AI projects stall is the handoff — from strategist to developer, from developer to operations, from launch to ongoing management. We are one team across all four phases. No handoffs. No gaps. No finger-pointing when something breaks.</div>
+      </div>
+      <div class="principle">
+        <div class="pr-n">03</div>
+        <span class="pr-tag">Mid-market focus</span>
+        <div class="pr-title">Built for how you actually operate.</div>
+        <div class="pr-body">Mid-market organisations don't work the way Fortune 500 companies do. Decisions move faster. Budgets have real limits. The CEO is in the room. We've built our entire engagement model around that reality — not retrofitted enterprise frameworks to fit a smaller budget.</div>
+      </div>
+      <div class="principle">
+        <div class="pr-n">04</div>
+        <span class="pr-tag">Trust is the currency</span>
+        <div class="pr-title">We earn the work, we don't sell it.</div>
+        <div class="pr-body">Mid-market owners don't buy AI from strangers. They buy from people their trusted advisors recommend, from people who've helped a firm they know and respect. Our first conversation is diagnostic, not a pitch. If we're not the right fit, we'll tell you who is.</div>
+      </div>
+      <div class="principle">
+        <div class="pr-n">05</div>
+        <span class="pr-tag">Claude-powered</span>
+        <div class="pr-title">The safest, most reliable AI foundation.</div>
+        <div class="pr-body">All NavigateAI agentic systems run on Anthropic Claude — selected for its safety architecture, enterprise reliability, and performance on complex reasoning tasks. Your data stays in your dedicated cloud environment. No commingling. No training on your data without explicit consent.</div>
+      </div>
+      <div class="principle">
+        <div class="pr-n">06</div>
+        <span class="pr-tag">Fast. Predictable. Measurable.</span>
+        <div class="pr-title">These are promises, not adjectives.</div>
+        <div class="pr-body">Fast means 90 days to production, not 90 days to a roadmap. Predictable means fixed-scope implementation fees — no surprise invoices. Measurable means we define success in numbers before we start, and we report against those numbers every month.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IS THIS YOU? ICP SELF-QUALIFIER -->
+<section class="section reveal edge">
+  <span class="sec-label">Is NavigateAI right for you?</span>
+  <h2 class="sec-heading">The honest self-qualification test</h2>
+  <p class="sec-intro">We work with a specific type of organisation — and we're deliberate about it. Read both columns and decide which one describes you. There's no wrong answer — just the honest one.</p>
+
+  <div class="icp-wrap">
+    <div class="icp-yes">
+      <div class="icp-head yes">
+        <div class="icp-head-title">✦ NavigateAI is built for you if…</div>
+        <div class="icp-head-sub">You'll recognise yourself in most of these</div>
+      </div>
+      <div class="icp-body">
+        <div class="icp-item"><span class="icp-icon">🏢</span>You run or lead a profitable private company with 50 to 1,000 employees — large enough that AI ROI is meaningful, small enough that decisions move fast</div>
+        <div class="icp-item"><span class="icp-icon">💰</span>Your annual revenue is above $5M CAD — you have operational budget for AI, and you expect a return on it</div>
+        <div class="icp-item"><span class="icp-icon">👤</span>You are the founder, CEO, COO, or GM — the person who can say yes without navigating a procurement committee</div>
+        <div class="icp-item"><span class="icp-icon">💻</span>You use cloud-based business tools — Microsoft 365, Google Workspace, Salesforce, or similar — but haven't invested in any AI solution yet</div>
+        <div class="icp-item"><span class="icp-icon">⏱️</span>You have manual processes consuming significant staff time — document-heavy workflows, customer service bottlenecks, repetitive reporting — and you know it</div>
+        <div class="icp-item"><span class="icp-icon">🧭</span>You've heard of ChatGPT and wondered what AI could do for your business — but haven't found a path from curiosity to production that felt credible</div>
+        <div class="icp-item"><span class="icp-icon">🇨🇦</span>You're in Canada (Ontario first) or the United States — with a preference for a partner who understands your regulatory environment</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="icp-no" style="background:#fafaf9;">
+        <div class="icp-head no">
+          <div class="icp-head-title">We're probably not the right fit if…</div>
+          <div class="icp-head-sub">And that's okay — we'd rather be honest</div>
+        </div>
+        <div class="icp-body">
+          <div class="icp-item"><span class="icp-icon">🚀</span>You're a pre-revenue or venture-funded startup — our model is built for companies with operational budgets, not runway</div>
+          <div class="icp-item"><span class="icp-icon">🏛️</span>You're a Fortune 500 or large enterprise — you have the scale and budget for the big consulting firms; our model isn't optimised for your procurement process</div>
+          <div class="icp-item"><span class="icp-icon">📋</span>You want a strategy document or a roadmap without implementation — we don't deliver strategy only. Every engagement includes building and running</div>
+          <div class="icp-item"><span class="icp-icon">🔬</span>You want to experiment indefinitely with no commitment to production — our 90-day model requires a genuine intention to deploy, not an open-ended research project</div>
+          <div class="icp-item"><span class="icp-icon">🔧</span>Your systems are entirely paper-based or legacy on-premise — we need a cloud-based foundation to connect to. We can advise on modernisation but won't start there</div>
+        </div>
+      </div>
+
+      <div class="icp-cta-wrap">
+        <p class="icp-cta-text">If you recognised yourself in the left column, <strong>the next step is a 45-minute discovery conversation.</strong> We'll review your submission before we meet — so when we talk, we're already working on your situation, not learning about it from scratch.</p>
+        <a href="start-a-conversation.html" class="icp-btn">Start a Conversation →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <div class="cb-left">
+    <span class="cb-label">Next step</span>
+    <h2>See how the model works.</h2>
+    <p>Understand exactly what happens when you engage NavigateAI — from the first conversation through to live AI in your production environment.</p>
+  </div>
+  <div class="cb-actions">
+    <a href="our-model.html" class="btn-p">See Our Model →</a>
+    <a href="ai-framework-homepage.html" class="btn-s">← Back to Framework</a>
+  </div>
+</div>
+
+<script>
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

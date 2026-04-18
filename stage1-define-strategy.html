@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stage 1: Define Your AI Strategy — NavigateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:     #111118;
+  --paper:   #f8f8f7;
+  --gold:    #12828a;
+  --gold-lt: #38b5bc;
+  --teal:    #12828a;
+  --teal-lt: #38b5bc;
+  --rust:    #0c5f66;
+  --slate:   #444450;
+  --mist:    #e0e0de;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:'Epilogue',sans-serif;overflow-x:hidden;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 4rem;
+  background:rgba(247,244,238,0.94);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--mist);
+}
+.nav-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.3rem;font-weight:700;color:var(--ink);
+  text-decoration:none;letter-spacing:-0.01em;
+}
+.nav-logo span{color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:2rem;}
+.nav-link{
+  text-decoration:none;color:var(--slate);
+  font-size:0.82rem;font-weight:500;transition:color 0.2s;
+}
+.nav-link:hover{color:var(--teal);}
+.nav-cta{
+  background:var(--ink);color:var(--paper);
+  padding:0.55rem 1.3rem;border-radius:2px;
+  font-size:0.78rem;font-weight:500;text-decoration:none;
+  transition:background 0.2s;
+}
+.nav-cta:hover{background:var(--teal);}
+
+/* ── STAGE STRIP ── */
+.stage-strip{
+  margin-top:4.4rem;background:var(--ink);
+  padding:0.75rem 4rem;display:flex;gap:0;overflow-x:auto;
+}
+.ss{
+  display:flex;align-items:center;gap:0.45rem;
+  font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;
+  color:rgba(220,224,232,0.50);padding:0 1rem;white-space:nowrap;
+  border-right:1px solid rgba(255,255,255,0.06);
+  text-decoration:none;transition:color 0.2s;
+}
+.ss:last-child{border-right:none;}
+.ss.active{color:var(--gold-lt);}
+.ss:hover:not(.active){color:rgba(255,255,255,0.5);}
+.ss-n{font-family:'Cormorant Garamond',serif;font-size:0.85rem;font-weight:600;}
+
+/* ── HERO ── */
+.hero{
+  padding:6rem 6rem 4rem;
+  max-width:1320px;margin:0 auto;
+  display:grid;grid-template-columns:5fr 4fr;gap:6rem;align-items:center;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--gold);background:rgba(18,130,138,0.1);
+  border:1px solid rgba(18,130,138,0.22);
+  padding:0.28rem 0.8rem;border-radius:2px;margin-bottom:1.6rem;
+}
+.hero-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.8rem,5vw,4.8rem);
+  font-weight:700;line-height:1.0;letter-spacing:-0.02em;
+  margin-bottom:1.3rem;
+}
+.hero-title em{color:var(--teal);font-style:italic;}
+.hero-sub{
+  font-size:1rem;line-height:1.75;color:var(--slate);
+  font-weight:300;max-width:460px;margin-bottom:2.5rem;
+}
+.hero-quote{
+  padding:1.4rem 1.8rem;
+  border-left:3px solid var(--gold);
+  background:rgba(18,130,138,0.05);
+  border-radius:0 4px 4px 0;
+}
+.hq-text{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-style:italic;color:var(--ink);
+  line-height:1.6;margin-bottom:0.6rem;
+}
+.hq-attr{
+  font-size:0.68rem;letter-spacing:0.06em;
+  color:var(--slate);opacity:0.55;
+}
+
+/* hero right — before/after grid */
+.ba{border:1px solid var(--mist);border-radius:6px;overflow:hidden;}
+.ba-header{display:grid;grid-template-columns:1fr 1fr;}
+.ba-col{
+  padding:0.75rem 1.1rem;
+  font-size:0.65rem;letter-spacing:0.09em;text-transform:uppercase;font-weight:600;
+}
+.ba-col.bad{background:#eef8f8;color:var(--rust);border-bottom:2px solid #f5b8a8;}
+.ba-col.good{background:#f0f7f8;color:var(--teal);border-bottom:2px solid #b8dde0;}
+.ba-row{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--mist);}
+.ba-cell{padding:0.8rem 1.1rem;font-size:0.81rem;line-height:1.5;color:var(--slate);}
+.ba-cell.bad{background:#fffaf9;border-right:1px solid var(--mist);}
+.ba-cell.good{background:#f8fcfc;}
+.ba-cell.bad::before{content:'✗ ';color:#c06050;font-weight:700;}
+.ba-cell.good::before{content:'✓ ';color:var(--teal);font-weight:700;}
+
+/* ── SECTION SHARED ── */
+.section{
+  padding:5rem 6rem;border-top:1px solid var(--mist);
+  max-width:1320px;margin:0 auto;
+}
+.section.full{max-width:none;padding:5rem 6rem;}
+.section.dark{
+  background:var(--ink);max-width:none;
+  padding:5rem 6rem;border-top:none;
+}
+.sec-label{
+  font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--gold);display:block;margin-bottom:0.8rem;
+}
+.dark .sec-label{color:var(--gold-lt);opacity:0.7;}
+.sec-heading{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;
+  line-height:1.1;letter-spacing:-0.02em;margin-bottom:0.9rem;
+}
+.dark .sec-heading{color:white;}
+.sec-intro{
+  font-size:0.95rem;line-height:1.75;color:var(--slate);
+  font-weight:300;max-width:580px;
+}
+.dark .sec-intro{color:rgba(220,224,232,0.82);}
+
+/* ── 3V CANVAS ── */
+.canvas{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;background:var(--mist);
+  border:1px solid var(--mist);border-radius:8px;
+  overflow:hidden;margin-top:3rem;
+}
+.cv{
+  background:white;padding:2.2rem 1.8rem;
+  position:relative;transition:box-shadow 0.2s;
+}
+.cv:hover{box-shadow:0 4px 20px rgba(0,0,0,0.07);}
+.cv::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+}
+.cv.v1::after{background:var(--gold);}
+.cv.v2::after{background:var(--teal);}
+.cv.v3::after{background:var(--rust);}
+.cv-n{
+  font-family:'Cormorant Garamond',serif;
+  font-size:3.5rem;font-weight:700;line-height:1;
+  opacity:0.07;margin-bottom:0.3rem;
+}
+.cv.v1 .cv-n{color:var(--gold);}
+.cv.v2 .cv-n{color:var(--teal);}
+.cv.v3 .cv-n{color:var(--rust);}
+.cv-tag{
+  font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;
+  font-weight:600;margin-bottom:0.3rem;display:block;
+}
+.cv.v1 .cv-tag{color:var(--gold);}
+.cv.v2 .cv-tag{color:var(--teal);}
+.cv.v3 .cv-tag{color:var(--rust);}
+.cv-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.7rem;font-weight:700;line-height:1.1;
+  margin-bottom:0.8rem;
+}
+.cv-desc{
+  font-size:0.85rem;line-height:1.7;color:var(--slate);
+  margin-bottom:1.2rem;
+}
+.cv-q{
+  font-size:0.8rem;color:var(--slate);line-height:1.6;
+  padding:0.6rem 0;border-top:1px solid var(--mist);
+  display:flex;gap:0.5rem;align-items:flex-start;
+}
+.cv-q::before{content:'→';flex-shrink:0;margin-top:0.05rem;}
+.cv.v1 .cv-q::before{color:var(--gold);}
+.cv.v2 .cv-q::before{color:var(--teal);}
+.cv.v3 .cv-q::before{color:var(--rust);}
+
+/* canvas bottom — the one question */
+.canvas-anchor{
+  margin-top:1.5rem;
+  background:var(--ink);border-radius:4px;
+  padding:1.4rem 2rem;
+  display:flex;align-items:center;gap:1.5rem;
+}
+.ca-label{
+  font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--gold-lt);opacity:0.7;white-space:nowrap;
+}
+.ca-q{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-style:italic;color:white;line-height:1.4;
+}
+
+/* ── AI JOURNEY STAGES ── */
+.journey{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;overflow:hidden;margin-top:3rem;
+}
+.jcard{
+  background:rgba(255,255,255,0.02);
+  padding:2rem 1.6rem;
+  border-right:1px solid rgba(255,255,255,0.06);
+  transition:background 0.2s;
+}
+.jcard:last-child{border-right:none;}
+.jcard.you{background:rgba(18,130,138,0.08);}
+.jcard-n{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.2rem;font-weight:700;
+  color:rgba(255,255,255,0.06);line-height:1;margin-bottom:0.5rem;
+}
+.jcard-tag{
+  display:inline-block;font-size:0.6rem;letter-spacing:0.09em;
+  text-transform:uppercase;padding:0.18rem 0.6rem;
+  border-radius:2px;margin-bottom:0.7rem;
+}
+.jcard:nth-child(1) .jcard-tag{background:rgba(18,130,138,0.15);color:var(--gold-lt);}
+.jcard:nth-child(2) .jcard-tag{background:rgba(42,155,165,0.15);color:var(--teal-lt);}
+.jcard:nth-child(3) .jcard-tag{background:rgba(200,200,200,0.1);color:rgba(255,255,255,0.5);}
+.jcard:nth-child(4) .jcard-tag{background:rgba(100,200,150,0.12);color:#6ecfa0;}
+.jcard-title{
+  font-family:'Cormorant Garamond',serif;
+  color:white;font-size:1.15rem;font-weight:700;margin-bottom:0.5rem;
+}
+.jcard-desc{font-size:0.78rem;color:rgba(220,224,232,0.82);line-height:1.6;}
+.jcard-signal{
+  margin-top:1rem;padding:0.7rem 0.8rem;
+  background:rgba(255,255,255,0.04);border-radius:3px;
+  font-size:0.72rem;color:rgba(220,224,232,0.60);
+  font-style:italic;line-height:1.5;
+}
+.jcard.you .jcard-title{color:var(--gold-lt);}
+.you-marker{
+  display:inline-block;
+  font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--gold);background:rgba(18,130,138,0.15);
+  border:1px solid rgba(18,130,138,0.3);
+  padding:0.15rem 0.5rem;border-radius:2px;margin-left:0.5rem;
+  vertical-align:middle;
+}
+
+/* ── TRAPS (condensed) ── */
+.traps{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;
+  margin-top:3rem;
+}
+.trap{
+  padding:1.6rem;border:1px solid var(--mist);
+  border-radius:5px;background:white;position:relative;
+}
+.trap::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--rust);border-radius:5px 5px 0 0;
+}
+.trap-icon{font-size:1.4rem;margin-bottom:0.7rem;}
+.trap-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:0.4rem;
+}
+.trap-desc{font-size:0.8rem;line-height:1.65;color:var(--slate);}
+.trap-fix{
+  margin-top:0.8rem;padding:0.6rem 0.8rem;
+  background:#f4fafb;border-radius:3px;
+  font-size:0.75rem;color:var(--teal);line-height:1.55;
+}
+.trap-fix::before{content:'↳ ';font-weight:600;}
+
+/* ── CHECKLIST + WORKSHEET ── */
+.action-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;
+  margin-top:3rem;
+}
+
+/* checklist */
+.cl-group{margin-bottom:1.5rem;}
+.cl-group:last-child{margin-bottom:0;}
+.cl-head{
+  font-size:0.62rem;letter-spacing:0.09em;text-transform:uppercase;
+  font-weight:600;padding:0.6rem 1rem;border-radius:3px 3px 0 0;
+}
+.cl-head.s1{background:#eaf7f8;color:var(--gold);}
+.cl-head.s2{background:#f0f7f8;color:var(--teal);}
+.cl-item{
+  display:flex;align-items:flex-start;gap:0.7rem;
+  padding:0.7rem 1rem;border:1px solid var(--mist);border-top:none;
+  font-size:0.82rem;color:var(--slate);line-height:1.45;
+  cursor:pointer;transition:background 0.12s;background:white;
+}
+.cl-item:last-child{border-radius:0 0 3px 3px;}
+.cl-item:hover{background:#fafaf8;}
+.cl-item.done{color:#b0b8c0;text-decoration:line-through;}
+.cl-box{
+  width:16px;height:16px;border:1.5px solid var(--mist);
+  border-radius:2px;flex-shrink:0;margin-top:0.1rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.12s;
+}
+.cl-item.done .cl-box{background:var(--teal);border-color:var(--teal);}
+.cl-item.done .cl-box::after{content:'✓';color:white;font-size:0.6rem;font-weight:700;}
+
+/* worksheet */
+.ws{
+  background:white;border:1px solid var(--mist);
+  border-radius:6px;overflow:hidden;
+}
+.ws-head{
+  background:var(--ink);padding:1.2rem 1.6rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.ws-title{
+  font-family:'Cormorant Garamond',serif;
+  color:white;font-size:1.1rem;font-weight:600;
+}
+.ws-badge{
+  font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;
+  color:var(--gold-lt);background:rgba(18,130,138,0.15);
+  border:1px solid rgba(18,130,138,0.25);
+  padding:0.2rem 0.6rem;border-radius:2px;
+}
+.ws-body{padding:1.5rem;}
+.ws-field{margin-bottom:1.1rem;}
+.ws-field:last-of-type{margin-bottom:0;}
+.ws-lbl{
+  font-size:0.68rem;letter-spacing:0.07em;text-transform:uppercase;
+  color:var(--slate);font-weight:600;margin-bottom:0.35rem;display:block;
+}
+.ws-lbl span{font-weight:400;color:#aaa;text-transform:none;letter-spacing:0;}
+.ws-in{
+  width:100%;background:#fafaf8;border:1px solid var(--mist);
+  border-radius:3px;padding:0.7rem 0.9rem;resize:vertical;
+  font-family:'Epilogue',sans-serif;font-size:0.83rem;
+  color:var(--ink);outline:none;transition:border-color 0.18s;
+  min-height:58px;
+}
+.ws-in:focus{border-color:var(--teal);}
+.ws-in::placeholder{color:#ccc;font-style:italic;}
+.ws-footer{
+  padding:1rem 1.5rem;border-top:1px solid var(--mist);
+  display:flex;gap:0.8rem;
+}
+.ws-btn{
+  padding:0.65rem 1.3rem;border-radius:3px;
+  font-family:'Epilogue',sans-serif;font-size:0.8rem;
+  font-weight:500;cursor:pointer;border:none;transition:all 0.2s;
+}
+.ws-btn.p{background:var(--ink);color:white;}
+.ws-btn.p:hover{background:var(--teal);}
+.ws-btn.s{background:none;color:var(--slate);border:1px solid var(--mist);}
+.ws-btn.s:hover{border-color:var(--teal);color:var(--teal);}
+
+/* go deeper */
+.go-deeper{
+  margin-top:2rem;
+  border:1px solid var(--mist);border-radius:5px;overflow:hidden;
+}
+.gd-toggle{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 1.4rem;background:white;cursor:pointer;
+  font-size:0.82rem;color:var(--slate);font-weight:500;
+  border:none;font-family:'Epilogue',sans-serif;transition:background 0.15s;
+}
+.gd-toggle:hover{background:#fafaf8;}
+.gd-icon{font-size:0.75rem;transition:transform 0.25s;color:var(--gold);}
+.gd-icon.open{transform:rotate(180deg);}
+.gd-body{
+  display:none;padding:1.4rem;
+  border-top:1px solid var(--mist);background:white;
+}
+.gd-body.open{display:block;}
+.gd-resource{
+  display:flex;align-items:flex-start;gap:0.8rem;
+  padding:0.6rem 0;border-bottom:1px solid var(--mist);
+  font-size:0.82rem;color:var(--slate);line-height:1.5;
+}
+.gd-resource:last-child{border-bottom:none;}
+.gd-resource a{color:var(--teal);text-decoration:none;}
+.gd-resource a:hover{text-decoration:underline;}
+.gd-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--gold);flex-shrink:0;margin-top:0.45rem;
+}
+
+/* ── NEXT STAGE ── */
+.next{
+  background:var(--ink);padding:4rem 6rem;
+  display:flex;align-items:center;justify-content:space-between;gap:4rem;
+}
+.next-left .nl{
+  font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--gold-lt);opacity:0.6;margin-bottom:0.6rem;display:block;
+}
+.next-left h2{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;color:white;font-weight:700;
+  letter-spacing:-0.02em;margin-bottom:0.5rem;
+}
+.next-left p{font-size:0.85rem;color:rgba(220,224,232,0.75);line-height:1.6;max-width:500px;}
+.next-actions{display:flex;gap:1rem;align-items:center;flex-shrink:0;}
+.btn-next-primary{
+  background:var(--gold);color:var(--ink);
+  padding:0.9rem 2rem;border-radius:3px;text-decoration:none;
+  font-size:0.88rem;font-weight:600;transition:all 0.2s;white-space:nowrap;
+}
+.btn-next-primary:hover{background:var(--gold-lt);transform:translateY(-1px);}
+.btn-next-sec{
+  color:rgba(255,255,255,0.3);text-decoration:none;
+  font-size:0.82rem;transition:color 0.2s;white-space:nowrap;
+}
+.btn-next-sec:hover{color:white;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.hero-left>*{animation:fadeUp 0.65s ease both;}
+.hero-left>*:nth-child(1){animation-delay:0.05s;}
+.hero-left>*:nth-child(2){animation-delay:0.15s;}
+.hero-left>*:nth-child(3){animation-delay:0.25s;}
+.hero-left>*:nth-child(4){animation-delay:0.35s;}
+.hero-right{animation:fadeUp 0.65s 0.25s ease both;}
+.reveal{opacity:0;transform:translateY(22px);transition:all 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <div class="nav-right">
+    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="our-model.html" class="nav-link">Our Model</a>
+    <a href="navigate-hub.html" class="nav-link">Framework</a>
+    <a href="about-us.html" class="nav-link">About</a>
+    <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+  </div>
+</nav>
+
+<!-- STAGE STRIP -->
+<div class="stage-strip">
+  <a href="#" class="ss active"><span class="ss-n">01</span> Define Strategy</a>
+  <a href="#" class="ss"><span class="ss-n">02</span> Identify Problems</a>
+  <a href="#" class="ss"><span class="ss-n">03</span> Quantify & Prioritise</a>
+  <a href="#" class="ss"><span class="ss-n">04</span> Select Tools</a>
+  <a href="#" class="ss"><span class="ss-n">05</span> Data & Security</a>
+  <a href="#" class="ss"><span class="ss-n">06</span> Design & Test</a>
+  <a href="#" class="ss"><span class="ss-n">07</span> Monitor & Evolve</a>
+</div>
+
+<!-- ── SECTION 1: HERO — WHY THIS STAGE MATTERS ── -->
+<section style="padding-top:0;">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">✦ Stage 01 · Foundation</div>
+      <h1 class="hero-title">Start with<br><em>strategy.</em><br>Not tools.</h1>
+      <p class="hero-sub">Most AI projects don't fail because of bad technology. They fail because nobody agreed on what success looked like before the spending started. This stage fixes that.</p>
+      <div class="hero-quote">
+        <div class="hq-text">"The first step isn't choosing an AI tool. It's deciding what decision or outcome you're trying to improve — and whether AI is genuinely the right way to get there."</div>
+        <div class="hq-attr">Cassie Kozyrkov · ex-Google Chief Decision Scientist, CEO of Kozyr</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="ba">
+        <div class="ba-header">
+          <div class="ba-col bad">⚠ Without this stage</div>
+          <div class="ba-col good">✦ With this stage</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">Choosing tools before knowing what problem they're solving</div>
+          <div class="ba-cell good">A clear outcome defined before a single vendor is evaluated</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">Budget spent on pilots that never reach production</div>
+          <div class="ba-cell good">Success criteria set before spending begins</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">Automating broken processes — and scaling the dysfunction</div>
+          <div class="ba-cell good">Foundations mapped and solid before anything is automated</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">Leadership with four different ideas of what "AI strategy" means</div>
+          <div class="ba-cell good">One shared, written definition tied to business goals</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">No one accountable when initiatives stall or fail</div>
+          <div class="ba-cell good">A named owner with authority and a mandate to act</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 2: THE 3V STRATEGY CANVAS ── -->
+<section class="section reveal" id="canvas">
+  <span class="sec-label">The NavigateAI Framework</span>
+  <h2 class="sec-heading">The 3V Strategy Canvas</h2>
+  <p class="sec-intro">Three questions. Every AI strategy worth building can answer all three clearly. Complete this canvas before you look at a single tool or vendor.</p>
+
+  <div class="canvas">
+    <div class="cv v1">
+      <div class="cv-n">V1</div>
+      <span class="cv-tag">Vision</span>
+      <div class="cv-title">Where are you going?</div>
+      <div class="cv-desc">Your AI vision is a business destination — not a technology statement. It describes what your organisation looks like when AI has done its job well.</div>
+      <div class="cv-q">What does winning look like in 3 years, and where does AI specifically accelerate that?</div>
+      <div class="cv-q">If AI freed up 20% of your team's time, what would you do with it?</div>
+      <div class="cv-q">Is your AI vision tied to your business strategy — or separate from it?</div>
+    </div>
+    <div class="cv v2">
+      <div class="cv-n">V2</div>
+      <span class="cv-tag">Value</span>
+      <div class="cv-title">What will change?</div>
+      <div class="cv-desc">Value is the specific, measurable difference AI will make. Not "improve efficiency" — but "reduce invoice processing from 4 hours to 20 minutes, weekly."</div>
+      <div class="cv-q">Which single business metric will AI most directly move?</div>
+      <div class="cv-q">What is the current baseline you're improving on?</div>
+      <div class="cv-q">How quickly should you realistically see that value?</div>
+    </div>
+    <div class="cv v3">
+      <div class="cv-n">V3</div>
+      <span class="cv-tag">Velocity</span>
+      <div class="cv-title">How fast can you move?</div>
+      <div class="cv-desc">Velocity is an honest audit of your organisation's capacity to act. Budget, decision authority, and change readiness all determine whether strategy stays on paper.</div>
+      <div class="cv-q">Who has the authority to approve and unblock AI initiatives?</div>
+      <div class="cv-q">What budget can you realistically commit in the next 12 months?</div>
+      <div class="cv-q">How does your team respond to meaningful process change?</div>
+    </div>
+  </div>
+
+  <div class="canvas-anchor">
+    <span class="ca-label">The test</span>
+    <span class="ca-q">"Can you describe your AI strategy in two sentences — with a specific outcome and a named owner?" If not, this canvas isn't complete yet.</span>
+  </div>
+</section>
+
+<!-- ── SECTION 3: AI JOURNEY STAGES ── -->
+<section class="section dark reveal" id="stages">
+  <div style="max-width:1200px;margin:0 auto;">
+    <span class="sec-label">Know Your Starting Point</span>
+    <h2 class="sec-heading">The AI Journey Stages</h2>
+    <p class="sec-intro">You can't define where you're going until you're honest about where you are. Locate yourself before completing the 3V Canvas — your starting stage changes which actions matter most right now.</p>
+
+    <div class="journey">
+      <div class="jcard">
+        <div class="jcard-n">01</div>
+        <span class="jcard-tag">Observing</span>
+        <div class="jcard-title">The Curious</div>
+        <div class="jcard-desc">AI is on your radar but no formal initiative exists. You're reading, watching, and wondering where to begin.</div>
+        <div class="jcard-signal">"We know we should probably do something, but nothing is committed yet."</div>
+      </div>
+      <div class="jcard you">
+        <div class="jcard-n">02</div>
+        <span class="jcard-tag">Exploring</span>
+        <div class="jcard-title">The Experimenter <span class="you-marker">Most founders start here</span></div>
+        <div class="jcard-desc">Some informal tool usage or pilot attempts exist, but nothing has been measured against real business outcomes or reached production.</div>
+        <div class="jcard-signal">"We've tried a few things but nothing has officially landed yet."</div>
+      </div>
+      <div class="jcard">
+        <div class="jcard-n">03</div>
+        <span class="jcard-tag">Building</span>
+        <div class="jcard-title">The Implementer</div>
+        <div class="jcard-desc">At least one AI initiative is live and delivering measurable value. You have a repeatable deployment process and growing team confidence.</div>
+        <div class="jcard-signal">"Our first agent is live. We're measuring results and planning the next use case."</div>
+      </div>
+      <div class="jcard">
+        <div class="jcard-n">04</div>
+        <span class="jcard-tag">Scaling</span>
+        <div class="jcard-title">The Multiplier</div>
+        <div class="jcard-desc">AI is embedded in your operating model. You have governance, measurement, and a roadmap. The question is where to expand next, not whether to start.</div>
+        <div class="jcard-signal">"AI is a strategic asset. We're compounding gains and expanding systematically."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 4: ACTION — CHECKLIST + WORKSHEET ── -->
+<section class="section reveal" id="action">
+  <span class="sec-label">Stage 1 — Take Action</span>
+  <h2 class="sec-heading">Complete before moving to Stage 2</h2>
+  <p class="sec-intro">Two things to do now: check that your foundation is solid, then fill in your 3V Canvas. Both take under 20 minutes and will sharpen every decision that follows.</p>
+
+  <div class="action-grid">
+
+    <!-- CHECKLIST -->
+    <div>
+      <div class="cl-group">
+        <div class="cl-head s1">✦ Your strategy is solid when…</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>You have a written AI vision tied to a specific business destination</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>AI goals are linked to at least one measurable business metric</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Leadership shares a common understanding of AI's role</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>A named person owns the AI agenda with real authority</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>You know your current AI Journey Stage</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>You can describe your AI strategy in two clear sentences</div>
+      </div>
+      <div class="cl-group">
+        <div class="cl-head s2">✓ Traps to avoid</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not selecting tools before you've defined the problem</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not automating undocumented or broken processes</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not starting a pilot without pre-defined success criteria</div>
+      </div>
+
+      <!-- Go Deeper -->
+      <div class="go-deeper">
+        <button class="gd-toggle" onclick="toggleDeeper(this)">
+          <span>📚 Go deeper — expert reading on AI strategy</span>
+          <span class="gd-icon">▼</span>
+        </button>
+        <div class="gd-body">
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>Cassie Kozyrkov</strong> — Articles on AI strategy and decision-making for business leaders. <a href="https://kozyrkov.medium.com" target="_blank">kozyrkov.medium.com</a></div>
+          </div>
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>Bernard Marr</strong> — How to develop an AI strategy: 9 things every business must include. <a href="https://bernardmarr.com" target="_blank">bernardmarr.com</a></div>
+          </div>
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>Allie K. Miller</strong> — Practical AI guidance for business leaders and non-technical executives. <a href="https://www.alliekmiller.com" target="_blank">alliekmiller.com</a></div>
+          </div>
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>Anthropic</strong> — Claude for business: responsible AI deployment guides. <a href="https://anthropic.com" target="_blank">anthropic.com</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKSHEET -->
+    <div class="ws">
+      <div class="ws-head">
+        <div class="ws-title">✦ 3V Canvas — Working Document</div>
+        <div class="ws-badge">Save as PDF</div>
+      </div>
+      <div class="ws-body">
+        <div class="ws-field">
+          <label class="ws-lbl">V1 — Vision <span>· where you're going</span></label>
+          <textarea class="ws-in" placeholder="In 3 years, our organisation will…"></textarea>
+        </div>
+        <div class="ws-field">
+          <label class="ws-lbl">V2 — Value <span>· what will measurably change</span></label>
+          <textarea class="ws-in" placeholder="AI will improve [metric] from [baseline] to [target] within [timeframe]…"></textarea>
+        </div>
+        <div class="ws-field">
+          <label class="ws-lbl">V3 — Velocity <span>· your honest capacity to act</span></label>
+          <textarea class="ws-in" placeholder="Our AI owner is [name]. Our budget is [amount]. Our biggest constraint is…"></textarea>
+        </div>
+        <div class="ws-field">
+          <label class="ws-lbl">Our 2-sentence AI strategy</label>
+          <textarea class="ws-in" style="min-height:68px;" placeholder="Our AI strategy is to [outcome] by [approach], because [business reason]. We'll know it's working when [success metric]…"></textarea>
+        </div>
+      </div>
+      <div class="ws-footer">
+        <button class="ws-btn p" onclick="alert('Production: saves & generates PDF')">Download PDF →</button>
+        <button class="ws-btn s" onclick="alert('Production: emails to you')">Email to myself</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── NEXT STAGE ── -->
+<div class="next">
+  <div class="next-left">
+    <span class="nl">Up next · Stage 02</span>
+    <h2>Identify Problem Statements</h2>
+    <p>With your strategy defined, Stage 2 gives you a structured way to translate ambitions into specific, solvable problems — and identify which type of AI each one actually needs.</p>
+  </div>
+  <div class="next-actions">
+    <a href="stage2-identify-problems.html" class="btn-next-primary">Continue to Stage 2 →</a>
+    <a href="ai-framework-homepage.html" class="btn-next-sec">← Back to Overview</a>
+  </div>
+</div>
+
+<script>
+function tick(el) { el.classList.toggle('done'); }
+
+function toggleDeeper(btn) {
+  const body = btn.nextElementSibling;
+  const icon = btn.querySelector('.gd-icon');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  icon.classList.toggle('open', !isOpen);
+}
+
+// scroll reveal
+const obs = new IntersectionObserver(
+  entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }),
+  { threshold: 0.08 }
+);
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

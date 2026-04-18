@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — NavigateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111118;--paper:#f8f8f7;--gold:#12828a;--gold-lt:#38b5bc;--teal:#12828a;--teal-lt:#38b5bc;--rust:#0c5f66;--slate:#444450;--mist:#e0e0de;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:'Epilogue',sans-serif;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 4rem;background:rgba(248,248,247,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--mist);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-0.01em;}
+.nav-logo span{color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:2rem;}
+.nav-link{text-decoration:none;color:var(--slate);font-size:0.82rem;font-weight:500;transition:color 0.2s;}
+.nav-link:hover{color:var(--teal);}
+.nav-cta{background:var(--ink);color:var(--paper);padding:0.55rem 1.3rem;border-radius:2px;font-size:0.78rem;font-weight:500;text-decoration:none;transition:background 0.2s;}
+.nav-cta:hover{background:var(--teal);}
+
+/* HERO */
+.hero{padding:8rem 6rem 5rem;background:var(--ink);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 30% 60%,rgba(18,130,138,0.1) 0%,transparent 55%);pointer-events:none;}
+.hero-inner{max-width:1320px;margin:0 auto;position:relative;z-index:1;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal-lt);background:rgba(56,181,188,0.12);border:1px solid rgba(56,181,188,0.22);padding:0.28rem 0.8rem;border-radius:2px;margin-bottom:1.6rem;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,5.5vw,5rem);font-weight:700;line-height:1.0;letter-spacing:-0.02em;color:white;margin-bottom:1.3rem;}
+.hero-title em{color:var(--teal-lt);font-style:italic;}
+.hero-sub{font-size:1rem;line-height:1.8;color:rgba(220,224,232,0.82);font-weight:300;max-width:580px;}
+
+/* FOUNDER SECTION */
+.founder-section{max-width:1320px;margin:0 auto;padding:5rem 6rem;display:grid;grid-template-columns:1fr 1.6fr;gap:6rem;align-items:start;}
+
+/* PHOTO PLACEHOLDER */
+.photo-placeholder{
+  background:white;border:1px solid var(--mist);border-radius:8px;overflow:hidden;
+  aspect-ratio:3/4;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;
+}
+.photo-placeholder::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,#f0f7f8 0%,#e8f4f5 100%);
+}
+.pp-inner{position:relative;z-index:1;text-align:center;padding:2rem;}
+.pp-icon{font-size:4rem;margin-bottom:1rem;opacity:0.3;}
+.pp-label{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);font-weight:600;display:block;margin-bottom:0.4rem;}
+.pp-note{font-size:0.78rem;color:var(--slate);line-height:1.6;}
+.pp-tag{display:inline-block;margin-top:1rem;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;background:rgba(18,130,138,0.1);color:var(--teal);border:1px solid rgba(18,130,138,0.2);padding:0.25rem 0.7rem;border-radius:2px;}
+
+/* FOUNDER BIO */
+.founder-bio{}
+.fb-name-block{margin-bottom:2rem;}
+.fb-placeholder-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:0.5rem;}
+.fb-name{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:700;color:var(--ink);letter-spacing:-0.02em;line-height:1;margin-bottom:0.4rem;}
+.fb-title{font-size:0.88rem;color:var(--slate);font-weight:400;}
+.fb-tagline{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-style:italic;color:var(--teal);margin:1.5rem 0;line-height:1.4;border-left:3px solid var(--teal);padding-left:1.2rem;background:rgba(18,130,138,0.04);}
+
+/* PLACEHOLDER CONTENT BLOCKS */
+.content-placeholder{background:white;border:1px solid var(--mist);border-radius:5px;overflow:hidden;margin-bottom:1.5rem;}
+.cp-head{background:rgba(18,130,138,0.05);border-bottom:1px solid var(--mist);padding:0.8rem 1.2rem;display:flex;align-items:center;justify-content:space-between;}
+.cp-head-label{font-size:0.65rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--teal);font-weight:600;}
+.cp-placeholder-tag{font-size:0.6rem;letter-spacing:0.07em;text-transform:uppercase;background:rgba(184,146,42,0.1);color:#8a6520;border:1px solid rgba(184,146,42,0.2);padding:0.15rem 0.5rem;border-radius:2px;}
+.cp-body{padding:1.2rem;}
+.cp-line{height:14px;background:#f0f0ee;border-radius:3px;margin-bottom:8px;}
+.cp-line.short{width:40%;}
+.cp-line.med{width:65%;}
+.cp-line.long{width:85%;}
+.cp-line.full{width:100%;}
+
+/* CREDENTIALS */
+.credentials{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:1.5rem;}
+.cred{background:white;border:1px solid var(--mist);border-radius:4px;padding:1rem;position:relative;}
+.cred::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:var(--teal);border-radius:3px 0 0 3px;}
+.cred-label{font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:0.3rem;display:block;}
+.cred-value-placeholder{height:12px;background:#f0f0ee;border-radius:2px;width:75%;}
+.cred-note{font-size:0.7rem;color:#bbb;margin-top:0.5rem;font-style:italic;}
+
+/* MISSION STATEMENT */
+.mission{background:var(--ink);border-radius:8px;padding:2.5rem;margin-top:4rem;}
+.ms-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;display:block;margin-bottom:1rem;}
+.ms-text{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-style:italic;color:white;line-height:1.5;margin-bottom:1.2rem;}
+.ms-sub{font-size:0.82rem;color:rgba(220,224,232,0.70);line-height:1.65;}
+
+/* EDITORIAL NOTE */
+.editorial-note{background:rgba(18,130,138,0.06);border:1px dashed rgba(18,130,138,0.25);border-radius:6px;padding:1.5rem 2rem;margin:3rem 6rem;max-width:calc(1320px - 12rem);}
+.en-icon{font-size:1.2rem;margin-bottom:0.5rem;}
+.en-title{font-size:0.78rem;font-weight:600;color:var(--teal);margin-bottom:0.4rem;}
+.en-body{font-size:0.8rem;color:var(--slate);line-height:1.65;}
+
+/* CTA BAND */
+.cta-band{background:var(--ink);padding:4rem 6rem;display:flex;align-items:center;justify-content:space-between;gap:4rem;}
+.cb-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;display:block;margin-bottom:0.6rem;}
+.cta-band h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:0.4rem;}
+.cta-band p{font-size:0.85rem;color:rgba(220,224,232,0.65);max-width:480px;line-height:1.65;}
+.cb-actions{display:flex;gap:1rem;align-items:center;flex-shrink:0;}
+.btn-p{background:var(--teal-lt);color:var(--ink);padding:0.9rem 2rem;border-radius:3px;text-decoration:none;font-size:0.88rem;font-weight:600;white-space:nowrap;transition:all 0.2s;}
+.btn-p:hover{opacity:0.9;transform:translateY(-1px);}
+.btn-s{color:rgba(255,255,255,0.4);text-decoration:none;font-size:0.82rem;transition:color 0.2s;white-space:nowrap;}
+.btn-s:hover{color:white;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.hero-inner>*{animation:fadeUp 0.65s ease both;}
+.hero-inner>*:nth-child(1){animation-delay:0.05s;}
+.hero-inner>*:nth-child(2){animation-delay:0.15s;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <div class="nav-right">
+    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="our-model.html" class="nav-link">Our Model</a>
+    <a href="navigate-hub.html" class="nav-link">Framework</a>
+    <a href="about-us.html" class="nav-link">About</a>
+    <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">✦ About NavigateAI</div>
+    <h1 class="hero-title">Built by people<br>who've been<br><em>inside the problem.</em></h1>
+    <p class="hero-sub">NavigateAI was founded by practitioners — people who built AI systems inside technology and consulting organisations, and saw firsthand where the value gets left on the table. We translate that experience into AI that works the way real businesses work.</p>
+  </div>
+</div>
+
+<!-- EDITORIAL NOTE -->
+<div class="editorial-note">
+  <div class="en-icon">✦</div>
+  <div class="en-title">Founder story — content placeholder</div>
+  <div class="en-body">This page is designed and ready. The founder profile, biography, credentials, and personal story are intentionally left as placeholders below — to be completed with final content, headshot, and specific credentials. The structure, layout, and design are complete and consistent with the rest of the site. Replace the placeholder elements with your final content when ready.</div>
+</div>
+
+<!-- FOUNDER SECTION -->
+<div class="founder-section">
+
+  <!-- PHOTO -->
+  <div>
+    <div class="photo-placeholder">
+      <div class="pp-inner">
+        <div class="pp-icon">👤</div>
+        <span class="pp-label">Founder headshot</span>
+        <p class="pp-note">Professional portrait photograph — high resolution, business setting recommended. Suggested: 800×1067px minimum.</p>
+        <span class="pp-tag">Placeholder — add photo here</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIO -->
+  <div class="founder-bio">
+    <div class="fb-name-block">
+      <span class="fb-placeholder-label">Founder & CEO</span>
+      <div class="fb-name">Raghu Akula</div>
+      <div class="fb-title">AI Vision-to-Value Executor · BFSI Transformation Leader · Bid Strategy & Vendor Advisor · Leadership Navigation & Mentor</div>
+    </div>
+
+    <div class="fb-tagline">
+      "Call Raghu Akula when outcomes must not fail."
+    </div>
+
+    <!-- BIO PLACEHOLDER BLOCKS -->
+    <div class="content-placeholder">
+      <div class="cp-head">
+        <span class="cp-head-label">Founder story — opening paragraph</span>
+        <span class="cp-placeholder-tag">Add content</span>
+      </div>
+      <div class="cp-body">
+        <div class="cp-line full"></div>
+        <div class="cp-line long"></div>
+        <div class="cp-line full"></div>
+        <div class="cp-line med"></div>
+      </div>
+    </div>
+
+    <div class="content-placeholder">
+      <div class="cp-head">
+        <span class="cp-head-label">Why NavigateAI was founded — the problem I kept seeing</span>
+        <span class="cp-placeholder-tag">Add content</span>
+      </div>
+      <div class="cp-body">
+        <div class="cp-line full"></div>
+        <div class="cp-line long"></div>
+        <div class="cp-line full"></div>
+        <div class="cp-line long"></div>
+        <div class="cp-line short"></div>
+      </div>
+    </div>
+
+    <div class="content-placeholder">
+      <div class="cp-head">
+        <span class="cp-head-label">What I bring to every engagement</span>
+        <span class="cp-placeholder-tag">Add content</span>
+      </div>
+      <div class="cp-body">
+        <div class="cp-line full"></div>
+        <div class="cp-line med"></div>
+        <div class="cp-line full"></div>
+        <div class="cp-line long"></div>
+      </div>
+    </div>
+
+    <!-- CREDENTIALS -->
+    <div style="margin-bottom:0.5rem;margin-top:2rem;">
+      <span style="font-size:0.65rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--teal);font-weight:600;">Experience & Credentials</span>
+    </div>
+    <div class="credentials">
+      <div class="cred">
+        <span class="cred-label">Years of experience</span>
+        <div class="cred-value-placeholder"></div>
+        <div class="cred-note">Add: e.g. 20+ years in AI, technology, and transformation</div>
+      </div>
+      <div class="cred">
+        <span class="cred-label">Industries served</span>
+        <div class="cred-value-placeholder"></div>
+        <div class="cred-note">Add: e.g. BFSI, Healthcare, Technology, Retail</div>
+      </div>
+      <div class="cred">
+        <span class="cred-label">Former organisations</span>
+        <div class="cred-value-placeholder"></div>
+        <div class="cred-note">Add: previous employers, clients, or notable engagements</div>
+      </div>
+      <div class="cred">
+        <span class="cred-label">Education & certifications</span>
+        <div class="cred-value-placeholder"></div>
+        <div class="cred-note">Add: degrees, professional certifications, notable training</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MISSION STATEMENT -->
+<div style="max-width:1320px;margin:0 auto;padding:0 6rem 5rem;">
+  <div class="mission">
+    <span class="ms-label">✦ Our Mission</span>
+    <div class="ms-text">"To make enterprise-grade AI capabilities accessible, affordable, and operational for mid-market organisations across Canada and the United States — delivering not just strategy, but working AI systems that create measurable business outcomes. Fast. Predictable. Measurable."</div>
+    <div class="ms-sub">NavigateAI serves profitable, privately-held organisations with 50 to 1,000 employees — the mid-market segment that is systematically underserved by enterprise AI providers and over-charged by traditional consulting firms. We are the partner that advises, builds, hosts, and runs your AI environment end-to-end.</div>
+  </div>
+</div>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <div>
+    <span class="cb-label">Work with us</span>
+    <h2>Outcomes that don't fail.</h2>
+    <p>Start with a 45-minute discovery conversation. We'll review your submission before we meet — so when we talk, we're already working on your situation.</p>
+  </div>
+  <div class="cb-actions">
+    <a href="start-a-conversation.html" class="btn-p">Start a Conversation →</a>
+    <a href="our-model.html" class="btn-s">See Our Model</a>
+  </div>
+</div>
+
+</body>
+</html>

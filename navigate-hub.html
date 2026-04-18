@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NavigateAI — Framework Navigator</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:     #111118;
+  --paper:   #f8f8f7;
+  --gold:    #12828a;
+  --gold-lt: #38b5bc;
+  --teal:    #12828a;
+  --teal-lt: #38b5bc;
+  --rust:    #0c5f66;
+  --slate:   #444450;
+  --mist:    #e0e0de;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background:var(--ink);
+  color:var(--paper);
+  font-family:'Epilogue',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── BACKGROUND TEXTURE ── */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(18,130,138,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 90% 80%, rgba(18,130,138,0.08) 0%, transparent 50%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── HEADER ── */
+header {
+  position:relative;z-index:10;
+  padding:4rem 5rem 3rem;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.6rem;font-weight:700;letter-spacing:-0.02em;
+  color:white;text-decoration:none;
+}
+.logo span { color:var(--teal-lt); }
+.header-meta {
+  text-align:right;
+}
+.header-meta .label {
+  font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(220,224,232,0.55);display:block;margin-bottom:0.3rem;
+}
+.header-meta .title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1rem;color:rgba(255,255,255,0.6);
+}
+
+/* ── HERO ── */
+.hero {
+  position:relative;z-index:10;
+  padding:4rem 5rem;
+  max-width:900px;
+}
+.hero-eyebrow {
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--teal-lt);background:rgba(18,130,138,0.1);
+  border:1px solid rgba(18,130,138,0.2);
+  padding:0.3rem 0.9rem;border-radius:2px;margin-bottom:1.5rem;
+}
+.hero h1 {
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.4rem,5vw,4rem);
+  font-weight:700;line-height:1.05;
+  letter-spacing:-0.02em;margin-bottom:1.2rem;
+}
+.hero h1 em { color:var(--teal-lt);font-style:italic; }
+.hero p {
+  font-size:1rem;line-height:1.75;
+  color:rgba(220,224,232,0.82);
+  font-weight:300;max-width:520px;
+}
+
+/* ── MAIN JOURNEY MAP ── */
+.journey-wrap {
+  position:relative;z-index:10;
+  padding:0 5rem 3rem;
+}
+.journey-label {
+  font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(255,255,255,0.2);margin-bottom:2rem;display:block;
+}
+
+/* Connector line */
+.stages-track {
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:3px;
+  position:relative;
+}
+.stages-track::before {
+  content:'';
+  position:absolute;
+  top:3.5rem;left:4%;right:4%;
+  height:1px;
+  background:linear-gradient(90deg, var(--gold) 0%, var(--teal) 50%, rgba(255,255,255,0.1) 100%);
+  z-index:1;
+}
+
+.stage-card {
+  position:relative;z-index:2;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:6px;
+  padding:1.5rem 1.2rem;
+  text-decoration:none;
+  transition:all 0.25s ease;
+  display:flex;flex-direction:column;gap:0.6rem;
+  cursor:pointer;
+}
+.stage-card:hover {
+  background:rgba(255,255,255,0.06);
+  border-color:rgba(220,224,232,0.42);
+  transform:translateY(-4px);
+  box-shadow:0 12px 32px rgba(0,0,0,0.4);
+}
+.stage-card.foundation { border-top:2px solid var(--teal); }
+.stage-card.discovery  { border-top:2px solid var(--teal-lt); }
+.stage-card.selection  { border-top:2px solid #8a7aaa; }
+.stage-card.build      { border-top:2px solid #7a9a5a; }
+
+.sc-num {
+  font-family:'Cormorant Garamond',serif;
+  font-size:2rem;font-weight:700;
+  color:rgba(255,255,255,0.08);
+  line-height:1;
+}
+.sc-phase {
+  font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;
+  padding:0.15rem 0.5rem;border-radius:2px;
+  display:inline-block;width:fit-content;
+}
+.foundation .sc-phase  { background:rgba(18,130,138,0.15);color:var(--teal-lt); }
+.discovery  .sc-phase  { background:rgba(42,155,165,0.15);color:var(--teal-lt); }
+.selection  .sc-phase  { background:rgba(138,122,170,0.15);color:#b8aade; }
+.build      .sc-phase  { background:rgba(122,154,90,0.12);color:#9aba70; }
+
+.sc-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.05rem;font-weight:700;color:white;
+  line-height:1.2;
+}
+.sc-desc {
+  font-size:0.72rem;color:rgba(255,255,255,0.3);
+  line-height:1.5;
+}
+.sc-framework {
+  font-size:0.65rem;color:rgba(220,224,232,0.42);
+  font-style:italic;margin-top:auto;padding-top:0.5rem;
+  border-top:1px solid rgba(255,255,255,0.05);
+}
+.sc-arrow {
+  position:absolute;bottom:-1.2rem;left:50%;transform:translateX(-50%);
+  font-size:0.7rem;color:rgba(255,255,255,0.2);
+  transition:color 0.2s;
+}
+.stage-card:hover .sc-arrow { color:var(--teal-lt); }
+
+/* ── DIAGNOSTIC FEATURE ── */
+.diagnostic-band {
+  position:relative;z-index:10;
+  margin:0 5rem 4rem;
+  background:linear-gradient(135deg, rgba(18,130,138,0.15) 0%, rgba(18,130,138,0.08) 100%);
+  border:1px solid rgba(18,130,138,0.25);
+  border-radius:8px;
+  padding:2.5rem 3rem;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:3rem;align-items:center;
+}
+.db-label {
+  font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--teal-lt);opacity:0.7;display:block;margin-bottom:0.6rem;
+}
+.db-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.6rem;font-weight:700;color:white;margin-bottom:0.5rem;
+}
+.db-desc {
+  font-size:0.85rem;color:rgba(220,224,232,0.82);line-height:1.65;
+  max-width:480px;
+}
+.db-btn {
+  background:var(--teal);color:white;
+  padding:1rem 2.2rem;border-radius:3px;
+  font-family:'Epilogue',sans-serif;font-size:0.88rem;font-weight:600;
+  text-decoration:none;white-space:nowrap;
+  transition:all 0.2s;display:inline-block;
+}
+.db-btn:hover { background:var(--teal-lt);transform:translateY(-1px); }
+
+/* ── EXPERT VOICES STRIP ── */
+.experts-strip {
+  position:relative;z-index:10;
+  padding:0 5rem 4rem;
+}
+.strip-label {
+  font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;
+  color:rgba(255,255,255,0.2);display:block;margin-bottom:1.5rem;
+}
+.experts-row {
+  display:grid;grid-template-columns:repeat(7,1fr);gap:1px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:5px;overflow:hidden;
+}
+.expert-cell {
+  background:rgba(255,255,255,0.02);
+  padding:1rem 1rem;text-align:center;
+}
+.ec-stage {
+  font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;
+  color:rgba(255,255,255,0.2);display:block;margin-bottom:0.4rem;
+}
+.ec-name {
+  font-family:'Cormorant Garamond',serif;
+  font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.6);
+  line-height:1.2;display:block;margin-bottom:0.2rem;
+}
+.ec-role {
+  font-size:0.65rem;color:rgba(255,255,255,0.2);line-height:1.4;
+}
+
+/* ── RESOURCES BAND ── */
+.resources-band {
+  position:relative;z-index:10;
+  margin:0 5rem;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:2px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:6px;overflow:hidden;margin-bottom:4rem;
+}
+.res-card {
+  background:rgba(255,255,255,0.02);
+  padding:1.8rem;text-decoration:none;
+  transition:background 0.2s;
+  display:flex;flex-direction:column;gap:0.5rem;
+}
+.res-card:hover { background:rgba(255,255,255,0.06); }
+.res-icon { font-size:1.4rem; }
+.res-title {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.05rem;font-weight:700;color:white;
+}
+.res-desc { font-size:0.78rem;color:rgba(255,255,255,0.3);line-height:1.5; }
+.res-link { font-size:0.72rem;color:var(--teal-lt);margin-top:auto; }
+
+/* ── FOOTER ── */
+footer {
+  position:relative;z-index:10;
+  padding:2.5rem 5rem;
+  border-top:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.footer-logo {
+  font-family:'Cormorant Garamond',serif;
+  font-size:1.1rem;font-weight:700;color:rgba(255,255,255,0.3);
+  text-decoration:none;
+}
+.footer-logo span { color:var(--teal); }
+.footer-note {
+  font-size:0.72rem;color:rgba(255,255,255,0.2);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity:0;transform:translateY(16px); }
+  to   { opacity:1;transform:translateY(0); }
+}
+.hero > * { animation:fadeUp 0.6s ease both; }
+.hero > *:nth-child(1) { animation-delay:0.05s; }
+.hero > *:nth-child(2) { animation-delay:0.15s; }
+.hero > *:nth-child(3) { animation-delay:0.25s; }
+.journey-wrap  { animation:fadeUp 0.6s 0.3s ease both; }
+.diagnostic-band { animation:fadeUp 0.6s 0.45s ease both; }
+.experts-strip { animation:fadeUp 0.6s 0.55s ease both; }
+
+/* ── GLOBAL NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 4rem;background:rgba(17,17,24,0.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(56,181,188,0.15);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:#f8f8f7;text-decoration:none;letter-spacing:-0.01em;}
+.nav-logo span{color:#38b5bc;}
+.nav-right{display:flex;align-items:center;gap:2rem;}
+.nav-link{text-decoration:none;color:#9090a0;font-size:0.82rem;font-weight:500;transition:color 0.2s;}
+.nav-link:hover{color:#38b5bc;}
+.nav-cta{background:#12828a;color:#f8f8f7;padding:0.55rem 1.3rem;border-radius:2px;font-size:0.78rem;font-weight:500;text-decoration:none;transition:background 0.2s;}
+.nav-cta:hover{background:#38b5bc;}
+
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <div class="nav-right">
+    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="our-model.html" class="nav-link">Our Model</a>
+    <a href="navigate-hub.html" class="nav-link">Framework</a>
+    <a href="about-us.html" class="nav-link">About</a>
+    <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+  </div>
+</nav>
+
+<header>
+  <a href="ai-framework-homepage.html" class="logo">Navigate<span>AI</span></a>
+  <div class="header-meta">
+    <span class="label">Complete Framework</span>
+    <span class="title">7 Stages · End-to-End Navigator</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">✦ Your AI Journey Map</div>
+  <h1>Every stage.<br>Every tool.<br><em>One path forward.</em></h1>
+  <p>This hub links every stage of the NavigateAI framework — from defining your strategy to monitoring live systems. Click any stage to go directly to that content, or start from the beginning.</p>
+</div>
+
+<!-- MAIN JOURNEY MAP -->
+<div class="journey-wrap">
+  <span class="journey-label">✦ The 7-Stage Framework — click any stage to navigate directly</span>
+  <div class="stages-track">
+
+    <a href="stage1-define-strategy.html" class="stage-card foundation">
+      <div class="sc-num">01</div>
+      <span class="sc-phase">Foundation</span>
+      <div class="sc-title">Define Your Strategy</div>
+      <div class="sc-desc">Vision, value, velocity — before you look at a single tool</div>
+      <div class="sc-framework">3V Strategy Canvas · AI Journey Stages</div>
+    </a>
+
+    <a href="stage2-identify-problems.html" class="stage-card discovery">
+      <div class="sc-num">02</div>
+      <span class="sc-phase">Discovery</span>
+      <div class="sc-title">Identify Problem Statements</div>
+      <div class="sc-desc">Name the real problem, not the symptom</div>
+      <div class="sc-framework">Problem Anatomy Tool · Four Problem Classes</div>
+    </a>
+
+    <a href="stage3-quantify-prioritise.html" class="stage-card discovery">
+      <div class="sc-num">03</div>
+      <span class="sc-phase">Discovery</span>
+      <div class="sc-title">Quantify & Prioritise</div>
+      <div class="sc-desc">Score every problem — find your quick wins first</div>
+      <div class="sc-framework">3D Scoring Framework · Priority Zones</div>
+    </a>
+
+    <a href="stage4-select-tools.html" class="stage-card selection">
+      <div class="sc-num">04</div>
+      <span class="sc-phase">Selection</span>
+      <div class="sc-title">Select the Right Tools</div>
+      <div class="sc-desc">Match problem class to tool type before evaluating vendors</div>
+      <div class="sc-framework">AI Tool Compass · 5 Vendor Questions</div>
+    </a>
+
+    <a href="stage5-data-security.html" class="stage-card build">
+      <div class="sc-num">05</div>
+      <span class="sc-phase">Foundations</span>
+      <div class="sc-title">Data & Security Readiness</div>
+      <div class="sc-desc">Three pillars before any tool goes live</div>
+      <div class="sc-framework">3-Pillar Check · Data Trust Ladder</div>
+    </a>
+
+    <a href="stage6-design-test.html" class="stage-card build">
+      <div class="sc-num">06</div>
+      <span class="sc-phase">Implementation</span>
+      <div class="sc-title">Design, Test & Deploy</div>
+      <div class="sc-desc">90-day blueprint with three deployment gates</div>
+      <div class="sc-framework">90-Day Pilot Blueprint · Deployment Gates</div>
+    </a>
+
+    <a href="stage7-monitor-evolve.html" class="stage-card build">
+      <div class="sc-num">07</div>
+      <span class="sc-phase">Operations</span>
+      <div class="sc-title">Monitor & Evolve</div>
+      <div class="sc-desc">Five health metrics. Three review cycles. Compounding value.</div>
+      <div class="sc-framework">AI Health Dashboard · Review Cycles</div>
+    </a>
+
+  </div>
+</div>
+
+<!-- DIAGNOSTIC BAND -->
+<div class="diagnostic-band">
+  <div>
+    <span class="db-label">✦ AI Readiness Diagnostic</span>
+    <div class="db-title">Not sure where to start?</div>
+    <p class="db-desc">The 29-question diagnostic assesses your readiness across five dimensions — Strategy, Problems, Data, Security, and Organisational Readiness — and tells you exactly which stage to focus on first.</p>
+  </div>
+  <a href="ai-diagnostic-quiz-v6.html" class="db-btn">Take the Diagnostic →</a>
+</div>
+
+<!-- EXPERT VOICES STRIP -->
+<div class="experts-strip">
+  <span class="strip-label">Expert voices behind the framework — one per stage, each attributed by name and role only</span>
+  <div class="experts-row">
+    <div class="expert-cell">
+      <span class="ec-stage">Stage 01</span>
+      <span class="ec-name">Cassie Kozyrkov</span>
+      <span class="ec-role">ex-Google Chief Decision Scientist, CEO of Kozyr</span>
+    </div>
+    <div class="expert-cell">
+      <span class="ec-stage">Stage 02</span>
+      <span class="ec-name">Isaac Sacolick</span>
+      <span class="ec-role">Founder of StarCIO, Author of Digital Trailblazer</span>
+    </div>
+    <div class="expert-cell">
+      <span class="ec-stage">Stage 03</span>
+      <span class="ec-name">Sumeet Gupta</span>
+      <span class="ec-role">Senior MD, AI & Digital Transformation, FTI Consulting</span>
+    </div>
+    <div class="expert-cell">
+      <span class="ec-stage">Stage 04</span>
+      <span class="ec-name">Sarah Wang</span>
+      <span class="ec-role">General Partner, Andreessen Horowitz</span>
+    </div>
+    <div class="expert-cell">
+      <span class="ec-stage">Stage 05</span>
+      <span class="ec-name">Micheline Casey</span>
+      <span class="ec-role">Global CDAO, Mars Petcare · ex-Federal Reserve, Ford</span>
+    </div>
+    <div class="expert-cell">
+      <span class="ec-stage">Stage 06</span>
+      <span class="ec-name">AJ Dalal</span>
+      <span class="ec-role">Senior MD, Data & AI Strategy, Publicis Sapient</span>
+    </div>
+    <div class="expert-cell">
+      <span class="ec-stage">Stage 07</span>
+      <span class="ec-name">Bernard Marr</span>
+      <span class="ec-role">Futurist & Strategic Advisor · Author of AI Strategy</span>
+    </div>
+  </div>
+</div>
+
+<!-- RESOURCES BAND -->
+<div class="resources-band">
+  <a href="ai-framework-homepage.html" class="res-card">
+    <div class="res-icon">🏠</div>
+    <div class="res-title">Framework Homepage</div>
+    <div class="res-desc">Full overview of the NavigateAI methodology, all 7 stages, and the founding principles behind the framework.</div>
+    <div class="res-link">ai-framework-homepage.html →</div>
+  </a>
+  <a href="ai-diagnostic-quiz-v6.html" class="res-card">
+    <div class="res-icon">🎯</div>
+    <div class="res-title">AI Readiness Diagnostic</div>
+    <div class="res-desc">29 questions across 5 dimensions. Understand your current AI readiness and get a personalised starting point in the framework.</div>
+    <div class="res-link">ai-diagnostic-quiz-v6.html →</div>
+  </a>
+  <a href="stage3-quantify-prioritise.html" class="res-card">
+    <div class="res-icon">⚡</div>
+    <div class="res-title">Start Your Next Initiative</div>
+    <div class="res-desc">Already deployed your first AI tool? Return to Stage 3 to score and prioritise your next use case — this is how value compounds.</div>
+    <div class="res-link">stage3-quantify-prioritise.html →</div>
+  </a>
+  <a href="start-a-conversation.html" class="res-card" style="border-top:2px solid var(--teal-lt);">
+    <div class="res-icon">💬</div>
+    <div class="res-title">Start a Conversation</div>
+    <div class="res-desc">Ready to move from framework to action? Book a focused 45-minute discovery conversation — we'll come fully prepared with your context.</div>
+    <div class="res-link">start-a-conversation.html →</div>
+  </a>
+  <a href="why-navigate-ai.html" class="res-card">
+    <div class="res-icon">🎯</div>
+    <div class="res-title">Why NavigateAI</div>
+    <div class="res-desc">Who we're built for, what makes us different, and the honest self-qualification test — are you the right fit for us?</div>
+    <div class="res-link">why-navigate-ai.html →</div>
+  </a>
+  <a href="our-model.html" class="res-card">
+    <div class="res-icon">⚙️</div>
+    <div class="res-title">Our Model</div>
+    <div class="res-desc">The three-layer engagement — Advise, Build, Host & Run. Pricing, the Discovery Sprint, and what the client journey looks like end to end.</div>
+    <div class="res-link">our-model.html →</div>
+  </a>
+</div>
+
+<footer>
+  <a href="ai-framework-homepage.html" class="footer-logo">Navigate<span>AI</span></a>
+  <span class="footer-note">A framework for non-technical founders navigating their AI journey</span>
+</footer>
+
+</body>
+</html>

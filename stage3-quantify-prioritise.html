@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stage 3: Quantify & Prioritise — NavigateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:     #111118;
+  --paper:   #f8f8f7;
+  --gold:    #12828a;
+  --gold-lt: #38b5bc;
+  --teal:    #12828a;
+  --teal-lt: #38b5bc;
+  --rust:    #0c5f66;
+  --slate:   #444450;
+  --mist:    #e0e0de;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:'Epilogue',sans-serif;overflow-x:hidden;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 4rem;background:rgba(247,244,238,0.94);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--mist);
+}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-0.01em;}
+.nav-logo span{color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:2rem;}
+.nav-link{text-decoration:none;color:var(--slate);font-size:0.82rem;font-weight:500;transition:color 0.2s;}
+.nav-link:hover{color:var(--teal);}
+.nav-cta{background:var(--ink);color:var(--paper);padding:0.55rem 1.3rem;border-radius:2px;font-size:0.78rem;font-weight:500;text-decoration:none;transition:background 0.2s;}
+.nav-cta:hover{background:var(--teal);}
+
+/* ── STAGE STRIP ── */
+.stage-strip{margin-top:4.4rem;background:var(--ink);padding:0.75rem 4rem;display:flex;gap:0;overflow-x:auto;}
+.ss{display:flex;align-items:center;gap:0.45rem;font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:rgba(220,224,232,0.50);padding:0 1rem;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.06);text-decoration:none;transition:color 0.2s;}
+.ss:last-child{border-right:none;}
+.ss.done{color:rgba(255,255,255,0.4);}
+.ss.active{color:var(--gold-lt);}
+.ss:hover:not(.active){color:rgba(255,255,255,0.5);}
+.ss-n{font-family:'Cormorant Garamond',serif;font-size:0.85rem;font-weight:600;}
+
+/* ── HERO ── */
+.hero{padding:6rem 6rem 4rem;max-width:1320px;margin:0 auto;display:grid;grid-template-columns:5fr 4fr;gap:6rem;align-items:center;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);background:rgba(18,130,138,0.1);border:1px solid rgba(18,130,138,0.22);padding:0.28rem 0.8rem;border-radius:2px;margin-bottom:1.6rem;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5vw,4.8rem);font-weight:700;line-height:1.0;letter-spacing:-0.02em;margin-bottom:1.3rem;}
+.hero-title em{color:var(--teal);font-style:italic;}
+.hero-sub{font-size:1rem;line-height:1.75;color:var(--slate);font-weight:300;max-width:460px;margin-bottom:2.5rem;}
+.hero-quote{padding:1.4rem 1.8rem;border-left:3px solid var(--gold);background:rgba(18,130,138,0.05);border-radius:0 4px 4px 0;}
+.hq-text{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;color:var(--ink);line-height:1.6;margin-bottom:0.6rem;}
+.hq-attr{font-size:0.68rem;letter-spacing:0.06em;color:var(--slate);opacity:0.55;}
+
+/* before/after grid */
+.ba{border:1px solid var(--mist);border-radius:6px;overflow:hidden;}
+.ba-header{display:grid;grid-template-columns:1fr 1fr;}
+.ba-col{padding:0.75rem 1.1rem;font-size:0.65rem;letter-spacing:0.09em;text-transform:uppercase;font-weight:600;}
+.ba-col.bad{background:#eef8f8;color:var(--rust);border-bottom:2px solid #f5b8a8;}
+.ba-col.good{background:#f0f7f8;color:var(--teal);border-bottom:2px solid #b8dde0;}
+.ba-row{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--mist);}
+.ba-cell{padding:0.8rem 1.1rem;font-size:0.81rem;line-height:1.5;color:var(--slate);}
+.ba-cell.bad{background:#fffaf9;border-right:1px solid var(--mist);}
+.ba-cell.good{background:#f8fcfc;}
+.ba-cell.bad::before{content:'✗ ';color:#c06050;font-weight:700;}
+.ba-cell.good::before{content:'✓ ';color:var(--teal);font-weight:700;}
+
+/* ── SECTIONS ── */
+.section{padding:5rem 6rem;border-top:1px solid var(--mist);max-width:1320px;margin:0 auto;}
+.section.dark{background:var(--ink);max-width:none;padding:5rem 6rem;border-top:none;}
+.sec-label{font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:0.8rem;}
+.dark .sec-label{color:var(--gold-lt);opacity:0.7;}
+.sec-heading{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;line-height:1.1;letter-spacing:-0.02em;margin-bottom:0.9rem;}
+.dark .sec-heading{color:white;}
+.sec-intro{font-size:0.95rem;line-height:1.75;color:var(--slate);font-weight:300;max-width:580px;}
+.dark .sec-intro{color:rgba(220,224,232,0.82);}
+
+/* ── THE 3D SCORING GRID ── */
+/* Three dimensions: Value, Feasibility, Readiness */
+.scoring-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;background:var(--mist);
+  border:1px solid var(--mist);border-radius:8px;
+  overflow:hidden;margin-top:3rem;
+}
+.sg{background:white;padding:2.2rem 1.8rem;position:relative;transition:box-shadow 0.2s;}
+.sg:hover{box-shadow:0 4px 20px rgba(0,0,0,0.07);}
+.sg::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.sg:nth-child(1)::after{background:var(--gold);}
+.sg:nth-child(2)::after{background:var(--teal);}
+.sg:nth-child(3)::after{background:var(--rust);}
+.sg-n{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:700;line-height:1;opacity:0.07;margin-bottom:0.3rem;}
+.sg:nth-child(1) .sg-n{color:var(--gold);}
+.sg:nth-child(2) .sg-n{color:var(--teal);}
+.sg:nth-child(3) .sg-n{color:var(--rust);}
+.sg-tag{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;margin-bottom:0.3rem;display:block;}
+.sg:nth-child(1) .sg-tag{color:var(--gold);}
+.sg:nth-child(2) .sg-tag{color:var(--teal);}
+.sg:nth-child(3) .sg-tag{color:var(--rust);}
+.sg-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;line-height:1.1;margin-bottom:0.7rem;}
+.sg-desc{font-size:0.84rem;line-height:1.7;color:var(--slate);margin-bottom:1.3rem;}
+.sg-score-row{display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-top:1px solid var(--mist);}
+.sg-score-label{font-size:0.78rem;color:var(--slate);}
+.sg-score-dots{display:flex;gap:4px;}
+.sd{width:10px;height:10px;border-radius:50%;background:var(--mist);}
+.sd.on{background:var(--teal);}
+.sg:nth-child(1) .sd.on{background:var(--gold);}
+.sg:nth-child(3) .sd.on{background:var(--rust);}
+
+/* scoring anchor */
+.score-anchor{
+  margin-top:1.5rem;background:var(--ink);border-radius:4px;
+  padding:1.4rem 2rem;display:flex;align-items:center;gap:1.5rem;
+}
+.sa-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-lt);opacity:0.7;white-space:nowrap;}
+.sa-rule{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;color:white;line-height:1.4;}
+
+/* ── PRIORITY ZONES ── */
+/* The 2x2 Quick Win Matrix — original NavigateAI framework */
+.matrix-wrap{
+  margin-top:3rem;
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px;overflow:hidden;
+  max-width:900px;
+}
+.mz{padding:2.2rem 2rem;background:rgba(255,255,255,0.02);}
+.mz.highlight{background:rgba(18,130,138,0.08);border:1px solid rgba(18,130,138,0.2);}
+.mz-tag{display:inline-block;font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;padding:0.18rem 0.6rem;border-radius:2px;margin-bottom:0.8rem;}
+.mz.highlight .mz-tag{background:rgba(18,130,138,0.2);color:var(--gold-lt);}
+.mz:not(.highlight) .mz-tag{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);}
+.mz-title{font-family:'Cormorant Garamond',serif;color:white;font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;}
+.mz.highlight .mz-title{color:var(--gold-lt);}
+.mz-desc{font-size:0.78rem;color:rgba(220,224,232,0.75);line-height:1.6;margin-bottom:0.9rem;}
+.mz-action{font-size:0.75rem;color:rgba(220,224,232,0.50);font-style:italic;border-top:1px solid rgba(255,255,255,0.06);padding-top:0.7rem;}
+.mz.highlight .mz-action{color:rgba(255,255,255,0.4);}
+.matrix-axis{
+  display:flex;gap:3rem;margin-top:1.5rem;
+  font-size:0.68rem;color:rgba(255,255,255,0.3);letter-spacing:0.06em;
+}
+.matrix-axis span{display:flex;align-items:center;gap:0.4rem;}
+.axis-dot{width:8px;height:8px;border-radius:50%;}
+
+/* ── SCORING TABLE ── */
+.score-table{
+  margin-top:3rem;width:100%;
+  border:1px solid var(--mist);border-radius:6px;overflow:hidden;
+}
+.st-head{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr 0.8fr;
+  background:var(--ink);
+}
+.st-cell{
+  padding:0.85rem 1rem;font-size:0.68rem;
+  letter-spacing:0.08em;text-transform:uppercase;font-weight:600;
+  color:rgba(220,224,232,0.82);border-right:1px solid rgba(255,255,255,0.06);
+}
+.st-cell:last-child{border-right:none;}
+.st-row{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr 0.8fr;
+  border-top:1px solid var(--mist);
+}
+.st-row:nth-child(even) .st-d{background:#fafaf8;}
+.st-d{
+  padding:0.9rem 1rem;font-size:0.82rem;color:var(--slate);
+  border-right:1px solid var(--mist);line-height:1.4;
+}
+.st-d:last-child{border-right:none;}
+.st-d.name{font-weight:500;color:var(--ink);}
+.score-badge{
+  display:inline-block;padding:0.2rem 0.6rem;border-radius:2px;
+  font-size:0.72rem;font-weight:600;
+}
+.score-badge.high{background:rgba(42,155,165,0.1);color:var(--teal);}
+.score-badge.med{background:rgba(18,130,138,0.1);color:var(--gold);}
+.score-badge.low{background:rgba(12,95,102,0.1);color:var(--rust);}
+.st-note{padding:0.8rem 1rem;font-size:0.75rem;color:#aaa;background:#fafaf8;font-style:italic;}
+
+/* ── ACTION: CHECKLIST + SCORER ── */
+.action-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;margin-top:3rem;}
+
+/* checklist */
+.cl-group{margin-bottom:1.5rem;}
+.cl-group:last-child{margin-bottom:0;}
+.cl-head{font-size:0.62rem;letter-spacing:0.09em;text-transform:uppercase;font-weight:600;padding:0.6rem 1rem;border-radius:3px 3px 0 0;}
+.cl-head.s1{background:#eaf7f8;color:var(--gold);}
+.cl-head.s2{background:#f0f7f8;color:var(--teal);}
+.cl-item{display:flex;align-items:flex-start;gap:0.7rem;padding:0.7rem 1rem;border:1px solid var(--mist);border-top:none;font-size:0.82rem;color:var(--slate);line-height:1.45;cursor:pointer;transition:background 0.12s;background:white;}
+.cl-item:last-child{border-radius:0 0 3px 3px;}
+.cl-item:hover{background:#fafaf8;}
+.cl-item.done{color:#b0b8c0;text-decoration:line-through;}
+.cl-box{width:16px;height:16px;border:1.5px solid var(--mist);border-radius:2px;flex-shrink:0;margin-top:0.1rem;display:flex;align-items:center;justify-content:center;transition:all 0.12s;}
+.cl-item.done .cl-box{background:var(--teal);border-color:var(--teal);}
+.cl-item.done .cl-box::after{content:'✓';color:white;font-size:0.6rem;font-weight:700;}
+
+/* scorer worksheet */
+.scorer{background:white;border:1px solid var(--mist);border-radius:6px;overflow:hidden;}
+.sc-head{background:var(--ink);padding:1.2rem 1.6rem;display:flex;align-items:center;justify-content:space-between;}
+.sc-title{font-family:'Cormorant Garamond',serif;color:white;font-size:1.1rem;font-weight:600;}
+.sc-badge{font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--gold-lt);background:rgba(18,130,138,0.15);border:1px solid rgba(18,130,138,0.25);padding:0.2rem 0.6rem;border-radius:2px;}
+.sc-body{padding:1.5rem;}
+.sc-intro{font-size:0.8rem;color:var(--slate);line-height:1.6;margin-bottom:1.3rem;padding:0.8rem 1rem;background:#fafaf8;border-radius:3px;border-left:2px solid var(--gold);}
+.sc-field{margin-bottom:1rem;}
+.sc-field:last-of-type{margin-bottom:0;}
+.sc-lbl{font-size:0.68rem;letter-spacing:0.07em;text-transform:uppercase;color:var(--slate);font-weight:600;margin-bottom:0.35rem;display:block;}
+.sc-lbl span{font-weight:400;color:#aaa;text-transform:none;letter-spacing:0;}
+.sc-in{width:100%;background:#fafaf8;border:1px solid var(--mist);border-radius:3px;padding:0.7rem 0.9rem;resize:vertical;font-family:'Epilogue',sans-serif;font-size:0.83rem;color:var(--ink);outline:none;transition:border-color 0.18s;min-height:48px;}
+.sc-in:focus{border-color:var(--teal);}
+.sc-in::placeholder{color:#ccc;font-style:italic;}
+.sc-sliders{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.8rem;margin-bottom:1rem;}
+.sc-slider-group{}
+.sc-slider-lbl{font-size:0.65rem;letter-spacing:0.07em;text-transform:uppercase;color:var(--slate);margin-bottom:0.35rem;display:block;}
+.sc-select{width:100%;background:#fafaf8;border:1px solid var(--mist);border-radius:3px;padding:0.6rem 0.8rem;font-family:'Epilogue',sans-serif;font-size:0.82rem;color:var(--ink);outline:none;cursor:pointer;}
+.sc-select:focus{border-color:var(--teal);}
+.sc-result{
+  margin-top:1rem;padding:1rem;border-radius:4px;
+  background:#f0f7f8;border:1px solid #c8e8ea;
+  font-size:0.85rem;color:var(--teal);text-align:center;
+  font-weight:600;display:none;
+}
+.sc-footer{padding:1rem 1.5rem;border-top:1px solid var(--mist);display:flex;gap:0.8rem;}
+.sc-btn{padding:0.65rem 1.3rem;border-radius:3px;font-family:'Epilogue',sans-serif;font-size:0.8rem;font-weight:500;cursor:pointer;border:none;transition:all 0.2s;}
+.sc-btn.p{background:var(--ink);color:white;}
+.sc-btn.p:hover{background:var(--teal);}
+.sc-btn.s{background:none;color:var(--slate);border:1px solid var(--mist);}
+.sc-btn.s:hover{border-color:var(--teal);color:var(--teal);}
+
+/* go deeper */
+.go-deeper{margin-top:2rem;border:1px solid var(--mist);border-radius:5px;overflow:hidden;}
+.gd-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.4rem;background:white;cursor:pointer;font-size:0.82rem;color:var(--slate);font-weight:500;border:none;font-family:'Epilogue',sans-serif;transition:background 0.15s;}
+.gd-toggle:hover{background:#fafaf8;}
+.gd-icon{font-size:0.75rem;transition:transform 0.25s;color:var(--gold);}
+.gd-icon.open{transform:rotate(180deg);}
+.gd-body{display:none;padding:1.4rem;border-top:1px solid var(--mist);background:white;}
+.gd-body.open{display:block;}
+.gd-resource{display:flex;align-items:flex-start;gap:0.8rem;padding:0.6rem 0;border-bottom:1px solid var(--mist);font-size:0.82rem;color:var(--slate);line-height:1.5;}
+.gd-resource:last-child{border-bottom:none;}
+.gd-resource a{color:var(--teal);text-decoration:none;}
+.gd-resource a:hover{text-decoration:underline;}
+.gd-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:0.45rem;}
+
+/* ── NEXT STAGE ── */
+.next{background:var(--ink);padding:4rem 6rem;display:flex;align-items:center;justify-content:space-between;gap:4rem;}
+.nl{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-lt);opacity:0.6;margin-bottom:0.6rem;display:block;}
+.next h2{font-family:'Cormorant Garamond',serif;font-size:2rem;color:white;font-weight:700;letter-spacing:-0.02em;margin-bottom:0.5rem;}
+.next p{font-size:0.85rem;color:rgba(220,224,232,0.75);line-height:1.6;max-width:500px;}
+.next-actions{display:flex;gap:1rem;align-items:center;flex-shrink:0;}
+.btn-p{background:var(--gold);color:var(--ink);padding:0.9rem 2rem;border-radius:3px;text-decoration:none;font-size:0.88rem;font-weight:600;transition:all 0.2s;white-space:nowrap;}
+.btn-p:hover{background:var(--gold-lt);transform:translateY(-1px);}
+.btn-s{color:rgba(255,255,255,0.3);text-decoration:none;font-size:0.82rem;transition:color 0.2s;white-space:nowrap;}
+.btn-s:hover{color:white;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.hero-left>*{animation:fadeUp 0.65s ease both;}
+.hero-left>*:nth-child(1){animation-delay:0.05s;}
+.hero-left>*:nth-child(2){animation-delay:0.15s;}
+.hero-left>*:nth-child(3){animation-delay:0.25s;}
+.hero-left>*:nth-child(4){animation-delay:0.35s;}
+.hero-right{animation:fadeUp 0.65s 0.25s ease both;}
+.reveal{opacity:0;transform:translateY(22px);transition:all 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <div class="nav-right">
+    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="our-model.html" class="nav-link">Our Model</a>
+    <a href="navigate-hub.html" class="nav-link">Framework</a>
+    <a href="about-us.html" class="nav-link">About</a>
+    <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+  </div>
+</nav>
+
+<!-- STAGE STRIP -->
+<div class="stage-strip">
+  <a href="stage1-define-strategy.html" class="ss done"><span class="ss-n">01</span> Define Strategy</a>
+  <a href="stage2-identify-problems.html" class="ss done"><span class="ss-n">02</span> Identify Problems</a>
+  <a href="#" class="ss active"><span class="ss-n">03</span> Quantify & Prioritise</a>
+  <a href="#" class="ss"><span class="ss-n">04</span> Select Tools</a>
+  <a href="#" class="ss"><span class="ss-n">05</span> Data & Security</a>
+  <a href="#" class="ss"><span class="ss-n">06</span> Design & Test</a>
+  <a href="#" class="ss"><span class="ss-n">07</span> Monitor & Evolve</a>
+</div>
+
+<!-- ── SECTION 1: HERO ── -->
+<section style="padding-top:0;">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">✦ Stage 03 · Prioritisation</div>
+      <h1 class="hero-title">Find your<br><em>quick wins.</em><br>Sequence the rest.</h1>
+      <p class="hero-sub">You now have a list of real problems. But not all of them deserve your time and budget right now. This stage gives you a disciplined way to decide what to tackle first — and why.</p>
+      <div class="hero-quote">
+        <div class="hq-text">"Organisations that stay on the sidelines accumulate AI intuition debt — a compounding cost that eventually prevents not just efficiency gains, but the ability to generate new ideas altogether. Prioritisation is what makes action possible without requiring everything at once."</div>
+        <div class="hq-attr">Sumeet Gupta · Senior Managing Director, AI & Digital Transformation, FTI Consulting</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="ba">
+        <div class="ba-header">
+          <div class="ba-col bad">⚠ Without prioritisation</div>
+          <div class="ba-col good">✦ With prioritisation</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">Starting with the most technically exciting problem, not the most valuable one</div>
+          <div class="ba-cell good">Starting with the problem that delivers visible value fastest and builds organisational confidence</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">Spreading effort across 6 problems simultaneously — none reaching production</div>
+          <div class="ba-cell good">One well-scoped problem in production before the next one begins</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">Making prioritisation decisions in a leadership meeting based on whoever argues loudest</div>
+          <div class="ba-cell good">A scored, transparent shortlist that any stakeholder can understand and challenge</div>
+        </div>
+        <div class="ba-row">
+          <div class="ba-cell bad">No clear answer when the board asks "what did our AI investment actually achieve?"</div>
+          <div class="ba-cell good">A measurable outcome from the first initiative that funds the next one</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 2: THE 3D SCORING FRAMEWORK ── -->
+<section class="section reveal" id="scoring">
+  <span class="sec-label">The NavigateAI Framework</span>
+  <h2 class="sec-heading">The 3D Scoring Framework</h2>
+  <p class="sec-intro">Score every problem statement from Stage 2 across three dimensions. Each dimension gets a score of 1–3. The total — out of 9 — tells you where to start. No gut feel. No politics. Just a transparent score anyone can interrogate.</p>
+
+  <div class="scoring-grid">
+    <div class="sg">
+      <div class="sg-n">D1</div>
+      <span class="sg-tag">Business Value</span>
+      <div class="sg-title">How much does solving this actually matter?</div>
+      <div class="sg-desc">Score the downstream business impact — on revenue, cost, customer experience, or risk — if this problem were solved completely. Be specific. Estimate in time saved, cost reduced, or revenue protected.</div>
+      <div class="sg-score-row">
+        <span class="sg-score-label">Low impact (1)</span>
+        <div class="sg-score-dots"><div class="sd on"></div><div class="sd"></div><div class="sd"></div></div>
+      </div>
+      <div class="sg-score-row">
+        <span class="sg-score-label">Meaningful impact (2)</span>
+        <div class="sg-score-dots"><div class="sd on"></div><div class="sd on"></div><div class="sd"></div></div>
+      </div>
+      <div class="sg-score-row">
+        <span class="sg-score-label">High / compounding impact (3)</span>
+        <div class="sg-score-dots"><div class="sd on"></div><div class="sd on"></div><div class="sd on"></div></div>
+      </div>
+    </div>
+    <div class="sg">
+      <div class="sg-n">D2</div>
+      <span class="sg-tag">Implementation Feasibility</span>
+      <div class="sg-title">How hard is this to actually build and deploy?</div>
+      <div class="sg-desc">Score the technical and organisational complexity. Consider data availability, integration requirements, change management effort, and whether your team has the capability or a clear path to get it.</div>
+      <div class="sg-score-row">
+        <span class="sg-score-label">Complex / high effort (1)</span>
+        <div class="sg-score-dots"><div class="sd on"></div><div class="sd"></div><div class="sd"></div></div>
+      </div>
+      <div class="sg-score-row">
+        <span class="sg-score-label">Moderate effort (2)</span>
+        <div class="sg-score-dots"><div class="sd on"></div><div class="sd on"></div><div class="sd"></div></div>
+      </div>
+      <div class="sg-score-row">
+        <span class="sg-score-label">Low effort / clear path (3)</span>
+        <div class="sg-score-dots"><div class="sd on"></div><div class="sd on"></div><div class="sd on"></div></div>
+      </div>
+    </div>
+    <div class="sg">
+      <div class="sg-n">D3</div>
+      <span class="sg-tag">Data Readiness</span>
+      <div class="sg-title">Is the data actually there to support it?</div>
+      <div class="sg-desc">Score the availability, quality, and accessibility of the data this problem depends on. A high-value problem with no usable data is not a quick win — it's a prerequisite project disguised as an AI initiative.</div>
+      <div class="sg-score-row">
+        <span class="sg-score-label">Data not accessible or clean (1)</span>
+        <div class="sg-score-dots"><div class="sd on"></div><div class="sd"></div><div class="sd"></div></div>
+      </div>
+      <div class="sg-score-row">
+        <span class="sg-score-label">Partial — needs preparation (2)</span>
+        <div class="sg-score-dots"><div class="sd on"></div><div class="sd on"></div><div class="sd"></div></div>
+      </div>
+      <div class="sg-score-row">
+        <span class="sg-score-label">Clean, accessible, sufficient (3)</span>
+        <div class="sg-score-dots"><div class="sd on"></div><div class="sd on"></div><div class="sd on"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="score-anchor">
+    <span class="sa-label">The scoring rule</span>
+    <span class="sa-rule">Score 7–9: pursue now. Score 4–6: pursue once a prerequisite is resolved. Score 1–3: park it — the foundations aren't there yet.</span>
+  </div>
+
+  <!-- Sample scored table -->
+  <div class="score-table">
+    <div class="st-head">
+      <div class="st-cell">Problem Statement</div>
+      <div class="st-cell">D1 Value</div>
+      <div class="st-cell">D2 Feasibility</div>
+      <div class="st-cell">D3 Data</div>
+      <div class="st-cell">Total</div>
+    </div>
+    <div class="st-row">
+      <div class="st-d name">Weekly ops report — 3hrs manual data pull</div>
+      <div class="st-d"><span class="score-badge high">3</span></div>
+      <div class="st-d"><span class="score-badge high">3</span></div>
+      <div class="st-d"><span class="score-badge high">3</span></div>
+      <div class="st-d"><span class="score-badge high">9 — Start now</span></div>
+    </div>
+    <div class="st-row">
+      <div class="st-d name">Proposal drafting — same structure, variable data</div>
+      <div class="st-d"><span class="score-badge high">3</span></div>
+      <div class="st-d"><span class="score-badge high">3</span></div>
+      <div class="st-d"><span class="score-badge med">2</span></div>
+      <div class="st-d"><span class="score-badge high">8 — Start now</span></div>
+    </div>
+    <div class="st-row">
+      <div class="st-d name">Customer churn prediction from CRM data</div>
+      <div class="st-d"><span class="score-badge high">3</span></div>
+      <div class="st-d"><span class="score-badge med">2</span></div>
+      <div class="st-d"><span class="score-badge med">2</span></div>
+      <div class="st-d"><span class="score-badge med">7 — Start after data prep</span></div>
+    </div>
+    <div class="st-row">
+      <div class="st-d name">Multi-system client onboarding workflow</div>
+      <div class="st-d"><span class="score-badge high">3</span></div>
+      <div class="st-d"><span class="score-badge low">1</span></div>
+      <div class="st-d"><span class="score-badge med">2</span></div>
+      <div class="st-d"><span class="score-badge med">6 — Address complexity first</span></div>
+    </div>
+    <div class="st-row">
+      <div class="st-d name">Real-time demand forecasting engine</div>
+      <div class="st-d"><span class="score-badge med">2</span></div>
+      <div class="st-d"><span class="score-badge low">1</span></div>
+      <div class="st-d"><span class="score-badge low">1</span></div>
+      <div class="st-d"><span class="score-badge low">4 — Park for now</span></div>
+    </div>
+    <div class="st-note">Example only — your scores will reflect your actual problem statements from Stage 2</div>
+  </div>
+</section>
+
+<!-- ── SECTION 3: PRIORITY ZONES MATRIX ── -->
+<section class="section dark reveal" id="zones">
+  <div style="max-width:1200px;margin:0 auto;">
+    <span class="sec-label">Where Your Problems Live</span>
+    <h2 class="sec-heading">The Priority Zones</h2>
+    <p class="sec-intro">Once scored, every problem falls into one of four zones. Your sequence follows naturally — start in the top left, plan for the rest. Avoid the common mistake of starting in the top right because it's exciting.</p>
+
+    <div class="matrix-wrap">
+      <div class="mz highlight">
+        <span class="mz-tag">✦ Start here</span>
+        <div class="mz-title">Quick Wins</div>
+        <div class="mz-desc">High value, high feasibility, data ready. These are your first 90-day initiatives. They build organisational confidence, demonstrate ROI, and fund what comes next.</div>
+        <div class="mz-action">→ Commit, scope, and deploy within 90 days</div>
+      </div>
+      <div class="mz">
+        <span class="mz-tag">Plan for wave 2</span>
+        <div class="mz-title">Strategic Bets</div>
+        <div class="mz-desc">High value, lower feasibility or data gaps. These are worth investing in — but they need groundwork first. Plan them in parallel while quick wins are being delivered.</div>
+        <div class="mz-action">→ Identify the blocking prerequisite and assign an owner</div>
+      </div>
+      <div class="mz">
+        <span class="mz-tag">Reassess</span>
+        <div class="mz-title">Easy but Low Return</div>
+        <div class="mz-desc">Feasible but limited business impact. These feel tempting because they're achievable, but they consume capacity without moving meaningful metrics. Reassess or deprioritise.</div>
+        <div class="mz-action">→ Only pursue if they unlock something larger</div>
+      </div>
+      <div class="mz">
+        <span class="mz-tag">Park it</span>
+        <div class="mz-title">Not Ready Yet</div>
+        <div class="mz-desc">Low feasibility and limited near-term return. These aren't the right problems for now — either the foundations aren't there or the value doesn't justify the complexity at this stage.</div>
+        <div class="mz-action">→ Revisit in 6–12 months when conditions change</div>
+      </div>
+    </div>
+
+    <div class="matrix-axis">
+      <span><div class="axis-dot" style="background:var(--gold-lt);"></div> Horizontal axis: Business Value (low → high)</span>
+      <span><div class="axis-dot" style="background:var(--teal-lt);"></div> Vertical axis: Feasibility + Data Readiness (low → high)</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 4: ACTION ── -->
+<section class="section reveal" id="action">
+  <span class="sec-label">Stage 3 — Take Action</span>
+  <h2 class="sec-heading">Score your problems. Pick your first one.</h2>
+  <p class="sec-intro">Use the checklist to confirm your prioritisation is solid. Then use the scorer to work through your shortlist — one row per problem from Stage 2.</p>
+
+  <div class="action-grid">
+    <!-- CHECKLIST -->
+    <div>
+      <div class="cl-group">
+        <div class="cl-head s1">✦ Your shortlist is ready when…</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Every problem from Stage 2 has been scored across all three dimensions</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>You have at least one problem scoring 7 or above — your first initiative</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>The first initiative has a named owner, a 90-day deadline, and defined success criteria</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Problems scoring below 4 have been parked with a reason noted</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Strategic Bets have identified blocking prerequisites with owners assigned</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>The shortlist has been shared with and agreed by your AI sponsor</div>
+      </div>
+      <div class="cl-group">
+        <div class="cl-head s2">✓ Common mistakes to avoid</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not starting with technically interesting problems over high-value ones</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not running more than two initiatives simultaneously in the first wave</div>
+        <div class="cl-item" onclick="tick(this)"><div class="cl-box"></div>Not letting a single advocate push a low-scored problem to the top of the list</div>
+      </div>
+
+      <div class="go-deeper">
+        <button class="gd-toggle" onclick="toggleDeeper(this)">
+          <span>📚 Go deeper — expert reading on AI prioritisation</span>
+          <span class="gd-icon">▼</span>
+        </button>
+        <div class="gd-body">
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>Sumeet Gupta · FTI Consulting</strong> — AI's Impact on Business Transformation: structural shifts and priorities for executives. <a href="https://www.fticonsulting.com/insights/articles/ai-impact-business-transformation-structural-shifts" target="_blank">fticonsulting.com</a></div>
+          </div>
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>McKinsey QuantumBlack</strong> — State of AI: why scaling remains the hard part after widespread adoption. <a href="https://mckinsey.com/capabilities/quantumblack" target="_blank">mckinsey.com</a></div>
+          </div>
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>Alex Singla · McKinsey QuantumBlack</strong> — State of AI: why moving from pilots to production is where organisations stall. <a href="https://mckinsey.com/capabilities/quantumblack" target="_blank">mckinsey.com</a></div>
+          </div>
+          <div class="gd-resource">
+            <div class="gd-dot"></div>
+            <div><strong>Pascal Bornet</strong> — Agentic AI: real-world implementation patterns and lessons from 500+ deployments. <a href="https://pascalbornet.com" target="_blank">pascalbornet.com</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCORER WORKSHEET -->
+    <div class="scorer">
+      <div class="sc-head">
+        <div class="sc-title">✦ 3D Problem Scorer</div>
+        <div class="sc-badge">One per problem</div>
+      </div>
+      <div class="sc-body">
+        <div class="sc-intro">Score each problem statement from Stage 2. Use the total to decide whether it belongs in your first wave, a later wave, or on the backlog.</div>
+        <div class="sc-field">
+          <label class="sc-lbl">Problem statement <span>· from Stage 2</span></label>
+          <textarea class="sc-in" style="min-height:52px;" placeholder="e.g. Our ops manager manually compiles a weekly report from three systems — 3 hours every Monday…"></textarea>
+        </div>
+        <div class="sc-sliders">
+          <div class="sc-slider-group">
+            <span class="sc-slider-lbl">D1 — Business Value</span>
+            <select class="sc-select" id="d1" onchange="calcScore()">
+              <option value="0">Select…</option>
+              <option value="1">1 — Low impact</option>
+              <option value="2">2 — Meaningful</option>
+              <option value="3">3 — High / compounding</option>
+            </select>
+          </div>
+          <div class="sc-slider-group">
+            <span class="sc-slider-lbl">D2 — Feasibility</span>
+            <select class="sc-select" id="d2" onchange="calcScore()">
+              <option value="0">Select…</option>
+              <option value="1">1 — Complex</option>
+              <option value="2">2 — Moderate</option>
+              <option value="3">3 — Low effort</option>
+            </select>
+          </div>
+          <div class="sc-slider-group">
+            <span class="sc-slider-lbl">D3 — Data Readiness</span>
+            <select class="sc-select" id="d3" onchange="calcScore()">
+              <option value="0">Select…</option>
+              <option value="1">1 — Not ready</option>
+              <option value="2">2 — Partial</option>
+              <option value="3">3 — Ready</option>
+            </select>
+          </div>
+        </div>
+        <div class="sc-result" id="scoreResult"></div>
+      </div>
+      <div class="sc-footer">
+        <button class="sc-btn p" onclick="alert('Production: saves to your shortlist')">Add to Shortlist →</button>
+        <button class="sc-btn s" onclick="resetScorer()">Score Another</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEXT STAGE -->
+<div class="next">
+  <div>
+    <span class="nl">Up next · Stage 04</span>
+    <h2>Select the Right Tools</h2>
+    <p>With your prioritised shortlist in hand, Stage 4 gives you a structured way to navigate the AI tool landscape — matching your problem class to the right type of AI before you evaluate a single vendor.</p>
+  </div>
+  <div class="next-actions">
+    <a href="stage4-select-tools.html" class="btn-p">Continue to Stage 4 →</a>
+    <a href="stage2-identify-problems.html" class="btn-s">← Back to Stage 2</a>
+  </div>
+</div>
+
+<script>
+function tick(el) { el.classList.toggle('done'); }
+
+function toggleDeeper(btn) {
+  const body = btn.nextElementSibling;
+  const icon = btn.querySelector('.gd-icon');
+  body.classList.toggle('open');
+  icon.classList.toggle('open');
+}
+
+function calcScore() {
+  const d1 = parseInt(document.getElementById('d1').value) || 0;
+  const d2 = parseInt(document.getElementById('d2').value) || 0;
+  const d3 = parseInt(document.getElementById('d3').value) || 0;
+  if (!d1 || !d2 || !d3) { document.getElementById('scoreResult').style.display='none'; return; }
+  const total = d1 + d2 + d3;
+  const res = document.getElementById('scoreResult');
+  let msg, bg, col;
+  if (total >= 7) { msg = `Total: ${total}/9 — Quick Win. Prioritise in your first wave.`; bg='#e8f7f8'; col='#12828a'; }
+  else if (total >= 5) { msg = `Total: ${total}/9 — Strategic Bet. Address the blocking dimension first.`; bg='#eaf7f8'; col='var(--gold)'; }
+  else { msg = `Total: ${total}/9 — Park for now. Foundations not ready yet.`; bg='#eef8f8'; col='var(--rust)'; }
+  res.textContent = msg;
+  res.style.display = 'block';
+  res.style.background = bg;
+  res.style.color = col;
+  res.style.borderColor = col + '44';
+}
+
+function resetScorer() {
+  ['d1','d2','d3'].forEach(id => document.getElementById(id).value = '0');
+  document.getElementById('scoreResult').style.display = 'none';
+}
+
+const obs = new IntersectionObserver(
+  entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }),
+  { threshold: 0.08 }
+);
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Start a Conversation — NavigateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:     #111118;
+  --paper:   #f8f8f7;
+  --gold:    #12828a;
+  --gold-lt: #38b5bc;
+  --teal:    #12828a;
+  --teal-lt: #38b5bc;
+  --rust:    #0c5f66;
+  --slate:   #444450;
+  --mist:    #e0e0de;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:'Epilogue',sans-serif;overflow-x:hidden;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.1rem 4rem;
+  background:rgba(248,248,247,0.94);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--mist);
+}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-0.01em;}
+.nav-logo span{color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:2rem;}
+.nav-link{text-decoration:none;color:var(--slate);font-size:0.82rem;font-weight:500;transition:color 0.2s;}
+.nav-link:hover{color:var(--teal);}
+.nav-cta{background:var(--ink);color:var(--paper);padding:0.55rem 1.3rem;border-radius:2px;font-size:0.78rem;font-weight:500;text-decoration:none;transition:background 0.2s;}
+.nav-cta:hover{background:var(--teal);}
+
+/* ── PAGE HERO ── */
+.hero{
+  padding:8rem 6rem 5rem;
+  background:var(--ink);
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 80% at 0% 50%, rgba(18,130,138,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 60% at 100% 30%, rgba(56,181,188,0.06) 0%, transparent 55%);
+  pointer-events:none;
+}
+.hero-inner{max-width:1320px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:5fr 4fr;gap:6rem;align-items:center;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal-lt);background:rgba(56,181,188,0.12);border:1px solid rgba(56,181,188,0.22);padding:0.28rem 0.8rem;border-radius:2px;margin-bottom:1.6rem;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,5.5vw,5.2rem);font-weight:700;line-height:1.0;letter-spacing:-0.02em;color:white;margin-bottom:1.3rem;}
+.hero-title em{color:var(--teal-lt);font-style:italic;}
+.hero-sub{font-size:1rem;line-height:1.8;color:rgba(220,224,232,0.82);font-weight:300;max-width:460px;}
+
+/* hero right — what to expect */
+.expect-card{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:6px;padding:2rem;
+}
+.ec-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;margin-bottom:1.2rem;display:block;}
+.ec-item{display:flex;align-items:flex-start;gap:0.9rem;padding:0.85rem 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.84rem;color:rgba(220,224,232,0.80);line-height:1.55;}
+.ec-item:last-child{border-bottom:none;padding-bottom:0;}
+.ec-dot{width:6px;height:6px;border-radius:50%;background:var(--teal-lt);flex-shrink:0;margin-top:0.4rem;}
+
+/* ── FORM SECTION ── */
+.form-section{
+  max-width:1320px;margin:0 auto;
+  padding:5rem 6rem;
+  display:grid;grid-template-columns:5fr 4fr;gap:6rem;
+}
+
+/* FORM */
+.form-wrap{background:white;border:1px solid var(--mist);border-radius:8px;overflow:hidden;}
+.form-head{
+  background:var(--ink);padding:1.8rem 2.2rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.fh-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:white;}
+.fh-badge{font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--teal-lt);background:rgba(56,181,188,0.15);border:1px solid rgba(56,181,188,0.25);padding:0.22rem 0.7rem;border-radius:2px;}
+
+.form-body{padding:2rem 2.2rem;}
+.form-intro{font-size:0.82rem;color:var(--slate);line-height:1.65;margin-bottom:1.8rem;padding:0.9rem 1.1rem;background:#f4f8f9;border-radius:3px;border-left:2px solid var(--teal);}
+
+/* field groups */
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;}
+.field{margin-bottom:1rem;}
+.field:last-of-type{margin-bottom:0;}
+.field-label{font-size:0.68rem;letter-spacing:0.07em;text-transform:uppercase;color:var(--slate);font-weight:600;margin-bottom:0.38rem;display:block;}
+.field-label span{font-weight:400;color:#aaa;text-transform:none;letter-spacing:0;font-size:0.65rem;}
+.field-label .req{color:var(--teal);margin-left:2px;}
+
+input[type=text], input[type=email], input[type=tel], select, textarea{
+  width:100%;background:#fafaf9;border:1px solid var(--mist);
+  border-radius:3px;padding:0.75rem 1rem;
+  font-family:'Epilogue',sans-serif;font-size:0.84rem;
+  color:var(--ink);outline:none;transition:border-color 0.18s;
+  appearance:none;-webkit-appearance:none;
+}
+input[type=text]:focus, input[type=email]:focus, input[type=tel]:focus, select:focus, textarea:focus{border-color:var(--teal);background:white;}
+input::placeholder, textarea::placeholder{color:#bbb;font-style:italic;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23444450' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.9rem center;padding-right:2.5rem;cursor:pointer;}
+select option{font-family:'Epilogue',sans-serif;}
+textarea{resize:vertical;min-height:90px;}
+
+/* time preference group */
+.time-group{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+.time-option{position:relative;}
+.time-option input[type=radio]{position:absolute;opacity:0;width:0;height:0;}
+.time-option label{
+  display:flex;align-items:center;gap:0.6rem;
+  padding:0.65rem 0.9rem;border:1px solid var(--mist);
+  border-radius:3px;cursor:pointer;font-size:0.8rem;
+  color:var(--slate);transition:all 0.15s;background:#fafaf9;
+}
+.time-option input[type=radio]:checked + label{border-color:var(--teal);background:rgba(18,130,138,0.06);color:var(--teal);}
+.time-option label:hover{border-color:var(--teal-lt);}
+.time-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--mist);flex-shrink:0;transition:all 0.15s;}
+.time-option input[type=radio]:checked + label .time-dot{border-color:var(--teal);background:var(--teal);}
+
+/* section divider within form */
+.form-divider{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);font-weight:600;padding:0.5rem 0;border-bottom:1px solid var(--mist);margin:1.5rem 0 1rem;display:flex;align-items:center;gap:0.5rem;}
+.form-divider::before{content:'';flex:1;height:1px;background:var(--mist);}
+.form-divider::after{content:'';flex:1;height:1px;background:var(--mist);}
+
+/* submit */
+.form-footer{padding:1.5rem 2.2rem;border-top:1px solid var(--mist);display:flex;gap:1rem;align-items:center;flex-wrap:wrap;}
+.submit-btn{
+  background:var(--teal);color:white;
+  padding:0.85rem 2.2rem;border-radius:3px;
+  font-family:'Epilogue',sans-serif;font-size:0.88rem;font-weight:600;
+  border:none;cursor:pointer;transition:all 0.2s;
+}
+.submit-btn:hover{background:var(--teal-lt);transform:translateY(-1px);}
+.form-note{font-size:0.72rem;color:#aaa;line-height:1.5;}
+
+/* success state */
+.form-success{display:none;padding:2.5rem 2.2rem;text-align:center;}
+.fs-icon{font-size:2.5rem;margin-bottom:1rem;}
+.fs-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--teal);margin-bottom:0.6rem;}
+.fs-body{font-size:0.88rem;color:var(--slate);line-height:1.7;max-width:380px;margin:0 auto;}
+
+/* ── SIDEBAR ── */
+.sidebar{}
+.sidebar-card{
+  background:var(--ink);border-radius:6px;
+  padding:2rem;margin-bottom:1.5rem;
+}
+.sc-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;margin-bottom:1rem;display:block;}
+.sc-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:white;margin-bottom:0.6rem;line-height:1.2;}
+.sc-body{font-size:0.8rem;color:rgba(220,224,232,0.75);line-height:1.65;}
+.sc-quote{
+  margin-top:1.2rem;padding:1rem;
+  border-left:2px solid var(--teal-lt);
+  background:rgba(255,255,255,0.04);
+  border-radius:0 3px 3px 0;
+  font-family:'Cormorant Garamond',serif;
+  font-size:0.95rem;font-style:italic;
+  color:rgba(220,224,232,0.82);line-height:1.55;
+}
+.sc-attr{font-size:0.65rem;color:rgba(255,255,255,0.3);letter-spacing:0.05em;margin-top:0.5rem;display:block;font-style:normal;}
+
+/* promise list */
+.promise-card{
+  background:white;border:1px solid var(--mist);
+  border-radius:6px;padding:1.8rem;
+}
+.pc-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);margin-bottom:1rem;display:block;}
+.pc-item{display:flex;gap:0.8rem;align-items:flex-start;padding:0.7rem 0;border-bottom:1px solid var(--mist);font-size:0.82rem;color:var(--slate);line-height:1.5;}
+.pc-item:last-child{border-bottom:none;padding-bottom:0;}
+.pc-icon{font-size:0.9rem;flex-shrink:0;margin-top:0.1rem;}
+
+/* stage peek */
+.stage-peek{background:white;border:1px solid var(--mist);border-radius:6px;overflow:hidden;margin-top:1.5rem;}
+.sp-head{background:var(--teal);padding:1rem 1.5rem;}
+.sph-text{font-size:0.82rem;font-weight:500;color:white;line-height:1.4;}
+.sp-stages{padding:1rem 1.5rem;}
+.sp-stage{display:flex;align-items:center;gap:0.8rem;padding:0.5rem 0;border-bottom:1px solid var(--mist);font-size:0.78rem;color:var(--slate);}
+.sp-stage:last-child{border-bottom:none;}
+.sp-num{font-family:'Cormorant Garamond',serif;font-size:1rem;font-weight:700;color:var(--teal);width:20px;flex-shrink:0;}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.hero-inner>*{animation:fadeUp 0.65s ease both;}
+.hero-inner>*:nth-child(1){animation-delay:0.05s;}
+.hero-inner>*:nth-child(2){animation-delay:0.2s;}
+.reveal{opacity:0;transform:translateY(22px);transition:all 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <div class="nav-right">
+    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="our-model.html" class="nav-link">Our Model</a>
+    <a href="navigate-hub.html" class="nav-link">Framework</a>
+    <a href="about-us.html" class="nav-link">About</a>
+    <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">✦ Start a Conversation</div>
+      <h1 class="hero-title">When outcomes<br>must not<br><em>fail.</em></h1>
+      <p class="hero-sub">Tell us about your organisation and where you are on your AI journey. We'll come prepared for a focused 45-minute discovery conversation — no pitch, no fluff, just a structured look at where the real value is for your business.</p>
+    </div>
+    <div class="expect-card">
+      <span class="ec-label">What happens after you submit</span>
+      <div class="ec-item"><div class="ec-dot"></div>You'll receive a confirmation within one business day</div>
+      <div class="ec-item"><div class="ec-dot"></div>We review your submission before we meet — so session time is focused on your situation, not generic introductions</div>
+      <div class="ec-item"><div class="ec-dot"></div>A 45-minute discovery conversation — structured around the NavigateAI framework</div>
+      <div class="ec-item"><div class="ec-dot"></div>You'll leave with a clear picture of which stage to focus on first and why</div>
+      <div class="ec-item"><div class="ec-dot"></div>No obligation — the conversation is valuable whether or not we work together</div>
+    </div>
+  </div>
+</div>
+
+<!-- FORM + SIDEBAR -->
+<div class="form-section reveal">
+
+  <!-- FORM -->
+  <div class="form-wrap" id="contactForm">
+    <div class="form-head">
+      <div class="fh-title">✦ Discovery Intake Form</div>
+      <div class="fh-badge">~4 minutes</div>
+    </div>
+    <div class="form-body" id="formBody">
+      <div class="form-intro">
+        The more context you share, the more useful the conversation will be. We only need the basics to get started — everything else we'll cover together.
+      </div>
+
+      <!-- YOUR DETAILS -->
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Your name <span class="req">*</span></label>
+          <input type="text" id="name" placeholder="Full name" required>
+        </div>
+        <div class="field">
+          <label class="field-label">Email address <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="your@company.com" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label">Company <span class="req">*</span></label>
+          <input type="text" id="company" placeholder="Organisation name" required>
+        </div>
+        <div class="field">
+          <label class="field-label">Phone <span>· preferred for follow-up</span></label>
+          <input type="tel" id="phone" placeholder="+1 (xxx) xxx-xxxx">
+        </div>
+      </div>
+
+      <!-- WHEN TO CONNECT -->
+      <div class="form-divider">When works for you</div>
+      <div class="field">
+        <label class="field-label">Preferred time to connect</label>
+        <div class="time-group">
+          <div class="time-option">
+            <input type="radio" name="time" id="t1" value="morning">
+            <label for="t1"><div class="time-dot"></div>Morning (8am–12pm)</label>
+          </div>
+          <div class="time-option">
+            <input type="radio" name="time" id="t2" value="afternoon">
+            <label for="t2"><div class="time-dot"></div>Afternoon (12pm–5pm)</label>
+          </div>
+          <div class="time-option">
+            <input type="radio" name="time" id="t3" value="evening">
+            <label for="t3"><div class="time-dot"></div>Evening (5pm–7pm)</label>
+          </div>
+          <div class="time-option">
+            <input type="radio" name="time" id="t4" value="flexible">
+            <label for="t4"><div class="time-dot"></div>Flexible</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANYTHING ELSE -->
+      <div class="form-divider">Anything you'd like us to know</div>
+      <div class="field">
+        <label class="field-label">Tell us about your situation <span>· optional but valuable</span></label>
+        <textarea id="context" style="min-height:110px;" placeholder="Anything that helps us prepare — what you're trying to solve, where you are on your AI journey, what you've tried before, constraints, timeline, questions you already have. There's no wrong answer."></textarea>
+      </div>
+    
+    <div class="form-footer" id="formFooter">
+      <button class="submit-btn" onclick="submitForm()">Book the Conversation →</button>
+      <div class="form-note">Your information is used solely to prepare for our discovery conversation. We don't share it with third parties or add you to any mailing list without your permission.</div>
+    </div>
+
+    <!-- SUCCESS STATE -->
+    <div class="form-success" id="formSuccess">
+      <div class="fs-icon">✦</div>
+      <div class="fs-title">Conversation Requested</div>
+      <p class="fs-body">Thank you. We've received your submission and will review it before reaching out to confirm a time. Expect to hear from us within one business day.<br><br>In the meantime — take the AI Readiness Diagnostic to get a head start on understanding your current stage.</p>
+      <div style="margin-top:1.8rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <a href="ai-diagnostic-quiz-v6.html" style="background:var(--teal);color:white;padding:0.8rem 1.6rem;border-radius:3px;text-decoration:none;font-size:0.85rem;font-weight:600;">Take the Diagnostic →</a>
+        <a href="navigate-hub.html" style="background:none;color:var(--slate);border:1px solid var(--mist);padding:0.8rem 1.6rem;border-radius:3px;text-decoration:none;font-size:0.85rem;">Explore the Framework</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <div class="sidebar-card">
+      <span class="sc-label">Raghu Akula</span>
+      <div class="sc-title">AI Vision-to-Value Executor · BFSI Transformation Leader · Bid Strategy & Vendor Advisor</div>
+      <div class="sc-body">20+ years turning strategy into measurable outcomes. Specialised in AI transformation for financial services, complex bid environments, and leadership navigation at the executive level.</div>
+      <div class="sc-quote">
+        "Call Raghu Akula when outcomes must not fail."
+        <span class="sc-attr">Engage · Inspire · Transform</span>
+      </div>
+    </div>
+
+    <div class="promise-card">
+      <span class="pc-label">✦ What we promise in the discovery call</span>
+      <div class="pc-item"><span class="pc-icon">🎯</span>We'll identify the one or two AI opportunities most likely to deliver visible ROI within your next 90 days</div>
+      <div class="pc-item"><span class="pc-icon">📋</span>We'll map your current stage in the NavigateAI framework and explain what the path forward looks like specifically for your context</div>
+      <div class="pc-item"><span class="pc-icon">🔒</span>Everything discussed is confidential — no follow-up sales sequences, no third-party sharing</div>
+      <div class="pc-item"><span class="pc-icon">⏱️</span>Strictly 45 minutes — we respect your time and will have a clear agenda prepared in advance</div>
+    </div>
+
+    <div class="stage-peek">
+      <div class="sp-head">
+        <div class="sph-text">Not sure what to expect? Here's what the NavigateAI framework covers.</div>
+      </div>
+      <div class="sp-stages">
+        <div class="sp-stage"><span class="sp-num">01</span>Define your AI strategy — vision, value, velocity</div>
+        <div class="sp-stage"><span class="sp-num">02</span>Identify the right problem statements</div>
+        <div class="sp-stage"><span class="sp-num">03</span>Quantify and prioritise your opportunities</div>
+        <div class="sp-stage"><span class="sp-num">04</span>Select the right tools for each use case</div>
+        <div class="sp-stage"><span class="sp-num">05</span>Prepare your data and security foundations</div>
+        <div class="sp-stage"><span class="sp-num">06</span>Design, test and deploy with confidence</div>
+        <div class="sp-stage"><span class="sp-num">07</span>Monitor performance and compound value over time</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function submitForm() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const company = document.getElementById('company').value.trim();
+
+  if (!name || !email || !company) {
+    // Highlight missing required fields
+    ['name','email','company'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) {
+        el.style.borderColor = '#c06050';
+        el.addEventListener('input', function() {
+          this.style.borderColor = '';
+        }, { once: true });
+      }
+    });
+    // Scroll to first empty required field
+    const first = ['name','email','company'].find(id => !document.getElementById(id).value.trim());
+    if (first) document.getElementById(first).scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+
+  // Validate email
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRe.test(email)) {
+    const emailEl = document.getElementById('email');
+    emailEl.style.borderColor = '#c06050';
+    emailEl.focus();
+    return;
+  }
+
+  // Show success state
+  document.getElementById('formBody').style.display = 'none';
+  document.getElementById('formFooter').style.display = 'none';
+  document.getElementById('formSuccess').style.display = 'block';
+  document.getElementById('contactForm').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// Scroll reveal
+const obs = new IntersectionObserver(
+  entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }),
+  { threshold: 0.08 }
+);
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

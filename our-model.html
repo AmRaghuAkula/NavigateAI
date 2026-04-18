@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Model — NavigateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111118;--paper:#f8f8f7;--gold:#12828a;--gold-lt:#38b5bc;--teal:#12828a;--teal-lt:#38b5bc;--rust:#0c5f66;--slate:#444450;--mist:#e0e0de;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:'Epilogue',sans-serif;overflow-x:hidden;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 4rem;background:rgba(248,248,247,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--mist);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-0.01em;}
+.nav-logo span{color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:2rem;}
+.nav-link{text-decoration:none;color:var(--slate);font-size:0.82rem;font-weight:500;transition:color 0.2s;}
+.nav-link:hover{color:var(--teal);}
+.nav-cta{background:var(--ink);color:var(--paper);padding:0.55rem 1.3rem;border-radius:2px;font-size:0.78rem;font-weight:500;text-decoration:none;transition:background 0.2s;}
+.nav-cta:hover{background:var(--teal);}
+
+/* HERO */
+.hero{padding:8rem 6rem 5rem;background:var(--ink);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 70% at 100% 0%,rgba(18,130,138,0.1) 0%,transparent 55%),radial-gradient(ellipse 40% 50% at 0% 100%,rgba(56,181,188,0.06) 0%,transparent 50%);pointer-events:none;}
+.hero-inner{max-width:1320px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:5fr 4fr;gap:6rem;align-items:center;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal-lt);background:rgba(56,181,188,0.12);border:1px solid rgba(56,181,188,0.22);padding:0.28rem 0.8rem;border-radius:2px;margin-bottom:1.6rem;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5vw,4.6rem);font-weight:700;line-height:1.0;letter-spacing:-0.02em;color:white;margin-bottom:1.3rem;}
+.hero-title em{color:var(--teal-lt);font-style:italic;}
+.hero-sub{font-size:1rem;line-height:1.8;color:rgba(220,224,232,0.82);font-weight:300;max-width:460px;}
+.hero-promise{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:2rem;}
+.hp-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;display:block;margin-bottom:1rem;}
+.hp-stat{padding:0.9rem 0;border-bottom:1px solid rgba(255,255,255,0.07);display:flex;align-items:baseline;gap:0.8rem;}
+.hp-stat:last-child{border-bottom:none;}
+.hp-num{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--teal-lt);line-height:1;}
+.hp-text{font-size:0.82rem;color:rgba(220,224,232,0.75);line-height:1.4;}
+
+/* SECTIONS */
+.section{padding:5rem 6rem;max-width:1320px;margin:0 auto;}
+.section.dark{background:var(--ink);max-width:none;padding:5rem 6rem;}
+.section.edge{border-top:1px solid var(--mist);}
+.sec-label{font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:0.8rem;}
+.dark .sec-label{color:var(--teal-lt);opacity:0.7;}
+.sec-heading{font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;line-height:1.1;letter-spacing:-0.02em;margin-bottom:0.9rem;}
+.dark .sec-heading{color:white;}
+.sec-intro{font-size:0.95rem;line-height:1.75;color:var(--slate);font-weight:300;max-width:600px;}
+.dark .sec-intro{color:rgba(220,224,232,0.80);}
+
+/* THREE LAYERS */
+.layers{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--mist);border-radius:8px;overflow:hidden;margin-top:3rem;}
+.layer{background:white;padding:2.5rem 2rem;position:relative;}
+.layer::after{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.layer:nth-child(1)::after{background:var(--teal);}
+.layer:nth-child(2)::after{background:var(--teal-lt);}
+.layer:nth-child(3)::after{background:#0c5f66;}
+.layer-n{font-family:'Cormorant Garamond',serif;font-size:3.5rem;font-weight:700;color:var(--mist);line-height:1;margin-bottom:0.3rem;}
+.layer-tag{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;display:block;margin-bottom:0.4rem;}
+.layer:nth-child(1) .layer-tag{color:var(--teal);}
+.layer:nth-child(2) .layer-tag{color:var(--teal-lt);}
+.layer:nth-child(3) .layer-tag{color:#0c5f66;}
+.layer-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;margin-bottom:0.7rem;}
+.layer-desc{font-size:0.84rem;line-height:1.7;color:var(--slate);margin-bottom:1.2rem;}
+.layer-includes{font-size:0.75rem;letter-spacing:0.07em;text-transform:uppercase;color:#aaa;margin-bottom:0.6rem;display:block;}
+.layer-item{display:flex;gap:0.5rem;font-size:0.8rem;color:var(--slate);padding:0.35rem 0;border-top:1px solid var(--mist);line-height:1.45;}
+.layer-item::before{content:'→';flex-shrink:0;}
+.layer:nth-child(1) .layer-item::before{color:var(--teal);}
+.layer:nth-child(2) .layer-item::before{color:var(--teal-lt);}
+.layer:nth-child(3) .layer-item::before{color:#0c5f66;}
+
+/* CLIENT JOURNEY */
+.journey{display:grid;grid-template-columns:1fr;gap:2px;margin-top:3rem;}
+.j-step{display:grid;grid-template-columns:80px 1fr;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;transition:background 0.2s;}
+.j-step:hover{background:rgba(255,255,255,0.06);}
+.j-num{background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:rgba(255,255,255,0.15);border-right:1px solid rgba(255,255,255,0.06);}
+.j-step.active .j-num{color:var(--teal-lt);background:rgba(56,181,188,0.08);}
+.j-content{padding:1.4rem 1.8rem;}
+.j-label{font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:0.3rem;display:block;}
+.j-step.active .j-label{color:var(--teal-lt);opacity:0.7;}
+.j-title{font-family:'Cormorant Garamond',serif;color:white;font-size:1.05rem;font-weight:700;margin-bottom:0.3rem;}
+.j-desc{font-size:0.8rem;color:rgba(220,224,232,0.72);line-height:1.55;}
+.j-time{font-size:0.68rem;color:rgba(220,224,232,0.55);margin-top:0.5rem;font-style:italic;}
+.j-step.active .j-title{color:var(--teal-lt);}
+
+/* PRICING */
+.pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--mist);border-radius:8px;overflow:hidden;margin-top:3rem;}
+.price-card{background:white;padding:2rem 1.8rem;position:relative;}
+.price-card.featured{background:#eaf7f8;}
+.pc-tag{font-size:0.6rem;letter-spacing:0.09em;text-transform:uppercase;padding:0.18rem 0.6rem;border-radius:2px;display:inline-block;margin-bottom:0.8rem;}
+.price-card:nth-child(1) .pc-tag{background:rgba(18,130,138,0.1);color:var(--teal);}
+.price-card.featured .pc-tag{background:rgba(18,130,138,0.2);color:var(--teal);}
+.price-card:nth-child(3) .pc-tag{background:rgba(12,95,102,0.1);color:#0c5f66;}
+.pc-name{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;margin-bottom:0.4rem;}
+.pc-range{font-size:1rem;font-weight:600;color:var(--teal);margin-bottom:0.4rem;}
+.pc-period{font-size:0.72rem;color:#aaa;margin-bottom:1rem;}
+.pc-desc{font-size:0.8rem;color:var(--slate);line-height:1.6;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--mist);}
+.pc-item{font-size:0.78rem;color:var(--slate);padding:0.3rem 0;display:flex;gap:0.5rem;line-height:1.4;}
+.pc-item::before{content:'✓';color:var(--teal);font-weight:700;flex-shrink:0;}
+.pc-note{font-size:0.7rem;color:#aaa;margin-top:1rem;font-style:italic;line-height:1.5;}
+
+/* DISCOVERY SPRINT */
+.sprint-card{margin-top:2rem;background:var(--ink);border-radius:8px;padding:2.5rem;display:grid;grid-template-columns:1fr auto;gap:3rem;align-items:center;}
+.sc-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;margin-bottom:0.6rem;display:block;}
+.sc-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:white;margin-bottom:0.5rem;}
+.sc-desc{font-size:0.84rem;color:rgba(220,224,232,0.78);line-height:1.65;max-width:500px;}
+.sc-price{text-align:right;flex-shrink:0;}
+.sc-price-num{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--teal-lt);}
+.sc-price-note{font-size:0.72rem;color:rgba(220,224,232,0.75);display:block;margin-top:0.3rem;}
+.sc-btn{display:inline-block;background:var(--teal-lt);color:var(--ink);padding:0.8rem 1.6rem;border-radius:3px;font-size:0.85rem;font-weight:600;text-decoration:none;margin-top:0.8rem;transition:all 0.2s;}
+.sc-btn:hover{opacity:0.9;transform:translateY(-1px);}
+
+/* CTA BAND */
+.cta-band{background:var(--ink);padding:4rem 6rem;display:flex;align-items:center;justify-content:space-between;gap:4rem;}
+.cb-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;display:block;margin-bottom:0.6rem;}
+.cta-band h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:0.4rem;}
+.cta-band p{font-size:0.85rem;color:rgba(220,224,232,0.65);max-width:480px;line-height:1.65;}
+.cb-actions{display:flex;gap:1rem;align-items:center;flex-shrink:0;}
+.btn-p{background:var(--teal-lt);color:var(--ink);padding:0.9rem 2rem;border-radius:3px;text-decoration:none;font-size:0.88rem;font-weight:600;white-space:nowrap;transition:all 0.2s;}
+.btn-p:hover{opacity:0.9;transform:translateY(-1px);}
+.btn-s{color:rgba(255,255,255,0.4);text-decoration:none;font-size:0.82rem;transition:color 0.2s;white-space:nowrap;}
+.btn-s:hover{color:white;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.hero-inner>*{animation:fadeUp 0.65s ease both;}
+.hero-inner>*:nth-child(1){animation-delay:0.05s;}
+.hero-inner>*:nth-child(2){animation-delay:0.2s;}
+.reveal{opacity:0;transform:translateY(22px);transition:all 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <div class="nav-right">
+    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="our-model.html" class="nav-link">Our Model</a>
+    <a href="navigate-hub.html" class="nav-link">Framework</a>
+    <a href="about-us.html" class="nav-link">About</a>
+    <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow">✦ Our Model</div>
+      <h1 class="hero-title">From first<br>conversation to<br><em>live production.</em></h1>
+      <p class="hero-sub">Most AI engagements have a gap between the people who design the strategy and the people who build the system. We eliminate that gap by being one team across the entire journey — from discovery to deployment to ongoing operations.</p>
+    </div>
+    <div class="hero-promise">
+      <span class="hp-label">What you can expect</span>
+      <div class="hp-stat">
+        <div class="hp-num">90</div>
+        <div class="hp-text">Days from first conversation to AI in production</div>
+      </div>
+      <div class="hp-stat">
+        <div class="hp-num">3</div>
+        <div class="hp-text">Service layers — Advise, Build, Host & Run — one partner</div>
+      </div>
+      <div class="hp-stat">
+        <div class="hp-num">0</div>
+        <div class="hp-text">Generic chatbots — every agent is trained on your workflows</div>
+      </div>
+      <div class="hp-stat">
+        <div class="hp-num">100%</div>
+        <div class="hp-text">Dedicated cloud infrastructure — your data never commingles</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- THE THREE LAYERS -->
+<section class="section reveal" style="padding-top:5rem;">
+  <span class="sec-label">The NavigateAI service architecture</span>
+  <h2 class="sec-heading">Three layers. One partner. End to end.</h2>
+  <p class="sec-intro">Every NavigateAI engagement covers all three layers. You don't get handed off between teams or left to manage the gap between strategy and implementation. We own the full outcome.</p>
+
+  <div class="layers">
+    <div class="layer">
+      <div class="layer-n">01</div>
+      <span class="layer-tag">Layer 1 · Advise</span>
+      <div class="layer-title">AI Readiness & Strategy</div>
+      <div class="layer-desc">We start by understanding your business before we talk about technology. AI readiness assessment, use-case prioritisation, ROI modelling, and implementation roadmap — delivered by founder-level practitioners with real operations experience, not junior consultants.</div>
+      <span class="layer-includes">This layer delivers</span>
+      <div class="layer-item">AI Readiness Assessment across 5 dimensions</div>
+      <div class="layer-item">Top 3 use cases prioritised by value and feasibility</div>
+      <div class="layer-item">ROI model with estimated time savings and cost impact</div>
+      <div class="layer-item">90-day implementation roadmap with defined success criteria</div>
+    </div>
+    <div class="layer">
+      <div class="layer-n">02</div>
+      <span class="layer-tag">Layer 2 · Build</span>
+      <div class="layer-title">AI Application Development</div>
+      <div class="layer-desc">Cloud-native AI application development powered by Anthropic Claude. We build agentic workflows trained on your specific processes, terminology, and business rules — integrated with your existing CRM, ERP, document management, and communication tools.</div>
+      <span class="layer-includes">This layer delivers</span>
+      <div class="layer-item">Custom AI agents trained on your workflows — not generic tools</div>
+      <div class="layer-item">System integrations to your existing business tools via API</div>
+      <div class="layer-item">Full testing suite including edge cases and failure scenarios</div>
+      <div class="layer-item">Production deployment with defined go-live criteria</div>
+    </div>
+    <div class="layer">
+      <div class="layer-n">03</div>
+      <span class="layer-tag">Layer 3 · Host & Run</span>
+      <div class="layer-title">Managed AI Operations</div>
+      <div class="layer-desc">Privately-hosted AI environment on your dedicated cloud infrastructure. Ongoing monitoring, model updates, security management, and support — so your AI system keeps working, keeps improving, and never becomes someone else's forgotten project.</div>
+      <span class="layer-includes">This layer delivers</span>
+      <div class="layer-item">Private cloud tenancy — no data commingling between clients</div>
+      <div class="layer-item">Monthly model updates and performance optimisation</div>
+      <div class="layer-item">Proactive monitoring with SLA-backed response times</div>
+      <div class="layer-item">Canadian data residency for all Canadian clients by default</div>
+    </div>
+  </div>
+</section>
+
+<!-- THE CLIENT JOURNEY -->
+<section class="section dark reveal">
+  <div style="max-width:1200px;margin:0 auto;">
+    <span class="sec-label">What it looks like in practice</span>
+    <h2 class="sec-heading">The client journey — from first call to compounding value</h2>
+    <p class="sec-intro">Every engagement follows the same disciplined sequence. No surprises, no scope creep, no perpetual pilots. Here is exactly what happens when you work with NavigateAI.</p>
+
+    <div class="journey">
+      <div class="j-step active">
+        <div class="j-num">1</div>
+        <div class="j-content">
+          <span class="j-label">✦ Entry point</span>
+          <div class="j-title">Discovery Conversation — 45 minutes</div>
+          <div class="j-desc">A focused, prepared conversation — not a sales pitch. We review your submission before we meet, so we arrive with a working hypothesis about where your highest-value AI opportunities are. You leave with clarity on whether NavigateAI is the right fit and what the path forward looks like.</div>
+          <div class="j-time">No cost · No obligation</div>
+        </div>
+      </div>
+      <div class="j-step">
+        <div class="j-num">2</div>
+        <div class="j-content">
+          <span class="j-label">Discovery Sprint</span>
+          <div class="j-title">AI Readiness Diagnostic + ROI Summary — 90 minutes</div>
+          <div class="j-desc">A paid, structured session. We map your top 3 manual process candidates, estimate total staff hours consumed weekly, and calculate a rough AI ROI. We deliver a 1-page AI Readiness Summary within 48 hours: your top 3 use cases, estimated hours saved per week, rough implementation cost range, and suggested 90-day roadmap.</div>
+          <div class="j-time">$1,500–$2,500 CAD · Credited toward implementation if you proceed</div>
+        </div>
+      </div>
+      <div class="j-step">
+        <div class="j-num">3</div>
+        <div class="j-content">
+          <span class="j-label">Engagement start</span>
+          <div class="j-title">Implementation — Weeks 1 to 13</div>
+          <div class="j-desc">Fixed-scope. Fixed-price. We architect, build, integrate, test, and deploy your first AI use case following the 90-Day Pilot Blueprint: Design (Weeks 1–2), Build & Configure (Weeks 3–5), Test & Validate (Weeks 6–10), Deploy & Stabilise (Weeks 11–13). Success criteria are defined before we start. The go/no-go decision happens at Week 10.</div>
+          <div class="j-time">$25,000–$85,000 CAD one-time · Scope and price fixed before we start</div>
+        </div>
+      </div>
+      <div class="j-step">
+        <div class="j-num">4</div>
+        <div class="j-content">
+          <span class="j-label">Ongoing operations</span>
+          <div class="j-title">Host & Run Subscription — Month 4 onwards</div>
+          <div class="j-desc">Once live, your AI environment moves to a monthly subscription. We manage the infrastructure, monitor performance against the metrics defined in Stage 7, run monthly model updates, and handle security. You get monthly reporting and a quarterly strategic review to identify the next use case to add to the pipeline.</div>
+          <div class="j-time">$2,500–$18,000 CAD/month depending on use case count and users</div>
+        </div>
+      </div>
+      <div class="j-step">
+        <div class="j-num">5</div>
+        <div class="j-content">
+          <span class="j-label">Compounding value</span>
+          <div class="j-title">Initiative 2, 3, 4 — the flywheel</div>
+          <div class="j-desc">The first use case builds the data infrastructure, the integration patterns, and the organisational confidence for everything that follows. Each subsequent use case costs less to build, takes less time to deploy, and produces faster ROI — because the foundations are already in place. This is where the real value of an AI transformation compounds.</div>
+          <div class="j-time">Return to Stage 3 of the NavigateAI Framework to prioritise what's next</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUBSCRIPTION TIERS -->
+<section class="section reveal edge">
+  <span class="sec-label">Subscription tiers — Host & Run</span>
+  <h2 class="sec-heading">Predictable pricing. No surprise invoices.</h2>
+  <p class="sec-intro">All pricing is in CAD. US clients are invoiced in USD at current exchange rate. Implementation fees are scoped and fixed before any work begins — you will never receive an invoice you didn't approve in advance.</p>
+
+  <div class="pricing">
+    <div class="price-card">
+      <span class="pc-tag">Pilot</span>
+      <div class="pc-name">Foundation</div>
+      <div class="pc-range">$2,500–$4,500</div>
+      <div class="pc-period">CAD / month · up to 2 AI use cases</div>
+      <div class="pc-desc">Ideal for firms deploying AI in one department — customer service, operations, or finance. Up to 25 users. Your dedicated cloud infrastructure with full privacy and security.</div>
+      <div class="pc-item">2 AI use cases in production</div>
+      <div class="pc-item">Up to 25 users</div>
+      <div class="pc-item">Monthly model updates</div>
+      <div class="pc-item">Private cloud tenancy</div>
+      <div class="pc-item">Monthly performance report</div>
+    </div>
+    <div class="price-card featured">
+      <span class="pc-tag">Most common</span>
+      <div class="pc-name">Growth</div>
+      <div class="pc-range">$5,000–$9,500</div>
+      <div class="pc-period">CAD / month · up to 5 AI use cases</div>
+      <div class="pc-desc">Cross-departmental AI deployment. Operations, sales, finance, and customer service working together. Up to 100 users. The most common starting point for firms with $10M+ revenue.</div>
+      <div class="pc-item">5 AI use cases in production</div>
+      <div class="pc-item">Up to 100 users</div>
+      <div class="pc-item">Monthly model updates + optimisation</div>
+      <div class="pc-item">Private cloud tenancy</div>
+      <div class="pc-item">Monthly report + quarterly strategic review</div>
+      <div class="pc-note">15% discount with annual commitment</div>
+    </div>
+    <div class="price-card">
+      <span class="pc-tag">Scale</span>
+      <div class="pc-name">Enterprise</div>
+      <div class="pc-range">$10,000–$18,000</div>
+      <div class="pc-period">CAD / month · 6+ AI use cases</div>
+      <div class="pc-desc">Enterprise-wide AI operations. Unlimited users. Full integration across all core business systems. For organisations making AI a strategic operating advantage, not a department experiment.</div>
+      <div class="pc-item">6+ AI use cases in production</div>
+      <div class="pc-item">Unlimited users</div>
+      <div class="pc-item">Priority model updates + dedicated support</div>
+      <div class="pc-item">Private cloud tenancy + enhanced SLA</div>
+      <div class="pc-item">Monthly report + quarterly board-level review</div>
+      <div class="pc-note">15% discount with annual commitment</div>
+    </div>
+  </div>
+
+  <!-- DISCOVERY SPRINT CALLOUT -->
+  <div class="sprint-card">
+    <div>
+      <span class="sc-label">✦ Start here — the lowest-risk entry point</span>
+      <div class="sc-title">Discovery Sprint — AI Readiness Diagnostic</div>
+      <div class="sc-desc">Not ready to commit to a full implementation? Start with a paid 90-minute Discovery Sprint. We map your top 3 AI use cases, estimate the ROI, and deliver a 1-page summary within 48 hours. If you proceed to implementation, the Sprint fee is credited in full. Conversion rate from Sprint to implementation: 35–50%.</div>
+    </div>
+    <div class="sc-price">
+      <div class="sc-price-num">$1,500–$2,500</div>
+      <span class="sc-price-note">CAD · credited toward implementation</span>
+      <a href="start-a-conversation.html" class="sc-btn">Book a Discovery Sprint →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <div>
+    <span class="cb-label">Ready when you are</span>
+    <h2>Start with a conversation.</h2>
+    <p>Tell us where you are and what outcomes matter most. We'll come prepared — and you'll leave with a clear picture of where the value is for your business.</p>
+  </div>
+  <div class="cb-actions">
+    <a href="start-a-conversation.html" class="btn-p">Start a Conversation →</a>
+    <a href="why-navigate-ai.html" class="btn-s">Why NavigateAI</a>
+  </div>
+</div>
+
+<script>
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

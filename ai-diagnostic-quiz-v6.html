@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Readiness Diagnostic — NavigateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f1117;
+  --paper: #f5f2eb;
+  --gold: #c9a84c;
+  --gold-light: #e8d49a;
+  --teal: #1a6b72;
+  --teal-light: #38b5bc;
+  --mist: #e8e4da;
+  --charcoal: #2c3140;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { padding-top:4rem;
+  background: var(--ink);
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── BACKGROUND ── */
+.bg-grid {
+  position:fixed; inset:0; z-index:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events:none;
+}
+.bg-glow {
+  position:fixed; top:-200px; right:-200px;
+  width:700px; height:700px; border-radius:50%;
+  background:radial-gradient(circle, rgba(26,107,114,0.18) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+}
+.bg-glow2 {
+  position:fixed; bottom:-200px; left:-200px;
+  width:600px; height:600px; border-radius:50%;
+  background:radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+}
+
+/* ── LAYOUT ── */
+.wrapper {
+  position:relative; z-index:1;
+  max-width:800px; margin:0 auto;
+  padding:3rem 2rem 6rem;
+}
+
+/* ── HEADER ── */
+.quiz-header { text-align:center; margin-bottom:3rem; }
+.logo {
+  font-family:'Playfair Display', serif;
+  font-size:1.3rem; color:white; margin-bottom:2.5rem;
+  display:inline-block; text-decoration:none;
+}
+.logo span { color:var(--teal-light); }
+.quiz-title {
+  font-family:'Playfair Display', serif;
+  font-size:clamp(2rem,5vw,3.2rem);
+  font-weight:900; line-height:1.1;
+  letter-spacing:-0.02em; margin-bottom:1rem;
+}
+.quiz-title em { color:var(--gold); font-style:italic; }
+.quiz-subtitle {
+  font-size:1rem; color:rgba(255,255,255,0.5);
+  font-weight:300; line-height:1.7; max-width:560px; margin:0 auto 1.5rem;
+}
+.quiz-meta {
+  display:inline-flex; gap:2rem; align-items:center;
+  font-size:0.78rem; color:rgba(255,255,255,0.3);
+  letter-spacing:0.05em; text-transform:uppercase;
+}
+.quiz-meta span { display:flex; align-items:center; gap:0.4rem; }
+
+/* ── PROGRESS ── */
+.progress-container { margin-bottom:2.5rem; }
+.progress-meta {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:0.7rem;
+}
+.progress-label { font-size:0.72rem; color:rgba(220,224,232,0.75); letter-spacing:0.08em; text-transform:uppercase; }
+.progress-count { font-size:0.78rem; color:var(--gold); font-weight:600; }
+.progress-bar-bg {
+  height:3px; background:rgba(255,255,255,0.06);
+  border-radius:2px; overflow:hidden; margin-bottom:1rem;
+}
+.progress-bar-fill {
+  height:100%; background:linear-gradient(90deg, var(--teal), var(--gold));
+  border-radius:2px; transition:width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+/* ── SECTION DOT PROGRESS ── */
+.section-track {
+  display:flex; gap:0; width:100%;
+}
+.section-lane {
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:0.55rem;
+  padding:0 0.25rem;
+  position:relative;
+}
+.section-lane:not(:last-child)::after {
+  content:''; position:absolute; right:0; top:0.55rem;
+  width:1px; height:calc(100% - 1.1rem);
+  background:rgba(255,255,255,0.06);
+}
+.lane-label {
+  font-size:0.6rem; letter-spacing:0.07em; text-transform:uppercase;
+  color:rgba(220,224,232,0.50); white-space:nowrap;
+  transition:color 0.3s;
+}
+.section-lane.s-active .lane-label { color:var(--teal-light); }
+.section-lane.s-done   .lane-label { color:rgba(255,255,255,0.4); }
+.lane-dots {
+  display:flex; gap:6px; align-items:center; justify-content:center;
+}
+.qdot {
+  width:8px; height:8px; border-radius:50%;
+  background:rgba(255,255,255,0.1);
+  border:1px solid rgba(255,255,255,0.1);
+  transition:all 0.35s cubic-bezier(0.4,0,0.2,1);
+  position:relative;
+}
+.qdot.answered {
+  background:var(--teal);
+  border-color:var(--teal-light);
+  box-shadow:0 0 6px 1px rgba(42,155,165,0.55);
+}
+.qdot.current {
+  background:rgba(201,168,76,0.25);
+  border-color:var(--gold);
+  box-shadow:0 0 8px 2px rgba(201,168,76,0.5);
+  animation:pulseDot 1.6s ease-in-out infinite;
+}
+.qdot.done-all {
+  background:rgba(46,125,90,0.7);
+  border-color:#2e7d5a;
+  box-shadow:0 0 5px 1px rgba(46,125,90,0.4);
+}
+@keyframes pulseDot {
+  0%,100% { box-shadow:0 0 6px 1px rgba(201,168,76,0.4); }
+  50%      { box-shadow:0 0 12px 3px rgba(201,168,76,0.75); }
+}
+
+/* ── QUESTION CARD ── */
+.question-card {
+  background:rgba(255,255,255,0.035);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px; padding:2.5rem;
+  animation:cardIn 0.4s cubic-bezier(0.4,0,0.2,1) both;
+}
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(22px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.q-section-tag {
+  display:inline-flex; align-items:center; gap:0.4rem;
+  font-size:0.67rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--gold); margin-bottom:1.2rem;
+  background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.22);
+  padding:0.25rem 0.8rem; border-radius:2px;
+}
+.q-number {
+  font-family:'Playfair Display', serif;
+  font-size:0.82rem; color:rgba(220,224,232,0.42); margin-bottom:0.45rem;
+}
+.q-text {
+  font-family:'Playfair Display', serif;
+  font-size:1.45rem; font-weight:700; line-height:1.35;
+  margin-bottom:0.9rem; color:white;
+}
+.q-tip {
+  font-size:0.82rem; color:rgba(220,224,232,0.82);
+  line-height:1.65; margin-bottom:1.8rem;
+  padding-left:1rem; border-left:2px solid rgba(201,168,76,0.28);
+}
+
+/* ── FREE TEXT INPUT ── */
+.freetext-area {
+  width:100%; background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:6px; padding:1.1rem 1.3rem;
+  color:white; font-family:'DM Sans', sans-serif;
+  font-size:0.95rem; line-height:1.6; resize:vertical; min-height:110px;
+  transition:border-color 0.2s; outline:none;
+}
+.freetext-area:focus { border-color:var(--teal-light); }
+.freetext-area::placeholder { color:rgba(255,255,255,0.2); }
+.freetext-area.final-area { min-height:140px; }
+.char-count {
+  font-size:0.7rem; color:rgba(255,255,255,0.2);
+  text-align:right; margin-top:0.4rem;
+}
+.char-count.warn { color:var(--gold); }
+
+/* ── SCAFFOLD TOGGLE ── */
+.scaffold-toggle {
+  display:flex; align-items:center; gap:0.6rem;
+  margin-top:1.2rem; cursor:pointer;
+  font-size:0.8rem; color:rgba(255,255,255,0.3);
+  transition:color 0.2s; width:fit-content; background:none; border:none;
+  padding:0;
+}
+.scaffold-toggle:hover { color:rgba(255,255,255,0.6); }
+.scaffold-toggle .toggle-icon {
+  width:18px; height:18px; border-radius:50%;
+  border:1px solid rgba(255,255,255,0.2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.65rem; transition:all 0.2s;
+}
+.scaffold-toggle:hover .toggle-icon { border-color:var(--teal-light); color:var(--teal-light); }
+
+.scaffold-panel {
+  display:none; margin-top:1rem;
+  background:rgba(42,155,165,0.06);
+  border:1px solid rgba(42,155,165,0.15);
+  border-radius:6px; padding:1.2rem 1.4rem;
+  animation:fadeIn 0.25s ease;
+}
+.scaffold-panel.open { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.scaffold-label {
+  font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--teal-light); margin-bottom:0.9rem; opacity:0.8;
+}
+.scaffold-options { display:flex; flex-direction:column; gap:0.55rem; }
+.scaffold-btn {
+  display:flex; align-items:center; gap:0.8rem;
+  padding:0.75rem 1rem; background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08); border-radius:5px;
+  cursor:pointer; text-align:left; color:rgba(255,255,255,0.65);
+  font-family:'DM Sans', sans-serif; font-size:0.88rem;
+  transition:all 0.18s;
+}
+.scaffold-btn:hover {
+  background:rgba(42,155,165,0.1);
+  border-color:rgba(42,155,165,0.3);
+  color:white;
+}
+.scaffold-btn .s-dot {
+  width:6px; height:6px; border-radius:50%;
+  background:var(--teal-light); flex-shrink:0; opacity:0.6;
+}
+
+/* ── NAV BUTTONS ── */
+.nav-buttons {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:1.8rem;
+}
+.btn-back {
+  background:none; border:1px solid rgba(255,255,255,0.1);
+  color:rgba(220,224,232,0.82); padding:0.75rem 1.5rem;
+  border-radius:4px; cursor:pointer; font-family:'DM Sans', sans-serif;
+  font-size:0.88rem; transition:all 0.2s;
+}
+.btn-back:hover { border-color:rgba(255,255,255,0.3); color:white; }
+.btn-next {
+  background:var(--teal); color:white; border:none;
+  padding:0.85rem 2rem; border-radius:4px; cursor:pointer;
+  font-family:'DM Sans', sans-serif; font-size:0.9rem; font-weight:600;
+  transition:all 0.2s; display:flex; align-items:center; gap:0.5rem;
+}
+.btn-next:hover { background:var(--teal-light); transform:translateY(-1px); }
+.btn-next:disabled { opacity:0.28; cursor:not-allowed; transform:none; }
+
+/* ── AI THINKING ── */
+.ai-thinking {
+  display:none; align-items:center; gap:1rem;
+  background:rgba(42,155,165,0.08); border:1px solid rgba(42,155,165,0.2);
+  border-radius:8px; padding:1.5rem 2rem; margin-top:1.5rem;
+  animation:fadeIn 0.3s ease;
+}
+.ai-thinking.show { display:flex; }
+.thinking-dots { display:flex; gap:5px; }
+.thinking-dots span {
+  width:7px; height:7px; border-radius:50%;
+  background:var(--teal-light); animation:bounce 1.2s infinite;
+}
+.thinking-dots span:nth-child(2) { animation-delay:0.2s; }
+.thinking-dots span:nth-child(3) { animation-delay:0.4s; }
+@keyframes bounce {
+  0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-8px)}
+}
+.thinking-text { font-size:0.88rem; color:rgba(255,255,255,0.5); }
+.thinking-text strong { color:var(--teal-light); }
+
+/* ── TEASER RESULT ── */
+.teaser-screen { animation:cardIn 0.5s ease both; }
+.teaser-top { text-align:center; margin-bottom:3rem; }
+.teaser-badge {
+  display:inline-flex; align-items:center; gap:0.5rem;
+  font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--gold); background:rgba(201,168,76,0.1);
+  border:1px solid rgba(201,168,76,0.28);
+  padding:0.38rem 1rem; border-radius:2px; margin-bottom:2rem;
+}
+.teaser-title {
+  font-family:'Playfair Display', serif;
+  font-size:2.6rem; font-weight:900; line-height:1.1; margin-bottom:1rem;
+}
+.tier-pill {
+  display:inline-block; padding:0.3rem 1.2rem;
+  border-radius:3px; font-size:1.1rem; font-weight:700;
+  font-family:'Playfair Display', serif; font-style:italic;
+  margin-bottom:0.5rem;
+}
+.teaser-subtitle {
+  font-size:1rem; color:rgba(255,255,255,0.48);
+  line-height:1.7; max-width:540px; margin:0 auto;
+}
+
+/* dimension grid */
+.dim-grid {
+  display:grid; grid-template-columns:repeat(5,1fr); gap:1px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px; overflow:hidden; margin-bottom:2.5rem;
+}
+.dim-card {
+  background:var(--ink); padding:1.5rem 0.75rem;
+  text-align:center;
+  display:flex; flex-direction:column; align-items:center;
+}
+/* every row is pinned to the same height via fixed min-height */
+.dim-icon {
+  font-size:1.4rem;
+  min-height:2rem; display:flex; align-items:center; justify-content:center;
+  margin-bottom:0.5rem;
+}
+.dim-name {
+  font-size:0.6rem; color:rgba(255,255,255,0.3);
+  text-transform:uppercase; letter-spacing:0.07em;
+  min-height:2.4rem; display:flex; align-items:center; justify-content:center;
+  text-align:center; line-height:1.4;
+  margin-bottom:0.75rem;
+}
+.dim-ring {
+  width:58px; height:58px;
+  position:relative; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; margin-bottom:0.6rem;
+}
+.dim-ring svg { position:absolute; top:0; left:0; transform:rotate(-90deg); }
+.dim-ring-pct {
+  font-family:'Playfair Display', serif;
+  font-size:0.95rem; font-weight:700; color:white; position:relative; z-index:1;
+}
+.dim-insight {
+  font-size:0.68rem; color:rgba(220,224,232,0.60); line-height:1.5;
+  min-height:2.2rem; display:flex; align-items:flex-start; justify-content:center;
+  text-align:center;
+}
+
+/* key signals */
+.signals-box {
+  background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px; padding:2rem; margin-bottom:2rem;
+}
+.signals-heading {
+  font-family:'Playfair Display', serif;
+  font-size:1.1rem; margin-bottom:1.2rem; color:rgba(255,255,255,0.8);
+}
+.signals-list { display:flex; flex-direction:column; gap:0.7rem; }
+.signal-item {
+  display:flex; align-items:flex-start; gap:0.9rem;
+  font-size:0.88rem; color:rgba(255,255,255,0.55); line-height:1.5;
+}
+.signal-dot {
+  width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:0.35rem;
+}
+.signal-dot.pos { background:#2e7d5a; }
+.signal-dot.neu { background:var(--gold); }
+.signal-dot.gap { background:#b85c2a; }
+
+/* unlock */
+.unlock-box {
+  background:rgba(201,168,76,0.07); border:1px solid rgba(201,168,76,0.22);
+  border-radius:10px; padding:2.5rem;
+}
+.unlock-heading {
+  font-family:'Playfair Display', serif;
+  font-size:1.5rem; margin-bottom:0.6rem;
+}
+.unlock-subtext {
+  font-size:0.9rem; color:rgba(220,224,232,0.82);
+  margin-bottom:2rem; line-height:1.65;
+}
+.unlock-features { list-style:none; margin-bottom:2rem; display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+.unlock-features li {
+  display:flex; align-items:flex-start; gap:0.6rem;
+  font-size:0.83rem; color:rgba(255,255,255,0.6); line-height:1.45;
+  padding:0.4rem 0;
+}
+.unlock-features li::before { content:'✦'; color:var(--gold); font-size:0.55rem; margin-top:0.25rem; flex-shrink:0; }
+
+.lead-form { display:flex; flex-direction:column; gap:1rem; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.field-group { display:flex; flex-direction:column; gap:0.4rem; }
+.field-label { font-size:0.72rem; letter-spacing:0.07em; text-transform:uppercase; color:rgba(220,224,232,0.75); }
+.field-input {
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+  color:white; padding:0.85rem 1.1rem; border-radius:4px;
+  font-family:'DM Sans', sans-serif; font-size:0.92rem;
+  transition:border-color 0.2s; outline:none;
+}
+.field-input:focus { border-color:var(--teal-light); }
+.field-input::placeholder { color:rgba(220,224,232,0.42); }
+.btn-unlock {
+  background:linear-gradient(135deg, var(--gold), #a8782e);
+  color:var(--ink); border:none; padding:1.1rem 2rem; border-radius:4px;
+  font-family:'DM Sans', sans-serif; font-size:1rem; font-weight:700;
+  cursor:pointer; transition:all 0.2s; margin-top:0.3rem;
+  display:flex; align-items:center; justify-content:center; gap:0.5rem;
+}
+.btn-unlock:hover { transform:translateY(-2px); box-shadow:0 8px 30px rgba(201,168,76,0.25); }
+.form-note { font-size:0.72rem; color:rgba(255,255,255,0.2); text-align:center; }
+
+/* thank you */
+.thankyou-screen { text-align:center; animation:cardIn 0.5s ease both; }
+.ty-icon { font-size:4rem; margin-bottom:1.5rem; }
+.ty-title { font-family:'Playfair Display', serif; font-size:2.5rem; margin-bottom:1rem; }
+.ty-subtitle { font-size:1rem; color:rgba(220,224,232,0.82); line-height:1.7; max-width:500px; margin:0 auto 2.5rem; }
+.ty-actions { display:flex; flex-direction:column; gap:0.9rem; max-width:380px; margin:0 auto; }
+.ty-btn {
+  padding:1rem 2rem; border-radius:4px; font-size:0.92rem;
+  font-weight:600; cursor:pointer; font-family:'DM Sans', sans-serif;
+  border:none; transition:all 0.2s;
+}
+.ty-btn.primary { background:var(--teal); color:white; }
+.ty-btn.secondary { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.6); border:1px solid rgba(255,255,255,0.1); }
+.ty-btn:hover { opacity:0.85; transform:translateY(-1px); }
+
+/* ── INTRO SCREEN ── */
+.intro-wrap { max-width:740px; margin:0 auto; padding-bottom:2rem; }
+.intro-eyebrow {
+  display:inline-flex; align-items:center; gap:0.4rem;
+  font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--gold); background:rgba(201,168,76,0.1);
+  border:1px solid rgba(201,168,76,0.22);
+  padding:0.3rem 0.9rem; border-radius:2px;
+  margin-bottom:1.8rem;
+}
+.intro-headline {
+  font-family:'Playfair Display', serif;
+  font-size:clamp(2.2rem,5vw,3.6rem);
+  font-weight:900; line-height:1.08;
+  letter-spacing:-0.03em; margin-bottom:1.2rem;
+}
+.intro-headline em { color:var(--gold); font-style:italic; }
+.intro-lead {
+  font-size:1.1rem; color:rgba(255,255,255,0.5);
+  font-weight:300; line-height:1.7;
+  max-width:520px; margin-bottom:2.5rem;
+}
+
+/* insight cards */
+.insight-cards { display:flex; flex-direction:column; gap:1px; margin-bottom:2.5rem; }
+.insight-card {
+  display:flex; align-items:flex-start; gap:1.2rem;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  padding:1.4rem 1.6rem;
+  transition:background 0.2s;
+  animation:cardIn 0.5s ease both;
+}
+.insight-card:nth-child(1) { border-radius:8px 8px 0 0; animation-delay:0.1s; }
+.insight-card:nth-child(2) { border-top:none; animation-delay:0.2s; }
+.insight-card:nth-child(3) { border-top:none; border-radius:0 0 8px 8px; animation-delay:0.3s; }
+.insight-card:hover { background:rgba(255,255,255,0.05); }
+.ic-icon {
+  font-size:1.3rem; flex-shrink:0;
+  width:42px; height:42px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+}
+.ic-label {
+  font-size:0.67rem; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--teal-light); opacity:0.7; margin-bottom:0.4rem;
+}
+.ic-quote {
+  font-size:0.9rem; color:rgba(255,255,255,0.6);
+  line-height:1.6; font-style:italic;
+}
+
+/* what to expect */
+.expect-box {
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:8px; padding:2rem; margin-bottom:2.5rem;
+}
+.expect-heading {
+  font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:rgba(255,255,255,0.3); margin-bottom:1.4rem;
+}
+.expect-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.4rem; }
+.expect-item { display:flex; align-items:flex-start; gap:0.9rem; }
+.expect-icon { font-size:1.2rem; flex-shrink:0; margin-top:0.1rem; }
+.expect-title {
+  font-size:0.88rem; font-weight:600; color:white;
+  margin-bottom:0.3rem;
+}
+.expect-desc {
+  font-size:0.8rem; color:rgba(220,224,232,0.82); line-height:1.6;
+}
+
+/* CTA */
+.intro-actions { display:flex; flex-direction:column; align-items:flex-start; gap:1rem; }
+.btn-start {
+  background:var(--teal); color:white; border:none;
+  padding:1.1rem 2.5rem; border-radius:4px;
+  font-family:'DM Sans', sans-serif; font-size:1rem; font-weight:600;
+  cursor:pointer; transition:all 0.25s;
+  display:inline-flex; align-items:center; gap:0.5rem;
+}
+.btn-start:hover { background:var(--teal-light); transform:translateY(-2px); box-shadow:0 8px 24px rgba(26,107,114,0.35); }
+.btn-skip {
+  background:none; border:none; cursor:pointer;
+  font-family:'DM Sans', sans-serif;
+  font-size:0.8rem; color:rgba(220,224,232,0.55);
+  text-decoration:underline; text-underline-offset:3px;
+  transition:color 0.2s; padding:0;
+}
+.btn-skip:hover { color:rgba(255,255,255,0.55); }
+
+.screen { display:none; }
+.screen.active { display:block; }
+</style>
+</head>
+<body>
+<nav style="position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:1rem 4rem;background:rgba(15,17,23,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(56,181,188,0.15);">
+  <a href="ai-framework-homepage.html" style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#f5f2eb;text-decoration:none;letter-spacing:-0.01em;">Navigate<span style="color:#38b5bc;">AI</span></a>
+  <div style="display:flex;align-items:center;gap:2rem;">
+    <a href="why-navigate-ai.html" style="text-decoration:none;color:#9090a0;font-size:0.82rem;font-weight:500;">Why Us</a>
+    <a href="our-model.html" style="text-decoration:none;color:#9090a0;font-size:0.82rem;font-weight:500;">Our Model</a>
+    <a href="navigate-hub.html" style="text-decoration:none;color:#9090a0;font-size:0.82rem;font-weight:500;">Framework</a>
+    <a href="about-us.html" style="text-decoration:none;color:#9090a0;font-size:0.82rem;font-weight:500;">About</a>
+    <a href="start-a-conversation.html" style="background:#12828a;color:#f8f8f7;padding:0.5rem 1.2rem;border-radius:2px;font-size:0.78rem;font-weight:500;text-decoration:none;">Start a Conversation →</a>
+  </div>
+</nav>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="bg-glow2"></div>
+
+<div class="wrapper">
+  <div class="logo" style="display:block;text-align:center;margin-bottom:2.5rem;font-family:'Playfair Display',serif;font-size:1.3rem; cursor:default;" ondblclick="document.getElementById('testMode').style.display = document.getElementById('testMode').style.display==='none' ? 'block' : 'none'">Navigate<span style="color:var(--teal-light)">AI</span></div>
+
+  <!-- ── INTRO SCREEN ── -->
+  <div id="introScreen">
+    <div class="intro-wrap">
+
+      <!-- headline -->
+      <div class="intro-eyebrow">✦ AI Readiness Diagnostic</div>
+      <h1 class="intro-headline">Before you pick a tool,<br><em>know where you stand.</em></h1>
+      <p class="intro-lead">Most AI projects don't fail because of the technology. They fail because the organisation wasn't ready for it.</p>
+
+      <!-- WHAT YOU TAKE AWAY -->
+      <div style="background:rgba(18,130,138,0.08);border:1px solid rgba(56,181,188,0.2);border-radius:8px;padding:1.8rem 2rem;margin:2rem 0;text-align:left;">
+        <div style="font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:#38b5bc;font-weight:600;margin-bottom:1rem;display:block;">✦ What you'll take away — in 8 minutes</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div style="display:flex;gap:0.8rem;align-items:flex-start;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#38b5bc;flex-shrink:0;margin-top:0.35rem;"></div>
+            <div style="font-size:0.84rem;color:rgba(220,224,232,0.85);line-height:1.55;">Your <strong style="color:white;">AI Readiness Score</strong> across 5 dimensions — Strategy, Problems, Data, Security, and Organisational Readiness</div>
+          </div>
+          <div style="display:flex;gap:0.8rem;align-items:flex-start;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#38b5bc;flex-shrink:0;margin-top:0.35rem;"></div>
+            <div style="font-size:0.84rem;color:rgba(220,224,232,0.85);line-height:1.55;">Your <strong style="color:white;">AI Journey Stage</strong> — Beginner, Explorer, Builder, or Leader — so you know exactly where you're starting from</div>
+          </div>
+          <div style="display:flex;gap:0.8rem;align-items:flex-start;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#38b5bc;flex-shrink:0;margin-top:0.35rem;"></div>
+            <div style="font-size:0.84rem;color:rgba(220,224,232,0.85);line-height:1.55;">Your <strong style="color:white;">strongest dimension</strong> — the foundation you can build on immediately — and your biggest gap that's holding you back</div>
+          </div>
+          <div style="display:flex;gap:0.8rem;align-items:flex-start;">
+            <div style="width:8px;height:8px;border-radius:50%;background:#38b5bc;flex-shrink:0;margin-top:0.35rem;"></div>
+            <div style="font-size:0.84rem;color:rgba(220,224,232,0.85);line-height:1.55;">A <strong style="color:white;">personalised entry point</strong> into the NavigateAI Framework — the specific stage where your effort will produce the fastest, most visible result</div>
+          </div>
+        </div>
+        <div style="margin-top:1.2rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.08);font-size:0.78rem;color:rgba(220,224,232,0.65);">29 questions · 5 sections · No login required · Results shown immediately</div>
+      </div>
+
+      <!-- three insight cards -->
+      <div class="insight-cards">
+        <div class="insight-card">
+          <div class="ic-icon">⚡</div>
+          <div class="ic-body">
+            <div class="ic-label">Sarah Wang · ex-VP AI</div>
+            <div class="ic-quote">"AI is a tool — it will only amplify whatever framework is already in place. Suboptimal models won't get better with AI. They'll get worse."</div>
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="ic-icon">🧠</div>
+          <div class="ic-body">
+            <div class="ic-label">Internal Knowledge Gap · Core Concept</div>
+            <div class="ic-quote">"The biggest constraint in AI adoption isn't the model's capability. It's fragmented, undocumented internal knowledge that the system has nothing to learn from."</div>
+          </div>
+        </div>
+        <div class="insight-card">
+          <div class="ic-icon">📊</div>
+          <div class="ic-body">
+            <div class="ic-label">CIO.com · Feb 2026</div>
+            <div class="ic-quote">"The real hidden cost of AI adoption is not models or vendors. It's the cost of becoming the kind of organisation that can actually use AI."</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- what to expect -->
+      <div class="expect-box">
+        <div class="expect-heading">What to expect from this assessment</div>
+        <div class="expect-grid">
+          <div class="expect-item">
+            <span class="expect-icon">💬</span>
+            <div>
+              <div class="expect-title">Answer in your own words</div>
+              <div class="expect-desc">No multiple choice. No right or wrong answers. Just describe what you actually see in your organisation — our AI does the interpretation.</div>
+            </div>
+          </div>
+          <div class="expect-item">
+            <span class="expect-icon">🗂️</span>
+            <div>
+              <div class="expect-title">5 dimensions, 25 questions</div>
+              <div class="expect-desc">Strategy · Problem Identification · Data Readiness · Security · Org Readiness. Each section takes about 2 minutes.</div>
+            </div>
+          </div>
+          <div class="expect-item">
+            <span class="expect-icon">🎯</span>
+            <div>
+              <div class="expect-title">A profile built around your reality</div>
+              <div class="expect-desc">You'll see your maturity tier and dimension scores immediately. Your full personalised report — with action plan — arrives by email.</div>
+            </div>
+          </div>
+          <div class="expect-item">
+            <span class="expect-icon">⏱️</span>
+            <div>
+              <div class="expect-title">About 10 minutes</div>
+              <div class="expect-desc">The more honestly you describe your situation, the more useful your results. There's no benchmark to hit — just your starting point.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="intro-actions">
+        <button class="btn-start" onclick="startQuiz()">Begin the Assessment →</button>
+        <button class="btn-skip" onclick="startQuiz()">Skip intro — take me to the questions</button>
+      </div>
+
+      <!-- TEST MODE — hidden by default, toggle with double-click on logo -->
+      <div id="testMode" style="display:none; margin-top:2.5rem; border-top:1px solid rgba(255,255,255,0.06); padding-top:2rem;">
+        <div style="font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(220,224,232,0.55); margin-bottom:1rem;">🧪 Test Mode — Skip to results with a sample profile</div>
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+          <button onclick="runTestProfile('beginner')" style="background:rgba(192,112,64,0.15); border:1px solid rgba(192,112,64,0.4); color:#e8a070; padding:0.6rem 1.2rem; border-radius:4px; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600; transition:all 0.2s;">🌱 AI Beginner</button>
+          <button onclick="runTestProfile('explorer')" style="background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.4); color:var(--gold-light); padding:0.6rem 1.2rem; border-radius:4px; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600; transition:all 0.2s;">🔭 AI Explorer</button>
+          <button onclick="runTestProfile('builder')" style="background:rgba(42,155,165,0.15); border:1px solid rgba(42,155,165,0.4); color:var(--teal-light); padding:0.6rem 1.2rem; border-radius:4px; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600; transition:all 0.2s;">🏗️ AI Builder</button>
+          <button onclick="runTestProfile('leader')" style="background:rgba(46,125,90,0.15); border:1px solid rgba(46,125,90,0.4); color:#5ecba0; padding:0.6rem 1.2rem; border-radius:4px; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.82rem; font-weight:600; transition:all 0.2s;">🚀 AI Leader</button>
+        </div>
+        <div style="font-size:0.72rem; color:rgba(255,255,255,0.2); margin-top:0.8rem;">Double-click the NavigateAI logo to show/hide this panel.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="quiz-header" id="quizHeader" style="display:none;">
+    <h1 class="quiz-title">Your <em>AI Readiness</em> Assessment</h1>
+    <p class="quiz-subtitle">Answer in your own words — there are no right or wrong answers. Our AI will interpret your responses and build a readiness profile tailored to your reality.</p>
+    <div class="quiz-meta">
+      <span>⏱ ~10 minutes</span>
+      <span>✦ 29 questions</span>
+      <span>🔒 Confidential</span>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-container" id="progressContainer" style="display:none;">
+    <div class="progress-meta">
+      <span class="progress-label">Progress</span>
+      <span class="progress-count" id="progressCount">Question 1 of 29</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:4%"></div>
+    </div>
+    <div class="section-track" id="sectionTrack">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quizScreen" class="screen" style="display:none;">
+    <div class="question-card" id="questionCard"></div>
+    <div class="ai-thinking" id="aiThinking">
+      <div class="thinking-dots"><span></span><span></span><span></span></div>
+      <div class="thinking-text">Analysing your response… <strong>building your profile</strong></div>
+    </div>
+    <div class="nav-buttons">
+      <button class="btn-back" id="btnBack" onclick="prevQuestion()">← Back</button>
+      <button class="btn-next" id="btnNext" onclick="nextQuestion()" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- TEASER RESULT SCREEN -->
+  <div id="teaserScreen" class="screen">
+    <div class="teaser-screen">
+      <div class="teaser-top">
+        <div class="teaser-badge">✦ Your AI Readiness Profile</div>
+        <h2 class="teaser-title">You're an <span class="tier-pill" id="tierPill">—</span></h2>
+        <p class="teaser-subtitle" id="tierDesc">—</p>
+      </div>
+      <div class="dim-grid" id="dimGrid"></div>
+      <div class="signals-box">
+        <div class="signals-heading">🔍 Key signals we picked up from your responses</div>
+        <div class="signals-list" id="signalsList"></div>
+      </div>
+      <div class="unlock-box">
+        <h3 class="unlock-heading">🔓 Get Your Full Personalised Report</h3>
+        <p class="unlock-subtext">Enter your details to receive a deep-dive breakdown across all 5 dimensions, your recommended starting stage, and a curated action plan — all tailored from <em>your</em> responses.</p>
+        <ul class="unlock-features">
+          <li>Detailed scorecard with narrative explanations</li>
+          <li>Recommended NavigateAI framework entry point</li>
+          <li>Top 3 priority actions for the next 90 days</li>
+          <li>Tool & vendor recommendations for your context</li>
+          <li>Cross-dimension risk flags and contradictions</li>
+          <li>Shareable PDF for your leadership team</li>
+        </ul>
+        <div class="lead-form">
+          <div class="form-row">
+            <div class="field-group">
+              <label class="field-label">First Name</label>
+              <input type="text" class="field-input" id="firstName" placeholder="Jane">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Last Name</label>
+              <input type="text" class="field-input" id="lastName" placeholder="Smith">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Company Name</label>
+            <input type="text" class="field-input" id="company" placeholder="Acme Corp">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Official Email Address</label>
+            <input type="email" class="field-input" id="email" placeholder="jane@acmecorp.com">
+          </div>
+          <button class="btn-unlock" onclick="submitLead()">✦ Send My Full Report</button>
+          <p class="form-note">Your information is confidential and will never be shared or sold.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THANK YOU -->
+  <div id="thankYouScreen" class="screen">
+    <div class="thankyou-screen">
+      <div class="ty-icon">🎯</div>
+      <h2 class="ty-title">You're all set!</h2>
+      <p class="ty-subtitle">Your personalised AI Readiness Report is on its way to your inbox. In the meantime, start exploring the NavigateAI framework — your journey begins now.</p>
+      <div class="ty-actions">
+        <button class="ty-btn primary" onclick="alert('→ Navigate to Framework page')">Explore the Framework →</button>
+        <button class="ty-btn secondary" onclick="restartQuiz()">Retake the Diagnostic</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+//  QUESTION DATA
+// ─────────────────────────────────────────
+const questions = [
+  // ── SECTION 0 — Strategic Clarity ──
+  // Informed by Sarah Wang: AI amplifies what's already in place.
+  // Suboptimal processes don't get fixed by AI — they get worse.
+  // Consensus-based decision-making is incompatible with AI-era orgs.
+
+  { s:0, tag:"🧭 Strategic Clarity",
+    text:"Before AI enters the picture — how clearly defined are your core business processes today? Are they documented, or do they mostly live in people's heads?",
+    tip:"AI amplifies whatever framework is already in place. If your processes are fuzzy or undocumented, AI won't fix that — it will magnify the confusion. Strong AI strategies start with process clarity, not tools.",
+    placeholder:"e.g. Our sales process is well defined but onboarding is completely undocumented and varies by who does it…",
+    scaffolds:["Most processes are documented and consistently followed","Key processes are clear, others are informal","Some documentation exists but it's outdated","Most things live in people's heads — no formal docs"] },
+
+  { s:0, tag:"🧭 Strategic Clarity",
+    text:"When your leadership team talks about AI, what outcomes are you actually trying to achieve — and can you tie those to a specific business metric?",
+    tip:"Vague AI ambitions produce vague results. Founders who succeed with AI can name a specific outcome — 'reduce customer response time by 40%' — not just 'be more efficient'. Specificity is strategy.",
+    placeholder:"e.g. We want to cut the time our ops team spends on manual reporting from 10 hours a week to under 2…",
+    scaffolds:["Reduce a specific operational cost or time sink","Improve a measurable customer experience metric","Scale revenue without proportional headcount growth","Automate a named, recurring workflow"] },
+
+  { s:0, tag:"🧭 Strategic Clarity",
+    text:"How does your organisation make important decisions today — is there one clear decision-maker, or does everything require team consensus?",
+    tip:"Consensus-based decision-making is one of the biggest hidden blockers of AI adoption. AI implementation requires speed, iteration, and someone with authority to say 'we're doing this'. Knowing your decision structure upfront matters enormously.",
+    placeholder:"e.g. Our CEO makes the final call on technology but we tend to discuss everything as a team first, which can slow things down…",
+    scaffolds:["One person has clear authority and moves fast","Small leadership team decides together, usually quickly","Decisions require broad consensus — can take weeks","No clear process — things happen informally"] },
+
+  { s:0, tag:"🧭 Strategic Clarity",
+    text:"Have you allocated — or are you actively planning to allocate — a budget specifically for AI? Walk us through where you are with that.",
+    tip:"Budget is the clearest signal of genuine commitment versus casual curiosity. Even a modest, ringfenced exploratory budget tells us your organisation is ready to act rather than just discuss.",
+    placeholder:"e.g. We have about $15k in our tech budget that could flex toward AI tools, but haven't formally committed it yet…",
+    scaffolds:["Yes — a named, dedicated AI budget already exists","Being considered and likely approved next cycle","We'd use existing tech or ops budget informally","No budget allocated or discussed yet"] },
+
+  { s:0, tag:"🧭 Strategic Clarity",
+    text:"Is there a specific leader in your organisation who owns the AI agenda — with both the authority and the appetite to drive it forward?",
+    tip:"Executive sponsorship is consistently the strongest predictor of AI success. It's not about technical knowledge — it's about someone with authority who will champion, protect, and unblock the initiative when resistance shows up.",
+    placeholder:"e.g. Our COO is very interested and has been reading about AI tools, but hasn't formally taken on the responsibility yet…",
+    scaffolds:["Yes — CEO or C-suite actively owns and drives this","A senior leader is championing it with real authority","Someone is interested but lacks formal mandate","No designated owner — it's everyone's and no one's"] },
+
+  // ── SECTION 1 — Problem Identification ──
+  // Informed by Sarah Wang's four AI operating models:
+  // Rule-based, Predictive, Generative, Agentic — each solves a different class of problem.
+  // Questions now help founders recognise WHICH type of problem they actually have.
+
+  { s:1, tag:"🔍 Problem Identification",
+    text:"Walk us through the most repetitive, manual tasks your team does every week. Be specific — name the task, who does it, and roughly how long it takes.",
+    tip:"'We do a lot of manual admin' is less useful than 'our finance team reconciles invoices every Friday — 4 hours, every week'. Specificity here directly determines the quality of your AI recommendations.",
+    placeholder:"e.g. Our ops manager manually pulls data from three systems every Monday to build a status report — it takes about 3 hours and she hates it…",
+    scaffolds:["Manual data entry or copy-pasting between tools","Preparing reports or summaries by hand","Scheduling, coordination and follow-up admin","Responding to the same customer questions repeatedly"] },
+
+  { s:1, tag:"🔍 Problem Identification",
+    text:"Are there decisions in your business that feel slow, risky, or inconsistent because the right information isn't available at the right time?",
+    tip:"This is the domain of Predictive AI — systems that surface insights from your data to improve decision speed and quality. Slow decisions often have a measurable hidden cost that most founders never quantify.",
+    placeholder:"e.g. We often make stock ordering decisions based on gut feel because our sales data is always two weeks behind…",
+    scaffolds:["Forecasting or pipeline decisions made without good data","Inventory or supply decisions based on gut feel","Customer churn we only notice after it happens","Financial planning that relies on manual spreadsheets"] },
+
+  { s:1, tag:"🔍 Problem Identification",
+    text:"Where in your business does content creation, communication, or knowledge work slow you down — writing, summarising, translating, or explaining things repeatedly?",
+    tip:"This is the domain of Generative AI — the type most people are already familiar with via ChatGPT. Identifying where content or communication bottlenecks exist helps us pinpoint the fastest wins.",
+    placeholder:"e.g. Our team writes the same types of proposal sections from scratch every time — it takes hours and the quality varies…",
+    scaffolds:["Writing proposals, reports or summaries repeatedly","Translating or adapting content for different audiences","Onboarding documentation that's always out of date","Customer communication that lacks consistency"] },
+
+  { s:1, tag:"🔍 Problem Identification",
+    text:"Are there complex, multi-step workflows in your business that involve coordinating across multiple tools, people, or systems to get one thing done?",
+    tip:"This is the domain of Agentic AI — systems that can plan, execute and coordinate across tools autonomously. These are higher-complexity implementations but often deliver the highest ROI when the workflow is clearly defined.",
+    placeholder:"e.g. Onboarding a new client requires 12 steps across 4 different systems and 3 different people — someone always drops the ball…",
+    scaffolds:["Client or customer onboarding across multiple steps","Order fulfilment or service delivery workflows","Lead qualification and handoff between marketing and sales","Procurement or vendor management processes"] },
+
+  { s:1, tag:"🔍 Problem Identification",
+    text:"Have you — or has your team — ever tried to solve any of these problems before? What happened, and what did you learn from it?",
+    tip:"Prior attempts — successful or not — reveal a lot about your organisation's problem-solving maturity and change capacity. A failed tool rollout is often more instructive than one that worked smoothly.",
+    placeholder:"e.g. We tried a workflow automation tool last year — it worked for 2 months then everyone stopped using it because it was too rigid…",
+    scaffolds:["Yes — we tried a tool and it worked well","Yes — we tried something but adoption failed","We've discussed it but never acted on it","No prior attempts — this is new territory for us"] },
+
+  // ── SECTION 2 — Data Readiness ──
+  // Directly informed by the internal knowledge gap concept:
+  // The biggest GenAI constraint isn't the model — it's your organisation's
+  // fragmented, undocumented, or inaccessible internal knowledge.
+
+  { s:2, tag:"📊 Data Readiness",
+    text:"If an AI assistant needed to understand how your organisation actually works — your processes, your customers, your decisions — where would it find that information today?",
+    tip:"This is the heart of what the internal knowledge gap principle. AI models have broad world knowledge, but what they lack is your specific organisational context. If a human can't find your latest policy, your AI won't find it either.",
+    placeholder:"e.g. Honestly, it would have to ask our most experienced employees — we don't have much written down in one place…",
+    scaffolds:["A central knowledge base or wiki that's kept up to date","Shared drives and docs — organised but not always current","Scattered across emails, Slack, and people's heads","No structured repository — knowledge lives with individuals"] },
+
+  { s:2, tag:"📊 Data Readiness",
+    text:"How centralised is your operational data — customer records, transactions, performance metrics — or is it spread across tools that don't talk to each other?",
+    tip:"Data fragmentation is the #1 implementation barrier in small organisations. The more siloed your data, the more integration work is needed before AI can deliver value. Knowing your starting point helps us map a realistic path.",
+    placeholder:"e.g. Customer info is in HubSpot, financials are in Xero, and our ops data is across five different spreadsheets that aren't linked…",
+    scaffolds:["Mostly in 1–2 connected systems with good integration","Spread across 3–5 tools — manageable but siloed","Quite fragmented — data doesn't flow between systems","Scattered everywhere — no clear system of record"] },
+
+  { s:2, tag:"📊 Data Readiness",
+    text:"How clean, consistent, and up-to-date is your data? Are there known quality issues — duplicates, gaps, outdated records — that your team works around?",
+    tip:"'Garbage in, garbage out' is the most cited cause of failed AI pilots. Data quality issues don't just limit AI accuracy — they can actively mislead it. Knowing what you're working with is the first step to fixing it.",
+    placeholder:"e.g. Our CRM has a lot of duplicate contacts and about 30% of records are missing email addresses — it's been a problem for years…",
+    scaffolds:["Clean and regularly maintained — we have data hygiene processes","Mostly clean with a few known issues","Noticeable quality problems we've been meaning to address","Data quality is a significant, known problem we haven't tackled"] },
+
+  { s:2, tag:"📊 Data Readiness",
+    text:"Is there clear ownership of your key data assets — does someone know what data you have, where it lives, and who's responsible for keeping it accurate?",
+    tip:"Data discoverability is one of the most underestimated AI readiness factors. Without it, AI projects can stall for months during setup. Knowing who owns what — even informally — is a meaningful foundation.",
+    placeholder:"e.g. Our marketing manager owns the CRM but customer data is shared across three teams and nobody really owns the accuracy of it…",
+    scaffolds:["Yes — clear ownership and a basic data inventory","Mostly clear with a few grey areas","Roughly known but not formally documented","Unclear — nobody really owns this"] },
+
+  { s:2, tag:"📊 Data Readiness",
+    text:"Does your organisation currently use any analytics or reporting tools to track performance — and do leaders actually use the outputs to make decisions?",
+    tip:"Existing analytics practice signals both data infrastructure maturity and data-driven culture. Teams already comfortable making decisions from data tend to adopt AI dramatically faster than those relying on instinct.",
+    placeholder:"e.g. We have a Google Data Studio dashboard but only the ops manager looks at it — leadership still asks for ad hoc spreadsheets…",
+    scaffolds:["Active dashboards reviewed regularly by leadership","Reports generated ad hoc when needed","Mostly spreadsheet-based and informal","No formal analytics — decisions are mostly intuition-based"] },
+
+  // ── SECTION 3 — Security & Governance ──
+  // Refined to eliminate redundancy between Q18/Q19 and sharpen each
+  // question's unique angle. Q19 now covers the AI-specific blind spot
+  // most founders have: vendor data training clauses. Named certifications
+  // added to Q18 so founders learn while they answer.
+
+  // Q16: Privacy policy — does it exist and cover AI use?
+  { s:3, tag:"🔐 Security & Governance",
+    text:"Does your organisation have a data privacy policy — and has it been reviewed with AI tool usage specifically in mind?",
+    tip:"AI tools routinely process customer and employee data on external infrastructure. A policy that predates your use of AI tools likely has gaps — it may not address what data can flow into third-party systems, how it's stored, or who it's shared with.",
+    placeholder:"e.g. We have a privacy policy on our website but it was written 3 years ago — it definitely doesn't mention AI tools or third-party data processing…",
+    scaffolds:["Yes — current, explicitly covers AI tool usage","Yes — exists but predates our use of AI tools","In draft or very informal","No privacy policy currently in place"] },
+
+  // Q17: Regulatory compliance + named certifications — DISTINCT from Q16 (policy existence)
+  // and Q19 (vendor evaluation). This is about YOUR obligations, not your vendors'.
+  { s:3, tag:"🔐 Security & Governance",
+    text:"What compliance or regulatory obligations apply to your organisation — and do you know which AI vendors are actually certified to meet them?",
+    tip:"Knowing your obligations and knowing which vendors satisfy them are two different things. Key certifications to look for when evaluating AI vendors: SOC 2 Type II (security controls audit), ISO 27001 (information security management), HIPAA BAA (healthcare — Business Associate Agreement), GDPR Data Processing Agreements (EU/UK), PCI-DSS (payment card data), and data residency declarations (where your data is stored and processed). A vendor missing the right certification can derail your entire project.",
+    placeholder:"e.g. We're in healthcare — HIPAA applies and any AI vendor we use needs to sign a BAA. We haven't verified which tools on our shortlist actually offer that…",
+    scaffolds:["Yes — we know our obligations and have verified vendor certifications","We know our regulations but haven't mapped them to specific AI vendors yet","We're aware of general obligations but haven't reviewed formally","No specific regulatory obligations that we're aware of"] },
+
+  // Q18: Internal access controls — DISTINCT from policy (Q16) and vendor review (Q19)
+  { s:3, tag:"🔐 Security & Governance",
+    text:"How is access to your most sensitive data — customer records, financials, employee information — currently controlled within your organisation?",
+    tip:"AI tools amplify data access at scale. A tool granted broad permissions can expose significantly more than intended. Role-based access controls (RBAC) are the standard baseline — defining who can see what, and under what conditions — before AI tools are introduced.",
+    placeholder:"e.g. In practice, everyone on the team has access to everything — we're small and we've always trusted each other, but I know that's not ideal…",
+    scaffolds:["Role-based access controls (RBAC) are defined and actively enforced","Partial controls exist for the most sensitive data sets","Access is informal — based on trust and job title","No formal access controls in place"] },
+
+  // Q19: Vendor evaluation — DISTINCT from compliance (Q17). This focuses specifically
+  // on the AI blind spot: data training clauses. Not covered by any other question.
+  { s:3, tag:"🔐 Security & Governance",
+    text:"When you bring in an AI tool, do you know whether your data could be used to train the vendor's models — and have you checked the terms?",
+    tip:"This is the security question most founders miss entirely in 2026. Many AI SaaS tools include clauses in their standard terms that permit training on customer inputs. The key things to check: (1) opt-out or opt-in for model training, (2) data retention and deletion rights, (3) subprocessor disclosures, (4) SOC 2 Type II or ISO 27001 certification. These terms vary significantly — even between tiers of the same product.",
+    placeholder:"e.g. Honestly, I clicked through the terms when we signed up — I assumed it was fine but I haven't actually checked the training data clauses…",
+    scaffolds:["Yes — we review training data clauses and subprocessor lists before signing","We check high-level privacy terms but not the training-specific clauses","We rely on the vendor's reputation and haven't reviewed the terms in detail","We haven't thought about this — it's a new consideration for us"] },
+
+  // Q20: Named security ownership — DISTINCT from all above. Focuses on internal
+  // accountability, not policy, compliance, access, or vendors.
+  { s:3, tag:"🔐 Security & Governance",
+    text:"Who in your organisation actively owns data security day-to-day — and is that person empowered to say no to a tool that doesn't meet your standards?",
+    tip:"Many small organisations have someone nominally responsible for security but no one with the authority or process to act on it. AI implementation is a natural moment to formalise this — because the first time a security issue surfaces post-deployment is the wrong time to work out who owns it.",
+    placeholder:"e.g. Our CTO is technically responsible but in practice nobody is actively monitoring this — we've been lucky so far and it's a gap I know we need to close…",
+    scaffolds:["Yes — a named person with clear authority and an active process","Handled part-time by someone in tech or ops — genuine accountability","Nominally assigned but no active process or decision-making authority","No clear owner — this is a known and unresolved gap"] },
+
+  // ── SECTION 4 — Organisational Readiness ──
+  // Informed by Sarah Wang (a16z): the transition from prototype to production
+  // requires change management, technical support, and measurable success criteria.
+  // Non-engineers can now build with AI — but culture and metrics still determine outcomes.
+
+  { s:4, tag:"🚀 Organisational Readiness",
+    text:"How does your team typically respond when a new process or tool is introduced — and have you seen that change recently as AI tools have become more visible?",
+    tip:"Change management is consistently the biggest barrier to AI adoption — bigger than budget, tools, or data. A team that has embraced even casual AI tools like ChatGPT is significantly more ready than one that hasn't.",
+    placeholder:"e.g. Our younger staff experiment with new tools freely but our senior team needs a strong business case before they'll change anything…",
+    scaffolds:["Very open — we have an active culture of experimentation","Mixed — enthusiasts and sceptics co-exist","Cautious — change requires strong evidence and leadership backing","Generally resistant — change is slow and politically complicated"] },
+
+  { s:4, tag:"🚀 Organisational Readiness",
+    text:"Think about the last time your organisation successfully adopted a new tool or changed a core process. What made it work — or not work?",
+    tip:"Prior rollout experience is one of the strongest proxies for AI implementation success. The lessons your team has learned — about communication, training, and adoption — are directly transferable to AI deployment.",
+    placeholder:"e.g. We rolled out HubSpot two years ago — it worked eventually, but it took 4 months longer than expected because we didn't train people properly upfront…",
+    scaffolds:["Multiple successful rollouts — we have a repeatable process","One major rollout that worked with some rough edges","Attempted rollout but adoption was patchy and it stalled","No significant technology rollouts in recent years"] },
+
+  { s:4, tag:"🚀 Organisational Readiness",
+    text:"Do you have access to technical support — internal or external — who understands AI tools and could help you design, test, and deploy them?",
+    tip:"Most modern AI tools require minimal deep engineering, but having someone who can evaluate tools, configure integrations, and troubleshoot is a real accelerator. Without it, even simple implementations take disproportionately long.",
+    placeholder:"e.g. We have a part-time developer who's curious about AI, and we have a good IT partner we've worked with for years who's starting to offer AI services…",
+    scaffolds:["Yes — a dedicated internal AI or tech resource","Yes — a trusted external partner with real AI capability","Some technical capability but limited bandwidth or AI experience","No technical support currently available"] },
+
+  { s:4, tag:"🚀 Organisational Readiness",
+    text:"Are your employees already using AI tools — even informally — in their day-to-day work? What does that look like in practice?",
+    tip:"Informal AI adoption is a powerful leading indicator. Teams where individuals are already using tools like ChatGPT, Copilot, or Grammarly have significantly lower resistance and faster uptake when formal AI initiatives are introduced.",
+    placeholder:"e.g. A few people use ChatGPT for drafting emails but it's not official — some managers are uncomfortable with it and we have no policy…",
+    scaffolds:["Widely and openly used across the team — formally encouraged","Used by some teams informally — no official policy yet","Only a handful of early adopters are experimenting","Most staff are unfamiliar with or uncomfortable using AI tools"] },
+
+  { s:4, tag:"🚀 Organisational Readiness",
+    text:"Once you deploy an AI initiative, how will you know it's working? Do you have a way to measure success before you start — or do you typically assess afterwards?",
+    tip:"Pre-defined success metrics are what separate AI experiments from AI transformations. The organisations that get the most from AI are those that define 'what does good look like?' before they start — not after.",
+    placeholder:"e.g. Honestly, we tend to assess based on whether people are still using it a few months later — we don't usually set formal metrics upfront…",
+    scaffolds:["We always define KPIs and baselines before starting any initiative","We set informal targets and review after deployment","We rely on team feedback and gut feel","We don't currently have a measurement framework for new initiatives"] },
+
+  // ── SECTION 5 — Open Reflection ──
+  // Space for context the structured questions didn't capture.
+  // Kept as one question to avoid fatigue at the end.
+
+  { s:5, tag:"💬 Your Context",
+    text:"Is there anything important about your organisation, your industry, or your AI ambitions that our questions haven't captured? The more you share here, the more personalised your report will be.",
+    tip:"Every organisation's journey is unique. Industry constraints, team culture, a specific ambition, a regulatory concern, or even a fear you haven't voiced yet — all of it is relevant and will directly shape the recommendations you receive.",
+    placeholder:"e.g. We're a 15-person fintech in a heavily regulated market. Our biggest concern is data sovereignty — we can't use US-hosted tools and that rules out a lot of what gets recommended to us elsewhere…",
+    scaffolds:["Industry-specific constraints or compliance concerns","Company size or growth stage context","A specific AI use case I have in mind that wasn't covered","Concerns about AI risk, ethics, or team resistance"] },
+
+  // ── SECTION 6 — Partnership Appetite ──
+  // Framed consultatively — exploring how we can be most useful,
+  // not whether they want to be sold to. No urgency, no pressure.
+  // Three questions that feel like a natural, honest conversation close.
+
+  { s:6, tag:"🤝 How We Can Help",
+    text:"As you reflect on your AI journey, where do you feel you'd most benefit from outside perspective — is it in shaping the strategy, selecting the right tools, or hands-on implementation support?",
+    tip:"There's no right answer here. Some founders have a clear strategy but want a trusted second opinion on tools. Others are starting from scratch and want a guided path. Understanding where the gap feels biggest helps us point you to the most relevant resources — or people.",
+    placeholder:"e.g. Honestly, I think I need help translating the strategy into an actual plan — I understand the direction but I'm not sure how to sequence the first steps…",
+    scaffolds:["Shaping or pressure-testing our AI strategy","Navigating tool selection and vendor evaluation","Designing and running a first pilot or proof of concept","Ongoing implementation support and change management"] },
+
+  { s:6, tag:"🤝 How We Can Help",
+    text:"If the right guidance were available, how would you prefer to engage — a structured programme, occasional advisory conversations, or access to a framework you work through independently?",
+    tip:"Different founders need different things. Some want a clear methodology they can execute themselves. Others prefer a thinking partner to work through decisions with. There's no wrong answer — we're trying to understand what would actually be useful to you, not what sounds most impressive.",
+    placeholder:"e.g. I think I'd want a mix — some structured guidance to start, then the ability to work independently once I understand the framework…",
+    scaffolds:["A structured programme with clear milestones and accountability","Periodic advisory conversations at key decision points","A self-serve framework I can work through at my own pace","A combination — structure at the start, independence once I have momentum"] },
+
+  { s:6, tag:"🤝 How We Can Help",
+    text:"Would you be open to a short, no-obligation conversation with someone who has helped founders navigate exactly this journey — just to explore whether there's a fit? And if so, what would make that conversation worth your time?",
+    tip:"We ask this because the most valuable thing we can offer is honest guidance — not a sales pitch. If a conversation would be useful, we want to make sure it's focused on what matters to you. If it's not the right time, that's completely fine too.",
+    placeholder:"e.g. Yes, but only if it's genuinely about understanding my situation first — I've had too many 'discovery calls' that were just demos in disguise…",
+    scaffolds:["Yes — happy to explore if there's a genuine fit","Yes — but only after I've reviewed my report and had time to reflect","Maybe — depends on the focus and format of the conversation","Not right now — I'd rather work through the framework independently first"] },
+]
+
+const sectionMeta = [
+  { name:"Strategic Clarity",      icon:"🧭" },
+  { name:"Problem Identification",  icon:"🔍" },
+  { name:"Data Readiness",          icon:"📊" },
+  { name:"Security & Governance",   icon:"🔐" },
+  { name:"Org Readiness",           icon:"🚀" },
+  { name:"Your Context",            icon:"💬" },
+  { name:"How We Can Help",         icon:"🤝" },
+];
+const sectionRanges = [[0,4],[5,9],[10,14],[15,19],[20,24],[25,25],[26,28]];
+
+let currentQ = 0;
+let answers = new Array(29).fill("");
+let scaffoldOpen = false;
+
+// ─────────────────────────────────────────
+//  SIMULATED SCORING ENGINE
+//  (In production this calls the Claude API)
+// ─────────────────────────────────────────
+function simulateScore(text, questionIndex) {
+  if (!text || text.trim().length < 10) return 0;
+  const t = text.toLowerCase();
+  const len = text.trim().length;
+
+  // Positive signal keywords — updated to match sharpened questions
+  // informed by documented frameworks: internal knowledge gap, four AI operating
+  // models, decision-making structure, and prototype-to-production thinking.
+  const posKeywords = [
+    // Strategy — process clarity, specific outcomes, decision authority, budget, sponsorship
+    ["documented","defined","written","process","specific","metric","measurable","authority","budget","allocated","sponsor","ceo","coo","cto","executive","champion","owns","committed","roadmap","clear","formal"],
+    // Problem ID — named tasks, time quantified, AI type recognition, prior attempts
+    ["hours","minutes","weekly","daily","specific","named","manual","repetitive","automate","workflow","steps","systems","coordinate","predict","forecast","generate","content","proposal","onboard"],
+    // Data — knowledge accessibility, centralisation, quality, ownership (internal knowledge gap signals)
+    ["wiki","knowledge base","documented","centralised","centralized","crm","erp","hubspot","salesforce","clean","consistent","owner","owns","dashboard","analytics","structured","single source","accessible","retrievable"],
+    // Security — policy currency, AI-specific review, compliance mapping, active ownership
+    ["reviewed","current","ai","gdpr","hipaa","soc 2","iso","compliance","role-based","access control","vendor review","certification","named","actively","policy","procurement","sovereignty"],
+    // Org Readiness — cultural openness, rollout experience, technical support, AI familiarity, pre-defined metrics
+    ["open","experiment","culture","rollout","successful","process","training","kpi","baseline","measure","before","metric","technical","partner","chatgpt","copilot","ai tools","familiar","adopted","formally"],
+  ];
+
+  const negKeywords = [
+    // Strategy gaps
+    ["heads","undocumented","informal","no plan","no budget","nobody","unclear","vague","gut","consensus","slow","everyone's","no one","theoretical"],
+    // Problem ID gaps
+    ["never tried","don't know","no documentation","tribal knowledge","gut feel","no process","no prior","haven't mapped","people's heads"],
+    // Data / internal knowledge gap signals
+    ["scattered","fragmented","everywhere","people's heads","no system","nobody owns","inconsistent","duplicates","outdated","gaps","silos","no analytics","intuition"],
+    // Security gaps
+    ["no policy","never reviewed","skim","everyone has access","no controls","trust","lucky","don't check","nominal","on paper","theoretical","nobody owns"],
+    // Org Readiness gaps
+    ["resistant","no rollout","patchy","stalled","no tech","gut feel","afterwards","don't measure","no framework","uncomfortable","unfamiliar","no policy","everyone stopped"],
+  ];
+
+  const si = Math.min(Math.floor(questionIndex / 5), 4);
+  const posWords = posKeywords[si] || [];
+  const negWords = negKeywords[si] || [];
+
+  let score = 1; // baseline for writing something
+  if (len > 80) score += 0.5; // detail bonus
+  if (len > 180) score += 0.5;
+
+  posWords.forEach(w => { if (t.includes(w)) score += 0.4; });
+  negWords.forEach(w => { if (t.includes(w)) score -= 0.3; });
+
+  return Math.max(0, Math.min(3, score));
+}
+
+function calcDimScores() {
+  // Only score the 5 readiness dimensions (sections 0–4)
+  // Sections 5 (context) and 6 (partnership) are qualitative — not scored
+  const scores = [0,0,0,0,0];
+  [[0,4],[5,9],[10,14],[15,19],[20,24]].forEach((r, si) => {
+    let total = 0;
+    for (let i = r[0]; i <= r[1]; i++) total += simulateScore(answers[i], i);
+    scores[si] = Math.round((total / 15) * 100);
+  });
+  return scores;
+}
+
+function getTier(scores) {
+  const avg = scores.reduce((a,b)=>a+b,0) / 5;
+  if (avg >= 72) return { name:"AI Leader",   color:"#2e7d5a", bg:"rgba(46,125,90,0.15)",   border:"rgba(46,125,90,0.4)",   desc:"Your processes, data, and culture are strong foundations. You're ready to move beyond pilots — the focus now is execution, the right operating model, and scaling your first agents." };
+  if (avg >= 52) return { name:"AI Builder",  color:"#38b5bc", bg:"rgba(42,155,165,0.15)",  border:"rgba(42,155,165,0.4)",  desc:"You have real momentum in several areas. A few targeted gaps — likely in data readiness or governance — need addressing in parallel with your first implementations." };
+  if (avg >= 32) return { name:"AI Explorer", color:"#c9a84c", bg:"rgba(201,168,76,0.15)",  border:"rgba(201,168,76,0.4)",  desc:"You have genuine intent but some foundational work to do first. Start by closing your internal knowledge gap and clarifying your decision-making structure before selecting tools." };
+  return              { name:"AI Beginner",  color:"#c07040", bg:"rgba(192,112,64,0.15)",  border:"rgba(192,112,64,0.4)",  desc:"You're at the start of a genuinely exciting journey. The NavigateAI framework was designed for exactly where you are — Stage 1 will give you the foundation everything else builds on." };
+}
+
+function generateSignals(scores) {
+  const signals = [];
+  const dims = sectionMeta.map((m,i) => ({ ...m, score: scores[i] }));
+  const sorted = [...dims].sort((a,b) => b.score - a.score);
+
+  // Strengths
+  if (sorted[0].score >= 60) signals.push({ type:"pos", text:`Your strongest dimension is <strong>${sorted[0].name}</strong> (${sorted[0].score}%) — this is a real asset to build on.` });
+  // Gaps
+  if (sorted[4].score < 40) signals.push({ type:"gap", text:`Your biggest gap is <strong>${sorted[4].name}</strong> (${sorted[4].score}%) — this is the area most likely to slow your implementation.` });
+  if (sorted[3].score < 45) signals.push({ type:"gap", text:`<strong>${sorted[3].name}</strong> also needs attention before you commit to tools or vendors.` });
+  // Neutral
+  signals.push({ type:"neu", text:`Based on your responses, we recommend starting at <strong>Stage ${Math.max(1, Math.round(5 - (scores.reduce((a,b)=>a+b,0)/500)*4))}</strong> of the NavigateAI framework.` });
+  // Free text insight
+  if (answers[25] && answers[25].length > 30) signals.push({ type:"pos", text:`Your open comments reveal additional context that will significantly shape your personalised recommendations.` });
+
+  return signals;
+}
+
+// ─────────────────────────────────────────
+//  RENDER
+// ─────────────────────────────────────────
+function renderQuestion() {
+  const q = questions[currentQ];
+  const card = document.getElementById('questionCard');
+  card.style.animation = 'none'; card.offsetHeight; card.style.animation = '';
+  scaffoldOpen = false;
+
+  const isFinal = currentQ === 28;
+  card.innerHTML = `
+    <div class="q-section-tag">${q.tag}</div>
+    <div class="q-number">Question ${currentQ + 1} of 29</div>
+    <div class="q-text">${q.text}</div>
+    <div class="q-tip">${q.tip}</div>
+    <textarea
+      class="freetext-area${isFinal ? ' final-area' : ''}"
+      id="freeTextInput"
+      placeholder="${q.placeholder}"
+      oninput="onTextInput()"
+      maxlength="1000"
+    >${answers[currentQ]}</textarea>
+    <div class="char-count" id="charCount">${answers[currentQ].length} / 1000</div>
+    ${!isFinal ? `
+    <button class="scaffold-toggle" onclick="toggleScaffold()" id="scaffoldToggle">
+      <span class="toggle-icon">+</span>
+      Not sure where to start? See some examples
+    </button>
+    <div class="scaffold-panel" id="scaffoldPanel">
+      <div class="scaffold-label">Tap an example to use as a starting point — then make it your own</div>
+      <div class="scaffold-options">
+        ${q.scaffolds.map(s => `<button class="scaffold-btn" onclick="useScaffold('${s.replace(/'/g,"\\'")}')"><span class="s-dot"></span>${s}</button>`).join('')}
+      </div>
+    </div>` : ''}
+  `;
+
+  // progress bar
+  const pct = Math.max(2, Math.round((currentQ / 29) * 100));
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressCount').textContent = `Question ${currentQ + 1} of 29`;
+
+  // glowing dot track
+  renderDotTrack();
+
+  document.getElementById('btnBack').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+  updateNextBtn();
+}
+
+function renderDotTrack() {
+  const track = document.getElementById('sectionTrack');
+  const sectionDefs = [
+    { icon:'🧭', label:'Strategy',   range:[0,4]   },
+    { icon:'🔍', label:'Problems',   range:[5,9]   },
+    { icon:'📊', label:'Data',       range:[10,14] },
+    { icon:'🔐', label:'Security',   range:[15,19] },
+    { icon:'🚀', label:'Org Ready',  range:[20,24] },
+    { icon:'💬', label:'Context',    range:[25,25] },
+    { icon:'🤝', label:'Next Steps', range:[26,28] },
+  ];
+
+  track.innerHTML = sectionDefs.map((sec) => {
+    const [start, end] = sec.range;
+    const count = end - start + 1;
+    const isActive = currentQ >= start && currentQ <= end;
+    const isDone   = currentQ > end;
+    const cls = isActive ? 's-active' : isDone ? 's-done' : '';
+
+    const dots = Array.from({length: count}, (_,di) => {
+      const qIdx = start + di;
+      const isAnswered = answers[qIdx] && answers[qIdx].trim().length >= 5;
+      const isCurrent  = qIdx === currentQ;
+      const dotCls = isCurrent ? 'qdot current'
+                   : isAnswered ? (isDone ? 'qdot done-all' : 'qdot answered')
+                   : isDone ? 'qdot done-all' : 'qdot';
+      return `<span class="${dotCls}" title="Q${qIdx+1}"></span>`;
+    }).join('');
+
+    return `
+      <div class="section-lane ${cls}">
+        <span class="lane-label">${sec.icon} ${sec.label}</span>
+        <div class="lane-dots">${dots}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function onTextInput() {
+  const ta = document.getElementById('freeTextInput');
+  answers[currentQ] = ta.value;
+  const cc = document.getElementById('charCount');
+  cc.textContent = ta.value.length + ' / 1000';
+  cc.className = 'char-count' + (ta.value.length > 850 ? ' warn' : '');
+  updateNextBtn();
+  renderDotTrack(); // live dot update as they type
+}
+
+function updateNextBtn() {
+  const btn = document.getElementById('btnNext');
+  const val = answers[currentQ].trim();
+  btn.disabled = val.length < 5;
+  const isLast = currentQ === 28;
+  btn.textContent = isLast ? 'See My Results →' : 'Next →';
+}
+
+function toggleScaffold() {
+  scaffoldOpen = !scaffoldOpen;
+  const panel = document.getElementById('scaffoldPanel');
+  const toggle = document.getElementById('scaffoldToggle');
+  if (panel) {
+    panel.classList.toggle('open', scaffoldOpen);
+    toggle.querySelector('.toggle-icon').textContent = scaffoldOpen ? '−' : '+';
+    toggle.querySelector('.toggle-icon').nextSibling.textContent = scaffoldOpen ? ' Hide examples' : ' Not sure where to start? See some examples';
+  }
+}
+
+function useScaffold(text) {
+  const ta = document.getElementById('freeTextInput');
+  ta.value = text;
+  answers[currentQ] = text;
+  ta.focus();
+  ta.setSelectionRange(text.length, text.length);
+  document.getElementById('charCount').textContent = text.length + ' / 1000';
+  updateNextBtn();
+  if (scaffoldOpen) toggleScaffold();
+}
+
+function prevQuestion() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
+}
+
+function nextQuestion() {
+  if (answers[currentQ].trim().length < 5) return;
+  if (currentQ < 28) {
+    // Show brief "analysing" animation
+    const thinking = document.getElementById('aiThinking');
+    thinking.classList.add('show');
+    document.getElementById('btnNext').disabled = true;
+    setTimeout(() => {
+      thinking.classList.remove('show');
+      currentQ++;
+      renderQuestion();
+    }, 900);
+  } else {
+    showTeaser();
+  }
+}
+
+// ─────────────────────────────────────────
+//  TEASER RESULT
+// ─────────────────────────────────────────
+function showTeaser() {
+  // Hide all other screens safely
+  ['quizScreen','progressContainer','quizHeader'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.display = 'none'; el.classList.remove('active'); }
+  });
+
+  // Show teaser — force display in case it was never in normal flow
+  const ts = document.getElementById('teaserScreen');
+  ts.style.display = 'block';
+  ts.classList.add('active');
+
+  // Safe progress fill update
+  const pf = document.getElementById('progressFill');
+  if (pf) pf.style.width = '100%';
+
+  const scores = calcDimScores();
+  const tier = getTier(scores);
+  const signals = generateSignals(scores);
+
+  // Tier pill
+  const pill = document.getElementById('tierPill');
+  pill.textContent = tier.name;
+  pill.style.background = tier.bg;
+  pill.style.border = '1px solid ' + tier.border;
+  pill.style.color = tier.color;
+  document.getElementById('tierDesc').textContent = tier.desc;
+
+  // Dimension grid — only the 5 scored readiness dimensions
+  const scoredMeta = sectionMeta.slice(0, 5);
+  const dg = document.getElementById('dimGrid');
+  dg.innerHTML = scoredMeta.map((m, i) => {
+    const pct = scores[i] || 0;
+    const r = 22, circ = 2 * Math.PI * r;
+    const dash = (pct / 100) * circ;
+    const col = pct >= 65 ? '#2e7d5a' : pct >= 40 ? '#38b5bc' : '#c9a84c';
+    const insight = pct >= 65 ? 'Strong foundation' : pct >= 40 ? 'Some gaps to address' : 'Needs attention';
+    return `
+      <div class="dim-card">
+        <div class="dim-icon">${m.icon}</div>
+        <div class="dim-name">${m.name}</div>
+        <div class="dim-ring">
+          <svg width="54" height="54" viewBox="0 0 54 54">
+            <circle cx="27" cy="27" r="${r}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="3"/>
+            <circle cx="27" cy="27" r="${r}" fill="none" stroke="${col}" stroke-width="3"
+              stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}"
+              stroke-linecap="round"/>
+          </svg>
+          <span class="dim-ring-pct">${pct}%</span>
+        </div>
+        <div class="dim-insight">${insight}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Signals
+  const sl = document.getElementById('signalsList');
+  sl.innerHTML = signals.map(s => `
+    <div class="signal-item">
+      <span class="signal-dot ${s.type}"></span>
+      <span>${s.text}</span>
+    </div>
+  `).join('');
+}
+
+function submitLead() {
+  const fn = document.getElementById('firstName').value.trim();
+  const ln = document.getElementById('lastName').value.trim();
+  const co = document.getElementById('company').value.trim();
+  const em = document.getElementById('email').value.trim();
+  if (!fn || !ln || !co || !em || !em.includes('@') || !em.includes('.')) {
+    alert('Please complete all fields with a valid work email address.');
+    return;
+  }
+  document.getElementById('teaserScreen').classList.remove('active');
+  document.getElementById('thankYouScreen').classList.add('active');
+}
+
+function restartQuiz() {
+  currentQ = 0;
+  answers = new Array(29).fill("");
+  ['thankYouScreen','teaserScreen'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('quizHeader').style.display = 'none';
+  document.getElementById('progressContainer').style.display = 'none';
+  document.getElementById('quizScreen').classList.remove('active');
+  document.getElementById('introScreen').style.display = 'block';
+}
+
+// ─────────────────────────────────────────
+//  TEST MODE — Pre-filled persona profiles
+//  Toggle panel: double-click the logo
+// ─────────────────────────────────────────
+const testProfiles = {
+
+  beginner: [
+    // Section 0 — Strategy (weak)
+    "Honestly most of our processes live in people's heads. We haven't documented much — we're a 12-person team and everyone just knows what to do.",
+    "We want to use AI but it's quite vague — our CEO mentioned it at an all-hands and said we should look into it. No specific metrics attached.",
+    "Everything goes through consensus here. We discuss everything as a leadership team and it can take weeks to make a call on new tools.",
+    "No dedicated budget. We'd have to pull from the general ops budget and make a case each time.",
+    "Nobody officially owns the AI agenda. Our CEO is interested but he hasn't assigned it to anyone formally.",
+    // Section 1 — Problem ID (weak)
+    "We do a lot of manual things but I couldn't point to specific tasks off the top of my head. Everyone seems busy but I couldn't quantify it.",
+    "We make decisions based on gut feel mostly. Data exists somewhere but it's not easy to access.",
+    "We write a lot of similar things repeatedly but haven't thought about automating it. It's just how we work.",
+    "Our processes are not really documented so I couldn't describe a multi-step workflow clearly.",
+    "We haven't tried to solve any of these problems before. This would be our first serious attempt.",
+    // Section 2 — Data (weak)
+    "If an AI needed to understand how we work it would have to talk to our three most experienced people. Nothing is written down in a useful way.",
+    "Our data is scattered everywhere — CRM, spreadsheets, email threads, Slack. Nothing talks to anything else.",
+    "Data quality is poor honestly. Lots of duplicates in our CRM, missing fields, nobody maintains it regularly.",
+    "Nobody really owns any of our data assets. It's everyone's responsibility which means it's nobody's.",
+    "We don't really use analytics. Our CEO asks for ad hoc reports sometimes but we mostly go on instinct.",
+    // Section 3 — Security (weak)
+    "We have a privacy policy on our website but I think it was written when we launched in 2021. It definitely doesn't mention AI tools.",
+    "I'm not sure what regulations apply to us. We're in professional services — probably GDPR since we have EU clients but we haven't formally reviewed it.",
+    "In practice everyone has access to everything. We're small and we trust each other — there are no formal controls.",
+    "We clicked through the terms when we signed up for tools. I assumed it was fine but I haven't checked training data clauses specifically.",
+    "Our CTO is nominally responsible for security but there's no active process. We've been lucky so far.",
+    // Section 4 — Org Readiness (weak)
+    "Some of our team is resistant to change. Our senior staff are set in their ways and need a lot of convincing.",
+    "We tried to roll out a project management tool last year and it failed — adoption dropped off after a month and people went back to email.",
+    "We have no dedicated technical support. Our CTO does a bit of everything and has no AI experience specifically.",
+    "Most of our staff are unfamiliar with AI tools. A couple of people have tried ChatGPT but it's not encouraged officially.",
+    "We don't measure success formally. We usually see if people are still using something after a few months and go from there.",
+    // Section 5 — Context
+    "We're a 12-person professional services firm. Our biggest fear is honestly not knowing where to start — the whole thing feels overwhelming.",
+    // Section 6 — Partnership
+    "I think we need help with everything honestly — from understanding what's possible to knowing which tools to consider.",
+    "I'd prefer a structured programme — something that holds us accountable and gives us a clear path to follow.",
+    "Yes I'd be open to a conversation. What would make it worthwhile is if someone actually listened to our situation first rather than jumping to solutions."
+  ],
+
+  explorer: [
+    // Section 0 — Strategy (moderate)
+    "We have some processes documented — our sales and onboarding flows are written up but our ops and finance processes are mostly informal and vary by person.",
+    "We want to reduce the time our ops team spends on manual reporting — currently about 8 hours a week. We also want to improve customer response consistency.",
+    "Our CEO makes the final call but we do discuss everything as a small leadership team first. It can take 2-3 weeks for technology decisions.",
+    "We have about $20k in our tech budget that could flex toward AI tools but we haven't formally ringfenced it for AI specifically.",
+    "Our COO has been reading about AI and is interested but hasn't formally taken on the AI champion role yet.",
+    // Section 1 — Problem ID (moderate)
+    "Our ops manager spends about 3 hours every Monday pulling data from three systems to build a weekly status report. It's repetitive and she finds it frustrating.",
+    "We make inventory decisions based on gut feel because our sales data is always about 2 weeks behind. It's caused some stock issues.",
+    "Our team writes similar proposal sections from scratch every time. The quality varies and it takes 2-3 hours per proposal unnecessarily.",
+    "Our client onboarding involves 8 steps across 3 systems and 2 people — someone always misses a step and the client notices.",
+    "We tried a workflow automation tool about 18 months ago. It worked initially but adoption dropped when the person who set it up left the company.",
+    // Section 2 — Data (moderate)
+    "We have a shared Google Drive with some process docs but it's not well organised. Key knowledge is partly documented but partly in people's heads still.",
+    "We use HubSpot for CRM and Xero for finance. They don't integrate so data has to be manually reconciled. A lot of our ops data is still in spreadsheets.",
+    "Our CRM has some quality issues — probably 15-20% of records have missing or outdated information. We know it's a problem but haven't prioritised fixing it.",
+    "Our marketing manager owns the CRM but customer data is shared across three teams and the accuracy isn't clearly anyone's responsibility.",
+    "We use a basic Google Data Studio dashboard but only the ops manager looks at it regularly. Leadership still asks for ad hoc spreadsheets most of the time.",
+    // Section 3 — Security (moderate)
+    "We have a privacy policy but it was last updated in 2022 — it doesn't specifically address AI tools or third-party data processing for AI purposes.",
+    "We're aware of GDPR obligations since we have EU clients. We haven't formally mapped how GDPR applies to the AI tools we're evaluating. We know SOC 2 and ISO 27001 are things to check for but haven't verified our shortlist yet.",
+    "We have partial access controls — our financial data and HR records are restricted but most operational data is accessible to all staff.",
+    "We check the privacy policy headline terms when we sign up for tools but haven't specifically looked at training data clauses or subprocessor lists for AI tools.",
+    "Our CTO handles security part-time alongside other responsibilities. She has real accountability but the process isn't formalised — it depends on her initiative.",
+    // Section 4 — Org Readiness (moderate)
+    "Mixed response to change. Our product and marketing teams experiment freely. Our ops and finance teams need more evidence before they'll change their workflows.",
+    "We rolled out HubSpot two years ago — it worked but took 4 months longer than expected because we underinvested in training. Good lesson learned.",
+    "We have a part-time developer who's curious about AI and we have an IT partner we've worked with for 3 years who's starting to offer AI services.",
+    "A few people use ChatGPT for drafting emails and summaries but it's not officially encouraged and there's no policy around it yet.",
+    "We tend to set informal targets and review after deployment. We don't define KPIs upfront which has bitten us before.",
+    // Section 5 — Context
+    "We're a 28-person SaaS company growing fast. Our main constraint is bandwidth — the team is stretched and AI needs to feel like a relief not another project.",
+    // Section 6 — Partnership
+    "I think the biggest gap is translating our strategy into a sequenced plan — I know roughly where I want to go but I'm not sure how to prioritise the first moves.",
+    "I'd like a combination — some structured guidance to start, then the ability to work more independently once I understand the framework and sequencing.",
+    "Yes I'd be open to a conversation. What would make it valuable is focus on our specific situation rather than a generic overview of AI possibilities."
+  ],
+
+  builder: [
+    // Section 0 — Strategy (strong)
+    "Most of our core processes are documented and consistently followed. We use Notion for our ops wiki and do quarterly reviews. A few edge-case processes still live in people's heads but the main ones are solid.",
+    "We want to reduce customer support ticket resolution time by 40% and cut manual reporting time from 10 hours a week to under 2. Both are tracked KPIs already.",
+    "Our CEO makes final technology calls and moves fast. We have a weekly leadership sync but decisions don't get stuck there — she has clear authority and uses it.",
+    "We have $45k allocated specifically for AI tooling this year. It's a named line item in our tech budget and has been approved by the board.",
+    "Our CEO actively owns the AI agenda and has attended two AI strategy workshops in the past 6 months. She reviews AI progress monthly.",
+    // Section 1 — Problem ID (strong)
+    "Our support team handles about 200 tickets a week — roughly 60% are the same 15 question types. Each takes 8 minutes to resolve manually. That's the primary target.",
+    "Our sales forecasting relies on manual spreadsheet updates every Friday. The data is always 5 days stale when we make pipeline decisions in Monday standups.",
+    "We produce 3-4 client reports per week — each takes about 4 hours. The structure is always the same, only the data changes. Strong Generative AI candidate.",
+    "Our client onboarding runs across HubSpot, our internal project tool, Slack, and email — 14 steps, 3 people, 2 weeks average. Someone always drops a handoff.",
+    "We ran a successful ChatGPT pilot for content drafting last quarter — 80% adoption within 6 weeks. We have a repeatable rollout playbook from that experience.",
+    // Section 2 — Data (strong)
+    "We have a well-maintained Notion wiki with process docs, decision logs, and customer context. It's not perfect but a new AI would find 80% of what it needs there.",
+    "We're mostly centralised — HubSpot as CRM, our own platform database, and Notion for knowledge. Integration between HubSpot and our platform is solid via Zapier.",
+    "Our data is relatively clean. We did a CRM audit last quarter — deduplication done, key fields validated, ownership assigned. Some gaps in historical records still.",
+    "Our Head of Ops owns all customer data with documented ownership. We have a basic data dictionary that maps our key assets to responsible owners.",
+    "We use Metabase for dashboards — reviewed weekly by the leadership team. We make most operational decisions from data not instinct.",
+    // Section 3 — Security (strong)
+    "Our privacy policy was updated 4 months ago and specifically covers AI tool usage including data processing, third-party sharing, and customer data flows.",
+    "We're GDPR compliant with documented DPAs for all processors. We check for SOC 2 Type II and ISO 27001 when evaluating any new vendor. We've also started asking specifically about AI training data clauses.",
+    "We use role-based access controls across all systems. Finance and customer PII are restricted to named roles only. Access reviewed quarterly.",
+    "We check training data clauses and subprocessor lists before signing AI tool agreements. Found one vendor last month that had opted-in training by default — excluded them.",
+    "Our Head of Engineering owns security with a defined process and quarterly audits. She has authority to reject tools that don't meet our security bar.",
+    // Section 4 — Org Readiness (strong)
+    "We have an active culture of experimentation. Our team expects to try new tools and we have a clear process for proposing, piloting, and adopting them.",
+    "We've done three major tool rollouts in the past two years — HubSpot, Notion, and Metabase. All successful. We now have a rollout template with training and adoption tracking built in.",
+    "We have a senior developer internally who's been upskilling in AI specifically. We also work with an external AI consultant on a retainer basis.",
+    "AI tools are widely used across the team — ChatGPT, Copilot, and Grammarly are all officially supported and usage is tracked. We have an AI usage policy.",
+    "We define success KPIs and baselines before starting any AI initiative. Our last pilot had a pre-defined 60-day success threshold before we committed to full rollout.",
+    // Section 5 — Context
+    "We're a 45-person B2B SaaS company. We're ready to move — the question is sequencing and making sure we pick the right operating model for each use case.",
+    // Section 6 — Partnership
+    "We have strategy and problem identification covered. Where we'd benefit most is a second opinion on tool selection and someone to pressure-test our implementation design before we build.",
+    "Periodic advisory conversations at key decision points would be ideal — we don't need hand-holding but a trusted thinking partner at critical junctures would be valuable.",
+    "Yes — a focused 45-minute session where someone reviews our shortlist and implementation plan would be genuinely useful. Not a sales call — a working session."
+  ],
+
+  leader: [
+    // Section 0 — Strategy (very strong)
+    "All core processes are documented in Notion with version history. We do bi-annual process reviews. Our ops manual covers 95% of what anyone needs to know — including edge cases.",
+    "We have three AI OKRs this quarter: reduce support handle time by 50%, automate 80% of internal reporting, and deploy a client-facing AI assistant by Q3. All tied to revenue and NPS metrics.",
+    "Our CTO owns technology decisions with full authority. She can approve and deploy tools without committee sign-off for anything under $50k annually.",
+    "We have a $120k dedicated AI budget this year split across tooling, implementation, and training. Approved at board level as a strategic priority.",
+    "Our CTO is the formal AI owner with a dedicated 20% of her time. She reports AI progress at every board meeting and has two direct reports focused on AI implementation.",
+    // Section 1 — Problem ID (very strong)
+    "Three clear targets: (1) Support team — 340 tickets/week, 65% repetitive, 9 min average handle time. (2) Finance — 12 hours/week manual reconciliation. (3) Sales — proposal drafting 3 hours per deal.",
+    "We've instrumented our pipeline data and know exactly where decisions get slow. Our biggest gap is real-time churn signals — we're reactive rather than predictive currently.",
+    "We generate 15 client-facing reports monthly. Structure is templated, data is automated for 60% of it. The remaining 40% still requires analyst time — that's the Generative AI target.",
+    "We have two agentic candidates mapped: client onboarding (18 steps, 4 systems) and vendor procurement (12 steps, 3 approvers). Both are fully documented and ready for automation design.",
+    "We've run four AI pilots in 18 months. Three succeeded and are now in production. One failed — we learned it needed cleaner data first, fixed that, and relaunched successfully.",
+    // Section 2 — Data (very strong)
+    "We have a structured knowledge base in Notion, a data warehouse in BigQuery, and all key processes documented with owners and last-reviewed dates. An AI agent could navigate our knowledge independently.",
+    "Fully centralised — Salesforce as CRM, BigQuery as data warehouse, Notion for knowledge, Jira for ops. All systems integrated via a custom middleware layer our team built.",
+    "Data quality is high. We run automated validation checks nightly. Our CRM completeness is above 94% on key fields. We have a data steward role that owns quality.",
+    "Every data asset has a named owner in our data dictionary. We have a data governance policy reviewed annually. Lineage is tracked for all customer-facing data.",
+    "We use Looker for dashboards — reviewed daily by the ops team and weekly by leadership. All strategic decisions are data-driven by default.",
+    // Section 3 — Security (very strong)
+    "Our privacy policy is reviewed quarterly, explicitly covers AI tool usage, third-party processing, and includes a section on GenAI-specific data handling requirements.",
+    "We're SOC 2 Type II certified ourselves and require the same from all AI vendors. We check ISO 27001, GDPR DPAs, HIPAA BAAs where relevant, and data residency declarations for all new tools.",
+    "RBAC enforced across all systems with quarterly access reviews. Privileged access management in place for financial and PII data. Zero-trust architecture in progress.",
+    "We have a vendor security checklist that explicitly covers AI training data opt-out, subprocessor disclosures, and data deletion rights. Rejected two vendors in the past 6 months for failing this check.",
+    "Our Head of Security owns this full-time with a defined process, monthly reviews, and board-level reporting. She has veto authority on any tool that fails our security bar.",
+    // Section 4 — Org Readiness (very strong)
+    "Strong culture of experimentation. We run monthly AI showcases where teams share what they've built or tested. Leadership actively models AI tool usage.",
+    "Six major tool rollouts in two years — all successful. We have a documented rollout playbook: communication template, training programme, adoption KPIs, and 30-60-90 day review checkpoints.",
+    "Dedicated internal AI engineer plus a part-time AI strategist on retainer. Strong technical capability for both design and deployment.",
+    "AI tools are standard across the company. ChatGPT Enterprise, GitHub Copilot, and Notion AI are all officially licensed and included in onboarding. Usage is tracked and celebrated.",
+    "Every AI initiative starts with a written success brief: baseline metrics, target outcomes, measurement methodology, and a defined 90-day review trigger.",
+    // Section 5 — Context
+    "We're a 90-person B2B platform company. We're in execution mode — strategy is set, foundations are solid. The focus now is scaling what's working and picking the right operating model for each remaining use case.",
+    // Section 6 — Partnership
+    "We're largely self-sufficient on strategy and implementation. Where outside perspective adds value is stress-testing our agentic AI architecture before we commit to the build.",
+    "Targeted advisory sessions — ideally with someone who has hands-on experience deploying agentic systems at our scale. Not a programme, just sharp expertise on demand.",
+    "Yes — specifically a technical working session reviewing our agentic AI design. Would want someone who's actually built and deployed agents in production, not just advised on strategy."
+  ]
+};
+
+function runTestProfile(persona) {
+  const profile = testProfiles[persona];
+  if (!profile) return;
+  answers = [...profile];
+  while (answers.length < 29) answers.push("Test response — not applicable for this profile.");
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('progressContainer').style.display = 'none';
+  document.getElementById('quizHeader').style.display = 'none';
+  document.getElementById('quizScreen').style.display = 'none';
+  showTeaser();
+}
+
+function startQuiz() {
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('quizHeader').style.display = 'block';
+  document.getElementById('progressContainer').style.display = 'block';
+  const qs = document.getElementById('quizScreen');
+  qs.style.display = 'block';
+  qs.classList.add('active');
+  renderQuestion();
+}
+
+// Intro shown on load — quiz starts only after startQuiz() is called
+</script>
+</body>
+</html>

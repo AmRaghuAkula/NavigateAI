@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NavigateAI — The AI Strategy Framework for Founders</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1117;
+    --paper: #f5f2eb;
+    --gold: #c9a84c;
+    --gold-light: #e8d49a;
+    --teal: #1a6b72;
+    --teal-light: #38b5bc;
+    --mist: #e8e4da;
+    --charcoal: #2c3140;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(245,242,235,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem; font-weight: 700;
+    color: var(--ink); letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: var(--teal); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    text-decoration: none; color: var(--charcoal);
+    font-size: 0.85rem; font-weight: 500; letter-spacing: 0.04em;
+    text-transform: uppercase; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--teal); }
+  .nav-cta {
+    background: var(--teal); color: white;
+    padding: 0.6rem 1.5rem; border-radius: 2px;
+    font-size: 0.82rem; font-weight: 500; letter-spacing: 0.05em;
+    text-transform: uppercase; text-decoration: none;
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--teal-light); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1fr 1fr;
+    position: relative; overflow: hidden;
+  }
+  .hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 10rem 4rem 6rem 6rem;
+    position: relative; z-index: 2;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.4);
+    padding: 0.35rem 0.9rem; border-radius: 2px;
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 2rem; width: fit-content;
+    animation: fadeUp 0.8s ease forwards;
+  }
+  .hero-badge::before { content: '◈'; font-size: 0.6rem; }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 5.5vw, 5.5rem);
+    font-weight: 900; line-height: 1.0;
+    letter-spacing: -0.03em; margin-bottom: 1.8rem;
+    animation: fadeUp 0.8s 0.15s ease both;
+  }
+  .hero-title em { color: var(--teal); font-style: italic; }
+  .hero-subtitle {
+    font-size: 1.1rem; line-height: 1.75; color: #4a5060;
+    max-width: 480px; margin-bottom: 3rem;
+    font-weight: 300;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .hero-actions {
+    display: flex; gap: 1.2rem; align-items: center;
+    animation: fadeUp 0.8s 0.45s ease both;
+  }
+  .btn-primary {
+    background: var(--ink); color: var(--paper);
+    padding: 1rem 2.2rem; text-decoration: none;
+    font-size: 0.9rem; font-weight: 500; letter-spacing: 0.02em;
+    transition: all 0.25s; border-radius: 2px;
+    display: inline-flex; align-items: center; gap: 0.6rem;
+  }
+  .btn-primary:hover { background: var(--teal); transform: translateY(-2px); }
+  .btn-secondary {
+    color: var(--charcoal); text-decoration: none;
+    font-size: 0.88rem; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    transition: color 0.2s;
+  }
+  .btn-secondary:hover { color: var(--teal); }
+  .btn-arrow { font-size: 1rem; transition: transform 0.2s; }
+  .btn-secondary:hover .btn-arrow { transform: translateX(4px); }
+
+  .hero-right {
+    background: var(--ink);
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .hero-visual {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    padding: 6rem 3rem;
+  }
+  .journey-map {
+    position: relative; width: 100%; max-width: 420px;
+  }
+  .journey-line {
+    position: absolute; left: 28px; top: 20px; bottom: 20px;
+    width: 2px; background: linear-gradient(to bottom, var(--gold), var(--teal));
+    opacity: 0.4;
+  }
+  .journey-step {
+    display: flex; align-items: flex-start; gap: 1.5rem;
+    margin-bottom: 2.2rem; position: relative;
+    animation: slideIn 0.6s ease both;
+  }
+  .journey-step:nth-child(2) { animation-delay: 0.1s; }
+  .journey-step:nth-child(3) { animation-delay: 0.2s; }
+  .journey-step:nth-child(4) { animation-delay: 0.3s; }
+  .journey-step:nth-child(5) { animation-delay: 0.4s; }
+  .journey-step:nth-child(6) { animation-delay: 0.5s; }
+  .journey-step:nth-child(7) { animation-delay: 0.6s; }
+  .step-dot {
+    width: 58px; height: 58px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    position: relative; z-index: 1;
+  }
+  .step-dot.active {
+    background: rgba(201,168,76,0.15);
+    border-color: rgba(201,168,76,0.5);
+  }
+  .step-text { padding-top: 0.8rem; }
+  .step-label {
+    font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--gold-light); opacity: 0.6; margin-bottom: 0.25rem;
+  }
+  .step-title {
+    font-family: 'Playfair Display', serif;
+    color: white; font-size: 1rem; font-weight: 700;
+  }
+
+  /* background decoration */
+  .hero-right::before {
+    content: '';
+    position: absolute; top: -200px; right: -200px;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(26,107,114,0.2) 0%, transparent 70%);
+  }
+  .hero-right::after {
+    content: '';
+    position: absolute; bottom: -100px; left: -100px;
+    width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(201,168,76,0.1) 0%, transparent 70%);
+  }
+
+  /* ── SECTION: WHAT IS THIS ── */
+  .intro-section {
+    padding: 8rem 6rem;
+    display: grid; grid-template-columns: 1fr 2fr; gap: 6rem;
+    align-items: start; border-top: 1px solid var(--mist);
+  }
+  .section-label {
+    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--teal); font-weight: 500; margin-bottom: 1rem;
+  }
+  .section-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 6rem; font-weight: 900; color: var(--mist);
+    line-height: 1; margin-top: 1rem;
+  }
+  .intro-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem; font-weight: 700; line-height: 1.15;
+    letter-spacing: -0.02em; margin-bottom: 1.8rem;
+  }
+  .intro-body { font-size: 1.05rem; line-height: 1.8; color: #4a5060; font-weight: 300; margin-bottom: 1.5rem; }
+  .intro-highlight {
+    border-left: 3px solid var(--gold);
+    padding-left: 1.5rem; margin: 2rem 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem; font-style: italic; color: var(--charcoal); line-height: 1.6;
+  }
+
+  /* ── FRAMEWORK STAGES ── */
+  .stages-section {
+    background: var(--ink); padding: 8rem 6rem;
+  }
+  .stages-header { text-align: center; margin-bottom: 5rem; }
+  .stages-header .section-label { color: var(--gold-light); }
+  .stages-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem; color: white; font-weight: 700;
+    letter-spacing: -0.02em; margin-top: 0.8rem;
+  }
+  .stages-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .stage-card {
+    background: var(--ink); padding: 2.5rem 2rem;
+    transition: background 0.3s; cursor: pointer;
+    border-right: 1px solid rgba(255,255,255,0.06);
+  }
+  .stage-card:last-child { border-right: none; }
+  .stage-card:hover { background: rgba(255,255,255,0.03); }
+  .stage-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem; font-weight: 900;
+    color: rgba(255,255,255,0.08); line-height: 1;
+    margin-bottom: 1.5rem;
+  }
+  .stage-icon { font-size: 1.8rem; margin-bottom: 1rem; }
+  .stage-title {
+    font-family: 'Playfair Display', serif;
+    color: white; font-size: 1.15rem; font-weight: 700;
+    margin-bottom: 0.8rem; line-height: 1.3;
+  }
+  .stage-desc { font-size: 0.85rem; color: rgba(220,224,232,0.82); line-height: 1.7; }
+  .stage-tag {
+    display: inline-block; margin-top: 1.5rem;
+    font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 0.25rem 0.7rem; border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold-light); opacity: 0.7; border-radius: 2px;
+  }
+
+  /* bottom row */
+  .stages-grid-2 {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-top: none; margin-top: 1.5px;
+  }
+
+  /* ── DIAGNOSTIC TEASER ── */
+  .diagnostic-section {
+    padding: 8rem 6rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6rem;
+    align-items: center;
+  }
+  .diagnostic-visual {
+    background: var(--ink); border-radius: 4px; padding: 3rem;
+    position: relative; overflow: hidden;
+  }
+  .diag-title {
+    font-family: 'Playfair Display', serif;
+    color: white; font-size: 1.3rem; margin-bottom: 2rem;
+  }
+  .diag-question {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    padding: 1.2rem 1.5rem; border-radius: 3px; margin-bottom: 1rem;
+    font-size: 0.9rem; color: rgba(255,255,255,0.7);
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .diag-question .q-num {
+    font-family: 'Playfair Display', serif; color: var(--gold);
+    font-size: 1.1rem; font-weight: 700; flex-shrink: 0;
+  }
+  .diag-cta {
+    background: var(--gold); color: var(--ink);
+    padding: 0.9rem 2rem; border-radius: 2px;
+    font-size: 0.88rem; font-weight: 600;
+    display: inline-block; margin-top: 1.5rem;
+    text-decoration: none; transition: opacity 0.2s;
+  }
+  .diag-cta:hover { opacity: 0.85; }
+
+  .diagnostic-content .section-label { margin-bottom: 1rem; }
+  .diagnostic-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem; font-weight: 700; line-height: 1.2;
+    letter-spacing: -0.02em; margin-bottom: 1.5rem;
+  }
+  .diagnostic-body { font-size: 1rem; line-height: 1.8; color: #4a5060; font-weight: 300; }
+  .result-tags { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 2rem; }
+  .result-tag {
+    padding: 0.5rem 1rem; border: 1px solid var(--mist);
+    border-radius: 2px; font-size: 0.8rem; color: var(--charcoal);
+    background: white;
+  }
+  .result-tag.active { border-color: var(--teal); color: var(--teal); background: rgba(26,107,114,0.05); }
+
+  /* ── RESOURCES STRIP ── */
+  .resources-strip {
+    background: var(--teal); padding: 5rem 6rem;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6rem;
+    align-items: center;
+  }
+  .resources-strip .section-label { color: rgba(255,255,255,0.6); }
+  .resources-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem; color: white; font-weight: 700; line-height: 1.2;
+    margin-top: 0.5rem;
+  }
+  .resource-logos {
+    display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+  }
+  .resource-pill {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    padding: 0.5rem 1.2rem; border-radius: 2px;
+    color: white; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.02em;
+  }
+  .resource-note { font-size: 0.82rem; color: rgba(255,255,255,0.5); margin-top: 1.5rem; line-height: 1.6; }
+
+  /* ── WHITEPAPER CTA ── */
+  .whitepaper-section {
+    padding: 8rem 6rem; text-align: center;
+    border-top: 1px solid var(--mist);
+  }
+  .whitepaper-inner { max-width: 680px; margin: 0 auto; }
+  .whitepaper-section .section-label { text-align: center; display: block; }
+  .whitepaper-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem; font-weight: 700; line-height: 1.15;
+    letter-spacing: -0.02em; margin: 1rem 0 1.5rem;
+  }
+  .whitepaper-body { font-size: 1rem; line-height: 1.8; color: #4a5060; font-weight: 300; margin-bottom: 2.5rem; }
+  .email-capture {
+    display: flex; gap: 0; max-width: 460px; margin: 0 auto;
+  }
+  .email-input {
+    flex: 1; padding: 1rem 1.5rem; border: 1px solid #ccc;
+    border-right: none; font-size: 0.9rem; outline: none;
+    font-family: 'DM Sans', sans-serif; background: white;
+    border-radius: 2px 0 0 2px;
+  }
+  .email-btn {
+    background: var(--ink); color: white;
+    padding: 1rem 2rem; border: none; cursor: pointer;
+    font-size: 0.88rem; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    border-radius: 0 2px 2px 0; transition: background 0.2s;
+  }
+  .email-btn:hover { background: var(--teal); }
+  .email-note { font-size: 0.78rem; color: #999; margin-top: 1rem; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink); color: rgba(255,255,255,0.4);
+    padding: 3rem 6rem;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.82rem;
+  }
+  footer .nav-logo { color: white; }
+  footer nav { background: none; position: static; border: none; padding: 0; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-15px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* scroll reveal */
+  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <ul class="nav-links">
+    <li><a href="why-navigate-ai.html">Why Us</a></li>
+    <li><a href="our-model.html">Our Model</a></li>
+    <li><a href="navigate-hub.html">Framework</a></li>
+    <li><a href="about-us.html">About</a></li>
+  </ul>
+  <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <span class="hero-badge">The AI Strategy Playbook for Founders</span>
+    <h1 class="hero-title">Most AI initiatives<br>fail before they<br><em>produce a result.</em></h1>
+    <p class="hero-subtitle">This framework is why yours won't. A practical, end-to-end system for non-technical founders who want to move from uncertainty to working AI in production — structured, de-risked, and measurable.</p>
+    <div class="hero-actions">
+      <a href="ai-diagnostic-quiz-v6.html" class="btn-primary">Take the AI Readiness Diagnostic →</a>
+      <a href="start-a-conversation.html" class="btn-secondary">Start a Conversation <span class="btn-arrow">→</span></a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-visual">
+      <div class="journey-map">
+        <div class="journey-line"></div>
+        <div class="journey-step">
+          <div class="step-dot active">🧭</div>
+          <div class="step-text">
+            <div class="step-label">Stage 01</div>
+            <div class="step-title">Define Your AI Strategy</div>
+          </div>
+        </div>
+        <div class="journey-step">
+          <div class="step-dot">🔍</div>
+          <div class="step-text">
+            <div class="step-label">Stage 02</div>
+            <div class="step-title">Identify Problem Statements</div>
+          </div>
+        </div>
+        <div class="journey-step">
+          <div class="step-dot">⚖️</div>
+          <div class="step-text">
+            <div class="step-label">Stage 03</div>
+            <div class="step-title">Quantify & Prioritize</div>
+          </div>
+        </div>
+        <div class="journey-step">
+          <div class="step-dot">🛠️</div>
+          <div class="step-text">
+            <div class="step-label">Stage 04</div>
+            <div class="step-title">Select the Right Tools</div>
+          </div>
+        </div>
+        <div class="journey-step">
+          <div class="step-dot">🔐</div>
+          <div class="step-text">
+            <div class="step-label">Stage 05</div>
+            <div class="step-title">Security & Data Readiness</div>
+          </div>
+        </div>
+        <div class="journey-step">
+          <div class="step-dot">🧪</div>
+          <div class="step-text">
+            <div class="step-label">Stage 06</div>
+            <div class="step-title">Design, Test & Deploy</div>
+          </div>
+        </div>
+        <div class="journey-step">
+          <div class="step-dot">📈</div>
+          <div class="step-text">
+            <div class="step-label">Stage 07</div>
+            <div class="step-title">Monitor & Evolve</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTRO -->
+<section class="intro-section reveal" id="about">
+  <div>
+    <div class="section-label">About This Framework</div>
+    <div class="section-number">01</div>
+  </div>
+  <div>
+    <h2 class="intro-heading">Built for founders who want to lead AI — not be led by it.</h2>
+    <p class="intro-body">Most AI guidance is written for engineers or data scientists. This framework is different. It was designed from the ground up for CEOs and founders of small organizations — people who need to make confident decisions, move fast, and achieve real results without a large technical team.</p>
+    <blockquote class="intro-highlight">"You don't need to understand how AI works. You need to understand where it creates value — and how to get there."</blockquote>
+    <p class="intro-body">NavigateAI walks you through every step of the journey: from structuring your initial strategy to monitoring live AI agents in production. Each stage includes practical checklists, curated learning resources, and visual guides that make complex decisions approachable.</p>
+  </div>
+</section>
+
+<!-- FRAMEWORK STAGES -->
+<section class="stages-section reveal" id="framework">
+  <div class="stages-header">
+    <div class="section-label">The End-to-End Framework</div>
+    <h2 class="stages-heading">Seven Stages. One Clear Path.</h2>
+  </div>
+
+  <div class="stages-grid">
+    <div class="stage-card">
+      <div class="stage-num">01</div>
+      <div class="stage-icon">🧭</div>
+      <div class="stage-title">Define Your AI Strategy</div>
+      <div class="stage-desc">Align AI initiatives with your business goals. Set a clear vision before a single tool is chosen.</div>
+      <span class="stage-tag">Foundation</span>
+    </div>
+    <div class="stage-card">
+      <div class="stage-num">02</div>
+      <div class="stage-icon">🔍</div>
+      <div class="stage-title">Identify Problem Statements</div>
+      <div class="stage-desc">Move from vague ideas to specific, solvable problems using a structured discovery methodology.</div>
+      <span class="stage-tag">Discovery</span>
+    </div>
+    <div class="stage-card">
+      <div class="stage-num">03</div>
+      <div class="stage-icon">⚖️</div>
+      <div class="stage-title">Quantify & Prioritize</div>
+      <div class="stage-desc">Score and rank your problems to find quick wins and high-impact opportunities worth investing in first.</div>
+      <span class="stage-tag">Prioritization</span>
+    </div>
+    <div class="stage-card">
+      <div class="stage-num">04</div>
+      <div class="stage-icon">🛠️</div>
+      <div class="stage-title">Select the Right Tools</div>
+      <div class="stage-desc">Navigate the AI tool landscape with a clear evaluation framework matched to your specific needs.</div>
+      <span class="stage-tag">Evaluation</span>
+    </div>
+  </div>
+  <div class="stages-grid-2">
+    <div class="stage-card">
+      <div class="stage-num">05</div>
+      <div class="stage-icon">🔐</div>
+      <div class="stage-title">Security & Data Readiness</div>
+      <div class="stage-desc">Assess your data infrastructure and address information security concerns before implementation.</div>
+      <span class="stage-tag">Risk & Compliance</span>
+    </div>
+    <div class="stage-card">
+      <div class="stage-num">06</div>
+      <div class="stage-icon">🧪</div>
+      <div class="stage-title">Design, Test & Deploy</div>
+      <div class="stage-desc">Build and validate your AI agents in a structured environment before releasing to production.</div>
+      <span class="stage-tag">Implementation</span>
+    </div>
+    <div class="stage-card">
+      <div class="stage-num">07</div>
+      <div class="stage-icon">📈</div>
+      <div class="stage-title">Monitor & Evolve</div>
+      <div class="stage-desc">Establish performance monitoring, continuous learning loops, and ongoing maintenance practices.</div>
+      <span class="stage-tag">Operations</span>
+    </div>
+    <div class="stage-card" style="background: rgba(201,168,76,0.06); border: 1px solid rgba(201,168,76,0.2);">
+      <div class="stage-num" style="color: rgba(201,168,76,0.2);">✦</div>
+      <div class="stage-icon">📚</div>
+      <div class="stage-title" style="color: var(--gold-light);">Glossary & Resources</div>
+      <div class="stage-desc">Curated learning videos from Anthropic, Google, Meta, and more — plus a full AI glossary.</div>
+      <span class="stage-tag">Reference</span>
+    </div>
+  </div>
+</section>
+
+<!-- DIAGNOSTIC -->
+
+<!-- WHY NAVIGATEAI IS DIFFERENT -->
+<section style="background:var(--ink);padding:5rem 6rem;" id="why">
+  <div style="max-width:1320px;margin:0 auto;">
+    <div style="font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;display:block;margin-bottom:0.8rem;">Why NavigateAI</div>
+    <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:0.9rem;line-height:1.1;">Not a strategy deck.<br>Not a generic chatbot.<br>Working AI in your business.</h2>
+    <p style="font-size:0.95rem;line-height:1.75;color:rgba(220,224,232,0.80);font-weight:300;max-width:580px;margin-bottom:3rem;">We advise, build, host, and run AI for profitable private companies with 50–1,000 employees. One partner. End to end. From first conversation to live production system.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;margin-bottom:2.5rem;">
+      <div style="background:rgba(255,255,255,0.03);padding:2rem 1.8rem;border-right:1px solid rgba(255,255,255,0.06);">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:white;margin-bottom:0.5rem;">We build, not just advise.</div>
+        <div style="font-size:0.8rem;color:rgba(220,224,232,0.70);line-height:1.6;">Every engagement ends with AI running in production — not a 60-page strategy document. We own the outcome end to end.</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);padding:2rem 1.8rem;border-right:1px solid rgba(255,255,255,0.06);">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:white;margin-bottom:0.5rem;">Mid-market pricing, not enterprise.</div>
+        <div style="font-size:0.8rem;color:rgba(220,224,232,0.70);line-height:1.6;">Built for companies that can't justify $500K enterprise AI contracts but deserve enterprise-grade capability. Subscription model, predictable cost.</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.03);padding:2rem 1.8rem;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:white;margin-bottom:0.5rem;">Fast. Predictable. Measurable.</div>
+        <div style="font-size:0.8rem;color:rgba(220,224,232,0.70);line-height:1.6;">90 days to production. Fixed-scope implementation. Success criteria defined before we start. Monthly reporting against those numbers.</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:1.2rem;align-items:center;">
+      <a href="why-navigate-ai.html" style="background:var(--teal-lt);color:var(--ink);padding:0.85rem 1.8rem;border-radius:3px;text-decoration:none;font-size:0.85rem;font-weight:600;">See Why We're Different →</a>
+      <a href="our-model.html" style="color:rgba(255,255,255,0.4);text-decoration:none;font-size:0.82rem;transition:color 0.2s;">See Our Model</a>
+    </div>
+  </div>
+</section>
+
+<section class="diagnostic-section reveal" id="diagnostic">
+  <div class="diagnostic-visual">
+    <div class="diag-title">Where are you in your AI journey?</div>
+    <div class="diag-question">
+      <span class="q-num">01</span>
+      Has your organization defined any AI-related goals for this year?
+    </div>
+    <div class="diag-question">
+      <span class="q-num">02</span>
+      Do you have a clear picture of where manual work slows you down?
+    </div>
+    <div class="diag-question">
+      <span class="q-num">03</span>
+      Has your team evaluated any AI tools in the past 6 months?
+    </div>
+    <div class="diag-question">
+      <span class="q-num">04</span>
+      Do you have a data privacy policy reviewed for AI use?
+    </div>
+    <a href="ai-diagnostic-quiz-v6.html" class="diag-cta">Take the Full Diagnostic →</a>
+  </div>
+  <div class="diagnostic-content">
+    <div class="section-label">AI Readiness Diagnostic</div>
+    <h2 class="diagnostic-heading">Find out exactly where to start.</h2>
+    <p class="diagnostic-body">Answer 12 quick questions and get a personalized entry point into the framework. Whether you're just starting to think about AI or already running pilots, the diagnostic points you to the stage that matters most right now.</p>
+    <div class="result-tags">
+      <span class="result-tag">Exploring</span>
+      <span class="result-tag active">Strategy Phase</span>
+      <span class="result-tag">Tool Selection</span>
+      <span class="result-tag">Scaling Up</span>
+    </div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section class="resources-strip reveal" id="resources">
+  <div>
+    <div class="section-label">Curated Learning Resources</div>
+    <h2 class="resources-heading">Expert perspectives. Practitioner frameworks. No fluff.</h2>
+  </div>
+  <div>
+    <div class="resource-logos">
+      <span class="resource-pill">Anthropic</span>
+      <span class="resource-pill">Google DeepMind</span>
+      <span class="resource-pill">Meta AI</span>
+      <span class="resource-pill">Stanford HAI</span>
+      <span class="resource-pill">MIT OpenCourseWare</span>
+      <span class="resource-pill">Microsoft AI</span>
+      <span class="resource-pill">IBM Think</span>
+    </div>
+    <p class="resource-note">Each stage of the framework links to relevant, vetted learning content — so you can go as deep as you need on any concept, from AI fundamentals to advanced deployment strategies.</p>
+  </div>
+</section>
+
+<!-- WHITEPAPER -->
+<section class="whitepaper-section reveal" id="whitepaper">
+  <div class="whitepaper-inner">
+    <span class="section-label">Free Whitepaper</span>
+    <h2 class="whitepaper-heading">The 2-Page AI Strategy Guide for Founders</h2>
+    <p class="whitepaper-body">A concise, shareable overview of the NavigateAI framework — perfect for LinkedIn, team onboarding, or sharing with your board. Download it free, no strings attached.</p>
+    <div class="email-capture">
+      <input type="email" class="email-input" placeholder="your@email.com">
+      <button class="email-btn">Get the Whitepaper</button>
+    </div>
+    <p class="email-note">No spam. Unsubscribe anytime. PDF delivered instantly.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+
+<!-- START A CONVERSATION BAND -->
+<section style="background:var(--ink);padding:5rem 6rem;">
+  <div style="max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:4rem;align-items:center;">
+    <div>
+      <div style="font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;margin-bottom:0.8rem;display:block;">✦ Ready to move from ideas to outcomes?</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:0.8rem;line-height:1.1;">Start a conversation.</h2>
+      <p style="font-size:0.95rem;line-height:1.75;color:rgba(220,224,232,0.80);font-weight:300;max-width:520px;">Tell us where you are on your AI journey and what outcomes matter most. We'll come prepared for a focused 45-minute discovery conversation — no pitch, just clarity on where the real value is for your business.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1rem;align-items:flex-end;flex-shrink:0;">
+      <a href="start-a-conversation.html" style="background:var(--teal-lt);color:var(--ink);padding:1rem 2.4rem;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:0.92rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:all 0.2s;">Book the Conversation →</a>
+      <span style="font-size:0.72rem;color:rgba(255,255,255,0.3);text-align:right;">45 minutes · No obligation · Fully prepared</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="nav-logo">Navigate<span style="color: var(--teal-light)">AI</span></div>
+  <span>© 2026 NavigateAI Framework. All rights reserved.</span>
+  <span>Designed for founders. Built with purpose.</span>
+  <div style="margin-top:1rem;font-size:0.78rem;color:rgba(255,255,255,0.3);">
+    <a href="start-a-conversation.html" style="color:var(--teal-lt);text-decoration:none;">Start a Conversation</a>
+    &nbsp;·&nbsp;
+    <a href="navigate-hub.html" style="color:rgba(255,255,255,0.3);text-decoration:none;">Journey Map</a>
+    &nbsp;·&nbsp;
+    <a href="ai-diagnostic-quiz-v6.html" style="color:rgba(255,255,255,0.3);text-decoration:none;">Diagnostic</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
