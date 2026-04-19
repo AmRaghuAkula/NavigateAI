@@ -14,7 +14,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .nav-logo span{color:var(--teal);}
 .nav-right{display:flex;align-items:center;gap:2rem;}
 .nav-link{text-decoration:none;color:var(--slate);font-size:0.82rem;font-weight:500;transition:color 0.2s;}
-.nav-link:hover{color:var(--teal);}
+.nav-link:hover{color:var(--teal);}.nav-active{color:var(--teal)!important;border-bottom:2px solid var(--teal);padding-bottom:2px;}
 .nav-cta{background:var(--ink);color:var(--paper);padding:0.55rem 1.3rem;border-radius:2px;font-size:0.78rem;font-weight:500;text-decoration:none;transition:background 0.2s;}
 .nav-cta:hover{background:var(--teal);}
 
@@ -39,10 +39,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .dark .sec-intro{color:rgba(220,224,232,0.80);}
 
 /* THE GAP GRID — what everyone else offers vs us */
-.gap-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--mist);border-radius:8px;overflow:hidden;margin-top:3rem;}
-.gap-col{background:white;padding:0;}
-.gap-col.them{background:#fafaf9;}
-.gap-col.us{background:white;}
+.gap-grid{border-radius:8px;overflow:hidden;margin-top:3rem;border:1px solid var(--mist);}
+.gap-header-row{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--mist);}
 .gap-head{padding:1.2rem 1.8rem;display:flex;align-items:center;gap:0.7rem;}
 .gap-head.them{background:#f2f2f0;border-bottom:2px solid #d0d0ce;}
 .gap-head.us{background:#eaf7f8;border-bottom:2px solid var(--teal);}
@@ -50,9 +48,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .gap-head.them .gap-head-label{color:#888;}
 .gap-head.us .gap-head-label{color:var(--teal);}
 .gap-row{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--mist);}
-.gap-cell{padding:1rem 1.8rem;font-size:0.84rem;line-height:1.6;color:var(--slate);}
-.gap-cell.them{background:#fafaf9;border-right:1px solid var(--mist);color:#888;}
+.gap-cell{padding:1.1rem 1.8rem;font-size:0.84rem;line-height:1.65;color:var(--slate);}
+.gap-cell.them{background:#fafaf9;border-right:1px solid var(--mist);color:#999;}
 .gap-cell.them::before{content:'✗  ';color:#c0b8b0;font-weight:600;}
+.gap-cell.us{background:white;}
 .gap-cell.us::before{content:'✓  ';color:var(--teal);font-weight:700;}
 
 /* CORE PRINCIPLES */
@@ -99,7 +98,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .hero-inner>*:nth-child(1){animation-delay:0.05s;}
 .hero-inner>*:nth-child(2){animation-delay:0.15s;}
 .hero-inner>*:nth-child(3){animation-delay:0.25s;}
-.reveal{opacity:0;transform:translateY(22px);transition:all 0.6s ease;}
+.reveal{opacity:1;transform:translateY(0);transition:all 0.6s ease;}
 .reveal.visible{opacity:1;transform:translateY(0);}
 </style>
 </head>
@@ -108,7 +107,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <nav>
   <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
   <div class="nav-right">
-    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="why-navigate-ai.html" class="nav-link nav-active">Why Us</a>
     <a href="our-model.html" class="nav-link">Our Model</a>
     <a href="navigate-hub.html" class="nav-link">Framework</a>
     <a href="about-us.html" class="nav-link">About</a>
@@ -132,8 +131,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <p class="sec-intro">If you've explored AI support before and felt like something was missing — either the price was wrong, or the delivery was incomplete — this is why.</p>
 
   <div class="gap-grid">
-    <div class="gap-head them"><span class="gap-head-label">What you've probably been offered</span></div>
-    <div class="gap-head us"><span class="gap-head-label">✦ What NavigateAI delivers</span></div>
+    <div class="gap-header-row">
+      <div class="gap-head them"><span class="gap-head-label">What you've probably been offered</span></div>
+      <div class="gap-head us"><span class="gap-head-label">✦ What NavigateAI delivers</span></div>
+    </div>
     <div class="gap-row">
       <div class="gap-cell them">Enterprise AI vendors who require $500K+ commitments and ignore companies under 1,000 employees</div>
       <div class="gap-cell us">Mid-market pricing with enterprise-grade capability — built specifically for 50 to 1,000 person organisations</div>
