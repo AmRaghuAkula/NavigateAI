@@ -38,21 +38,61 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .sec-intro{font-size:0.95rem;line-height:1.75;color:var(--slate);font-weight:300;max-width:600px;}
 .dark .sec-intro{color:rgba(220,224,232,0.80);}
 
-/* THE GAP GRID — what everyone else offers vs us */
-.gap-grid{border-radius:8px;overflow:hidden;margin-top:3rem;border:1px solid var(--mist);}
-.gap-header-row{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--mist);}
-.gap-head{padding:1.2rem 1.8rem;display:flex;align-items:center;gap:0.7rem;}
-.gap-head.them{background:#f2f2f0;border-bottom:2px solid #d0d0ce;}
-.gap-head.us{background:#eaf7f8;border-bottom:2px solid var(--teal);}
-.gap-head-label{font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;}
-.gap-head.them .gap-head-label{color:#888;}
-.gap-head.us .gap-head-label{color:var(--teal);}
-.gap-row{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--mist);}
-.gap-cell{padding:1.1rem 1.8rem;font-size:0.84rem;line-height:1.65;color:var(--slate);}
-.gap-cell.them{background:#fafaf9;border-right:1px solid var(--mist);color:#999;}
-.gap-cell.them::before{content:'✗  ';color:#c0b8b0;font-weight:600;}
-.gap-cell.us{background:white;}
-.gap-cell.us::before{content:'✓  ';color:var(--teal);font-weight:700;}
+/* THE COMPARISON TABLE — two clean columns, row by row */
+.gap-table{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  margin-top:3rem;
+  border-radius:8px;
+  overflow:hidden;
+  border:1px solid var(--mist);
+}
+/* Column headers */
+.gap-col-head{
+  padding:1.1rem 1.8rem;
+  font-size:0.65rem;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  font-weight:700;
+}
+.gap-col-head.them{
+  background:#f2f2f0;
+  color:#888;
+  border-bottom:2px solid #d0d0ce;
+  border-right:2px solid var(--mist);
+}
+.gap-col-head.us{
+  background:#eaf7f8;
+  color:var(--teal);
+  border-bottom:2px solid var(--teal);
+}
+/* Each cell */
+.gap-cell{
+  padding:1.2rem 1.8rem;
+  font-size:0.85rem;
+  line-height:1.7;
+  border-top:1px solid var(--mist);
+  vertical-align:top;
+}
+.gap-cell.them{
+  background:#fafaf9;
+  color:#999;
+  border-right:2px solid var(--mist);
+}
+.gap-cell.them::before{
+  content:'✗  ';
+  color:#c9b8a8;
+  font-weight:700;
+}
+.gap-cell.us{
+  background:#ffffff;
+  color:var(--slate);
+}
+.gap-cell.us::before{
+  content:'✓  ';
+  color:var(--teal);
+  font-weight:700;
+}
 
 /* CORE PRINCIPLES */
 .principles{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.07);border-radius:8px;overflow:hidden;margin-top:3rem;}
@@ -130,31 +170,30 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <h2 class="sec-heading">Why the existing options leave mid-market firms stuck</h2>
   <p class="sec-intro">If you've explored AI support before and felt like something was missing — either the price was wrong, or the delivery was incomplete — this is why.</p>
 
-  <div class="gap-grid">
-    <div class="gap-header-row">
-      <div class="gap-head them"><span class="gap-head-label">What you've probably been offered</span></div>
-      <div class="gap-head us"><span class="gap-head-label">✦ What NavigateAI delivers</span></div>
-    </div>
-    <div class="gap-row">
-      <div class="gap-cell them">Enterprise AI vendors who require $500K+ commitments and ignore companies under 1,000 employees</div>
-      <div class="gap-cell us">Mid-market pricing with enterprise-grade capability — built specifically for 50 to 1,000 person organisations</div>
-    </div>
-    <div class="gap-row">
-      <div class="gap-cell them">Consultants who deliver a strategy deck or roadmap and disappear before a single line is built</div>
-      <div class="gap-cell us">We advise, build, host, and run your AI — one partner from first conversation to live production system</div>
-    </div>
-    <div class="gap-row">
-      <div class="gap-cell them">Generic AI tools (copilots, chatbots) not trained on your workflows, your data, or your business rules</div>
-      <div class="gap-cell us">AI agents trained on how your organisation actually works — not generic assistants retrofitted to your processes</div>
-    </div>
-    <div class="gap-row">
-      <div class="gap-cell them">Pilots that run for six months and never reach production — perpetual experimentation with no measurable return</div>
-      <div class="gap-cell us">A 90-day path from first conversation to working AI in production — with pre-defined success criteria before we start</div>
-    </div>
-    <div class="gap-row">
-      <div class="gap-cell them">DIY approaches that require a dedicated AI team, cloud architects, and security infrastructure most mid-market firms can't sustain</div>
-      <div class="gap-cell us">Fully managed: we build it, host it on your dedicated cloud infrastructure, and run it — no internal AI team required</div>
-    </div>
+  <div class="gap-table">
+    <!-- Column Headers -->
+    <div class="gap-col-head them">✗ &nbsp;What you've probably been offered</div>
+    <div class="gap-col-head us">✦ &nbsp;What NavigateAI delivers</div>
+
+    <!-- Row 1 -->
+    <div class="gap-cell them">Enterprise AI vendors who require $500K+ commitments and ignore companies under 1,000 employees</div>
+    <div class="gap-cell us">Mid-market pricing with enterprise-grade capability — built specifically for 50 to 1,000 person organisations</div>
+
+    <!-- Row 2 -->
+    <div class="gap-cell them">Consultants who deliver a strategy deck or roadmap and disappear before a single line is built</div>
+    <div class="gap-cell us">We advise, build, host, and run your AI — one partner from first conversation to live production system</div>
+
+    <!-- Row 3 -->
+    <div class="gap-cell them">Generic AI tools (copilots, chatbots) not trained on your workflows, your data, or your business rules</div>
+    <div class="gap-cell us">AI agents trained on how your organisation actually works — not generic assistants retrofitted to your processes</div>
+
+    <!-- Row 4 -->
+    <div class="gap-cell them">Pilots that run for six months and never reach production — perpetual experimentation with no measurable return</div>
+    <div class="gap-cell us">A 90-day path from first conversation to working AI in production — with pre-defined success criteria before we start</div>
+
+    <!-- Row 5 -->
+    <div class="gap-cell them">DIY approaches that require a dedicated AI team, cloud architects, and security infrastructure most mid-market firms can't sustain</div>
+    <div class="gap-cell us">Fully managed: we build it, host it on your dedicated cloud infrastructure, and run it — no internal AI team required</div>
   </div>
 </section>
 
