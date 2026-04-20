@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Start a Conversation — NavigateAI</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 :root {
   --ink:     #111118;
@@ -350,47 +351,136 @@ textarea{resize:vertical;min-height:90px;}
 </div>
 
 <script>
-function submitForm() {
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
+// ─────────────────────────────────────────────────────────────────────────────
+// LEAD CAPTURE CONFIGURATION
+// Fill in your credentials once and the form will automatically:
+//   • email you every new lead (admin notification)
+//   • email the lead a copy of what they submitted (confirmation)
+//   • log every submission to your Google Sheet
+//
+// EMAILJS SETUP  (free · 200 emails/month · https://www.emailjs.com)
+//   1. Sign up and go to Email Services → Add New Service → Microsoft Outlook
+//      Connect your Outlook account → copy the Service ID
+//   2. Go to Email Templates → Create New Template
+//      Template A — "Admin Notification" (sent to you)
+//        Subject : New lead: {{lead_name}} from {{lead_company}}
+//        Body    : use any/all of these variables —
+//                  {{lead_name}}  {{lead_email}}  {{lead_company}}  {{lead_phone}}
+//                  {{preferred_time}}  {{context_message}}  {{submitted_at}}
+//        To      : {{to_email}}
+//      Template B — "Lead Confirmation" (sent to the person who submitted)
+//        Subject : Your NavigateAI Discovery Request — Confirmation
+//        Body    : include {{lead_name}}, {{lead_company}}, {{preferred_time}},
+//                  {{context_message}}, {{submitted_at}}
+//        To      : {{to_email}}
+//   3. Copy your Public Key from Account → General
+//
+// GOOGLE SHEETS SETUP  (free · exportable · see setup/google-apps-script.gs)
+//   Follow the instructions at the top of setup/google-apps-script.gs,
+//   then paste the deployed Web App URL below.
+// ─────────────────────────────────────────────────────────────────────────────
+const LEAD_CONFIG = {
+  EMAILJS_PUBLIC_KEY:         'YOUR_EMAILJS_PUBLIC_KEY',
+  EMAILJS_SERVICE_ID:         'YOUR_EMAILJS_SERVICE_ID',
+  EMAILJS_ADMIN_TEMPLATE:     'YOUR_CONTACT_ADMIN_TEMPLATE_ID',
+  EMAILJS_LEAD_TEMPLATE:      'YOUR_CONTACT_LEAD_TEMPLATE_ID',
+  ADMIN_EMAIL:                'YOUR_EMAIL@outlook.com',
+  GOOGLE_SHEET_ENDPOINT:      'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL',
+};
+
+(function initEmailJS() {
+  if (!LEAD_CONFIG.EMAILJS_PUBLIC_KEY.startsWith('YOUR_')) {
+    emailjs.init({ publicKey: LEAD_CONFIG.EMAILJS_PUBLIC_KEY });
+  }
+})();
+
+async function logToSheets(payload) {
+  if (LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT.startsWith('YOUR_')) return;
+  try {
+    await fetch(LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT, {
+      method: 'POST',
+      mode:   'no-cors',
+      body:   JSON.stringify(payload),
+    });
+  } catch (err) {
+    console.warn('Sheet logging error:', err);
+  }
+}
+
+async function submitForm() {
+  const name    = document.getElementById('name').value.trim();
+  const email   = document.getElementById('email').value.trim();
   const company = document.getElementById('company').value.trim();
+  const phone   = document.getElementById('phone').value.trim();
+  const context = document.getElementById('context').value.trim();
+  const timeEl  = document.querySelector('input[name="time"]:checked');
+  const time    = timeEl ? timeEl.value : 'Not specified';
 
   if (!name || !email || !company) {
-    // Highlight missing required fields
     ['name','email','company'].forEach(id => {
       const el = document.getElementById(id);
       if (!el.value.trim()) {
         el.style.borderColor = '#c06050';
-        el.addEventListener('input', function() {
-          this.style.borderColor = '';
-        }, { once: true });
+        el.addEventListener('input', function() { this.style.borderColor = ''; }, { once: true });
       }
     });
-    // Scroll to first empty required field
     const first = ['name','email','company'].find(id => !document.getElementById(id).value.trim());
     if (first) document.getElementById(first).scrollIntoView({ behavior:'smooth', block:'center' });
     return;
   }
 
-  // Validate email
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRe.test(email)) {
-    const emailEl = document.getElementById('email');
-    emailEl.style.borderColor = '#c06050';
-    emailEl.focus();
+    const el = document.getElementById('email');
+    el.style.borderColor = '#c06050';
+    el.focus();
     return;
   }
 
-  // Show success state
-  document.getElementById('formBody').style.display = 'none';
-  document.getElementById('formFooter').style.display = 'none';
+  const btn = document.querySelector('.submit-btn');
+  btn.disabled    = true;
+  btn.textContent = 'Sending…';
+
+  const submittedAt = new Date().toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short' });
+
+  const vars = {
+    lead_name:       name,
+    lead_email:      email,
+    lead_company:    company,
+    lead_phone:      phone   || 'Not provided',
+    preferred_time:  time,
+    context_message: context || 'Not provided',
+    submitted_at:    submittedAt,
+  };
+
+  const emailReady = !LEAD_CONFIG.EMAILJS_SERVICE_ID.startsWith('YOUR_');
+
+  try {
+    await Promise.all([
+      logToSheets({ form_type: 'contact', ...vars }),
+      ...(emailReady ? [
+        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE,
+          { ...vars, to_email: LEAD_CONFIG.ADMIN_EMAIL }),
+        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_LEAD_TEMPLATE,
+          { ...vars, to_email: email }),
+      ] : []),
+    ]);
+  } catch (err) {
+    console.error('Lead capture error:', err);
+  }
+
+  btn.disabled    = false;
+  btn.textContent = 'Book the Conversation →';
+
+  document.getElementById('formBody').style.display    = 'none';
+  document.getElementById('formFooter').style.display  = 'none';
   document.getElementById('formSuccess').style.display = 'block';
-  document.getElementById('contactForm').scrollIntoView({ behavior:'smooth', block:'start' });
+  document.getElementById('contactForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // Scroll reveal
 const obs = new IntersectionObserver(
-  entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }),
+  entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
   { threshold: 0.08 }
 );
 document.querySelectorAll('.reveal').forEach(el => obs.observe(el));

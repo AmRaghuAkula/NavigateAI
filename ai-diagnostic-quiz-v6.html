@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Readiness Diagnostic — NavigateAI</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 :root {
   --ink: #0f1117;
@@ -1002,6 +1003,48 @@ const sectionMeta = [
 ];
 const sectionRanges = [[0,4],[5,9],[10,14],[15,19],[20,24],[25,25],[26,28]];
 
+// ─────────────────────────────────────────────────────────────────────────────
+// LEAD CAPTURE CONFIGURATION  (same credentials as start-a-conversation.html)
+//
+// EMAILJS TEMPLATES for the quiz — create two more templates:
+//   Template C — "Quiz Admin Notification" (sent to you)
+//     Variables: {{to_email}} {{lead_name}} {{lead_email}} {{lead_company}}
+//                {{tier}} {{score_strategy}} {{score_problems}} {{score_data}}
+//                {{score_security}} {{score_org}} {{avg_score}} {{submitted_at}}
+//   Template D — "Quiz Lead Report" (sent to the person who completed the quiz)
+//     Variables: {{to_email}} {{lead_name}} {{lead_company}}
+//                {{tier}} {{tier_desc}} {{score_strategy}} {{score_problems}}
+//                {{score_data}} {{score_security}} {{score_org}} {{avg_score}}
+//                {{submitted_at}}
+// ─────────────────────────────────────────────────────────────────────────────
+const LEAD_CONFIG = {
+  EMAILJS_PUBLIC_KEY:       'YOUR_EMAILJS_PUBLIC_KEY',
+  EMAILJS_SERVICE_ID:       'YOUR_EMAILJS_SERVICE_ID',
+  EMAILJS_ADMIN_TEMPLATE:   'YOUR_QUIZ_ADMIN_TEMPLATE_ID',
+  EMAILJS_LEAD_TEMPLATE:    'YOUR_QUIZ_LEAD_TEMPLATE_ID',
+  ADMIN_EMAIL:              'YOUR_EMAIL@outlook.com',
+  GOOGLE_SHEET_ENDPOINT:    'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL',
+};
+
+(function initEmailJS() {
+  if (!LEAD_CONFIG.EMAILJS_PUBLIC_KEY.startsWith('YOUR_')) {
+    emailjs.init({ publicKey: LEAD_CONFIG.EMAILJS_PUBLIC_KEY });
+  }
+})();
+
+async function logToSheets(payload) {
+  if (LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT.startsWith('YOUR_')) return;
+  try {
+    await fetch(LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT, {
+      method: 'POST',
+      mode:   'no-cors',
+      body:   JSON.stringify(payload),
+    });
+  } catch (err) {
+    console.warn('Sheet logging error:', err);
+  }
+}
+
 let currentQ = 0;
 let answers = new Array(29).fill("");
 let scaffoldOpen = false;
@@ -1311,15 +1354,63 @@ function showTeaser() {
   `).join('');
 }
 
-function submitLead() {
+async function submitLead() {
   const fn = document.getElementById('firstName').value.trim();
   const ln = document.getElementById('lastName').value.trim();
   const co = document.getElementById('company').value.trim();
   const em = document.getElementById('email').value.trim();
+
   if (!fn || !ln || !co || !em || !em.includes('@') || !em.includes('.')) {
     alert('Please complete all fields with a valid work email address.');
     return;
   }
+
+  const btn = document.querySelector('.btn-unlock');
+  btn.disabled    = true;
+  btn.textContent = 'Sending…';
+
+  const scores      = calcDimScores();
+  const tier        = getTier(scores);
+  const avgScore    = Math.round(scores.reduce((a, b) => a + b, 0) / 5);
+  const submittedAt = new Date().toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short' });
+
+  const quizData = {
+    form_type:       'quiz',
+    first_name:      fn,
+    last_name:       ln,
+    lead_name:       fn + ' ' + ln,
+    lead_email:      em,
+    lead_company:    co,
+    tier:            tier.name,
+    tier_desc:       tier.desc,
+    score_strategy:  scores[0],
+    score_problems:  scores[1],
+    score_data:      scores[2],
+    score_security:  scores[3],
+    score_org:       scores[4],
+    avg_score:       avgScore,
+    submitted_at:    submittedAt,
+  };
+
+  const emailReady = !LEAD_CONFIG.EMAILJS_SERVICE_ID.startsWith('YOUR_');
+
+  try {
+    await Promise.all([
+      logToSheets(quizData),
+      ...(emailReady ? [
+        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE,
+          { ...quizData, to_email: LEAD_CONFIG.ADMIN_EMAIL }),
+        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_LEAD_TEMPLATE,
+          { ...quizData, to_email: em }),
+      ] : []),
+    ]);
+  } catch (err) {
+    console.error('Quiz lead capture error:', err);
+  }
+
+  btn.disabled    = false;
+  btn.textContent = '✦ Send My Full Report';
+
   document.getElementById('teaserScreen').classList.remove('active');
   document.getElementById('thankYouScreen').classList.add('active');
 }
