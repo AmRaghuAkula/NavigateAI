@@ -393,12 +393,12 @@ textarea{resize:vertical;min-height:90px;}
 //   SHEET_SECRET below, then paste the Web App URL into GOOGLE_SHEET_ENDPOINT.
 // ─────────────────────────────────────────────────────────────────────────────
 const LEAD_CONFIG = {
-  EMAILJS_PUBLIC_KEY:         'YOUR_EMAILJS_PUBLIC_KEY',
-  EMAILJS_SERVICE_ID:         'YOUR_EMAILJS_SERVICE_ID',
-  EMAILJS_ADMIN_TEMPLATE:     'YOUR_CONTACT_ADMIN_TEMPLATE_ID',
-  EMAILJS_LEAD_TEMPLATE:      'YOUR_CONTACT_LEAD_TEMPLATE_ID',
-  GOOGLE_SHEET_ENDPOINT:      'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL',
-  SHEET_SECRET:               'REPLACE_WITH_YOUR_OWN_SECRET',
+  EMAILJS_PUBLIC_KEY:         'Gj_bh8nULtE1BlHnd',
+  EMAILJS_SERVICE_ID:         'service_q20p069',
+  EMAILJS_ADMIN_TEMPLATE:     'template_ou5xgzm',
+  EMAILJS_LEAD_TEMPLATE:      'template_f0pdlxc',
+  GOOGLE_SHEET_ENDPOINT:      'https://script.google.com/macros/s/AKfycbxdkSrSB68ukxjUTCscRet0hANVfpMI3GZ5lfOPHdirMutXD1MVMZMpftbNTDynmNBjIw/exec',
+  SHEET_SECRET:               'nai-rA-2026-xK9mPqR7vLw3',
 };
 
 (function initEmailJS() {
@@ -456,25 +456,56 @@ async function submitForm() {
 
   const submittedAt = new Date().toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short' });
 
-  const vars = {
-    lead_name:       name,
-    lead_email:      email,
-    lead_company:    company,
-    lead_phone:      phone   || 'Not provided',
-    preferred_time:  time,
-    context_message: context || 'Not provided',
-    submitted_at:    submittedAt,
-  };
+  const phoneVal   = phone   || 'Not provided';
+  const contextVal = context || 'Not provided';
 
-  const emailReady = !LEAD_CONFIG.EMAILJS_SERVICE_ID.startsWith('YOUR_');
+  const adminBody = `New discovery request via NavigateAI.
+
+Name:             ${name}
+Email:            ${email}
+Company:          ${company}
+Phone:            ${phoneVal}
+Preferred time:   ${time}
+Submitted:        ${submittedAt}
+
+Message:
+${contextVal}
+
+---
+Reply to: ${email}`;
+
+  const leadBody = `Hi ${name},
+
+Thank you for reaching out to NavigateAI. We have received your discovery request and will be in touch within one business day to confirm a time.
+
+Here is a copy of what you submitted:
+
+  Company:        ${company}
+  Phone:          ${phoneVal}
+  Preferred time: ${time}
+  Submitted:      ${submittedAt}
+
+Your message:
+${contextVal}
+
+In the meantime, take our AI Readiness Diagnostic to get a head start:
+https://amraghuakula.github.io/NavigateAI/ai-diagnostic-quiz-v6.html
+
+Warm regards,
+Raghu Akula
+NavigateAI`;
+
+  const emailReady = !LEAD_CONFIG.EMAILJS_PUBLIC_KEY.startsWith('YOUR_');
 
   try {
     await Promise.all([
-      logToSheets({ form_type: 'contact', ...vars }),
+      logToSheets({ form_type:'contact', lead_name:name, lead_email:email, lead_company:company,
+        lead_phone:phoneVal, preferred_time:time, context_message:contextVal, submitted_at:submittedAt }),
       ...(emailReady ? [
-        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE, vars),
+        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE,
+          { subject: `New Lead: ${name} from ${company}`, message_body: adminBody }),
         emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_LEAD_TEMPLATE,
-          { ...vars, to_email: email }),
+          { to_email: email, subject: 'Your NavigateAI Discovery Request — Confirmed', message_body: leadBody }),
       ] : []),
     ]);
   } catch (err) {

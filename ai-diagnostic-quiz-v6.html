@@ -1024,12 +1024,12 @@ const sectionRanges = [[0,4],[5,9],[10,14],[15,19],[20,24],[25,25],[26,28]];
 //                {{score_security}} {{score_org}} {{avg_score}} {{submitted_at}}
 // ─────────────────────────────────────────────────────────────────────────────
 const LEAD_CONFIG = {
-  EMAILJS_PUBLIC_KEY:       'YOUR_EMAILJS_PUBLIC_KEY',
-  EMAILJS_SERVICE_ID:       'YOUR_EMAILJS_SERVICE_ID',
-  EMAILJS_ADMIN_TEMPLATE:   'YOUR_QUIZ_ADMIN_TEMPLATE_ID',
-  EMAILJS_LEAD_TEMPLATE:    'YOUR_QUIZ_LEAD_TEMPLATE_ID',
-  GOOGLE_SHEET_ENDPOINT:    'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL',
-  SHEET_SECRET:             'REPLACE_WITH_YOUR_OWN_SECRET',
+  EMAILJS_PUBLIC_KEY:       'Gj_bh8nULtE1BlHnd',
+  EMAILJS_SERVICE_ID:       'service_q20p069',
+  EMAILJS_ADMIN_TEMPLATE:   'template_ou5xgzm',
+  EMAILJS_LEAD_TEMPLATE:    'template_f0pdlxc',
+  GOOGLE_SHEET_ENDPOINT:    'https://script.google.com/macros/s/AKfycbxdkSrSB68ukxjUTCscRet0hANVfpMI3GZ5lfOPHdirMutXD1MVMZMpftbNTDynmNBjIw/exec',
+  SHEET_SECRET:             'nai-rA-2026-xK9mPqR7vLw3',
 };
 
 (function initEmailJS() {
@@ -1380,33 +1380,62 @@ async function submitLead() {
   const avgScore    = Math.round(scores.reduce((a, b) => a + b, 0) / 5);
   const submittedAt = new Date().toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short' });
 
-  const quizData = {
-    form_type:       'quiz',
-    first_name:      fn,
-    last_name:       ln,
-    lead_name:       fn + ' ' + ln,
-    lead_email:      em,
-    lead_company:    co,
-    tier:            tier.name,
-    tier_desc:       tier.desc,
-    score_strategy:  scores[0],
-    score_problems:  scores[1],
-    score_data:      scores[2],
-    score_security:  scores[3],
-    score_org:       scores[4],
-    avg_score:       avgScore,
-    submitted_at:    submittedAt,
-  };
+  const adminBody = `AI Readiness Diagnostic completed via NavigateAI.
 
-  const emailReady = !LEAD_CONFIG.EMAILJS_SERVICE_ID.startsWith('YOUR_');
+Name:             ${fn} ${ln}
+Email:            ${em}
+Company:          ${co}
+Readiness Tier:   ${tier.name}
+Submitted:        ${submittedAt}
+
+Dimension Scores:
+  Strategic Clarity:      ${scores[0]}%
+  Problem Identification: ${scores[1]}%
+  Data Readiness:         ${scores[2]}%
+  Security & Governance:  ${scores[3]}%
+  Org Readiness:          ${scores[4]}%
+  Average Score:          ${avgScore}%
+
+---
+Reply to: ${em}`;
+
+  const leadBody = `Hi ${fn},
+
+Thank you for completing the NavigateAI AI Readiness Diagnostic.
+
+YOUR READINESS TIER: ${tier.name}
+${tier.desc}
+
+YOUR DIMENSION SCORES:
+  Strategic Clarity:      ${scores[0]}%
+  Problem Identification: ${scores[1]}%
+  Data Readiness:         ${scores[2]}%
+  Security & Governance:  ${scores[3]}%
+  Org Readiness:          ${scores[4]}%
+  Overall Average:        ${avgScore}%
+
+WHAT IS NEXT
+Your full personalised report with a prioritised action plan across all 5 dimensions is being prepared. We will be in touch shortly.
+
+Explore the NavigateAI framework in the meantime:
+https://amraghuakula.github.io/NavigateAI/navigate-hub.html
+
+Warm regards,
+Raghu Akula
+NavigateAI`;
+
+  const emailReady = !LEAD_CONFIG.EMAILJS_PUBLIC_KEY.startsWith('YOUR_');
 
   try {
     await Promise.all([
-      logToSheets(quizData),
+      logToSheets({ form_type:'quiz', first_name:fn, last_name:ln, lead_email:em, lead_company:co,
+        tier:tier.name, score_strategy:scores[0], score_problems:scores[1], score_data:scores[2],
+        score_security:scores[3], score_org:scores[4], avg_score:avgScore, submitted_at:submittedAt }),
       ...(emailReady ? [
-        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE, quizData),
+        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE,
+          { subject: `Quiz: ${fn} ${ln} from ${co} — ${tier.name}`, message_body: adminBody }),
         emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_LEAD_TEMPLATE,
-          { ...quizData, to_email: em }),
+          { to_email: em, subject: 'Your AI Readiness Results — NavigateAI', message_body: leadBody }),
       ] : []),
     ]);
   } catch (err) {
