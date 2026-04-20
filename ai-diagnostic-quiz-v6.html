@@ -1006,24 +1006,30 @@ const sectionRanges = [[0,4],[5,9],[10,14],[15,19],[20,24],[25,25],[26,28]];
 // ─────────────────────────────────────────────────────────────────────────────
 // LEAD CAPTURE CONFIGURATION  (same credentials as start-a-conversation.html)
 //
+// SECURITY: same protections apply here as on the contact form —
+//   • EmailJS domain restriction (set in EmailJS dashboard → Account → Security)
+//   • SHEET_SECRET checked server-side in Apps Script (rejects unknown callers)
+//   • Rate limiting enforced server-side (same email blocked for 5 minutes)
+//   • Admin email lives inside the EmailJS template, not in this code
+//
 // EMAILJS TEMPLATES for the quiz — create two more templates:
-//   Template C — "Quiz Admin Notification" (sent to you)
-//     Variables: {{to_email}} {{lead_name}} {{lead_email}} {{lead_company}}
+//   Template C — "Quiz Admin Notification" (sent to you — set To in template)
+//     Variables: {{lead_name}} {{lead_email}} {{lead_company}}
 //                {{tier}} {{score_strategy}} {{score_problems}} {{score_data}}
 //                {{score_security}} {{score_org}} {{avg_score}} {{submitted_at}}
-//   Template D — "Quiz Lead Report" (sent to the person who completed the quiz)
-//     Variables: {{to_email}} {{lead_name}} {{lead_company}}
-//                {{tier}} {{tier_desc}} {{score_strategy}} {{score_problems}}
-//                {{score_data}} {{score_security}} {{score_org}} {{avg_score}}
-//                {{submitted_at}}
+//   Template D — "Quiz Lead Report" (sent to the quiz completer)
+//     To      : {{to_email}}
+//     Variables: {{lead_name}} {{lead_company}} {{tier}} {{tier_desc}}
+//                {{score_strategy}} {{score_problems}} {{score_data}}
+//                {{score_security}} {{score_org}} {{avg_score}} {{submitted_at}}
 // ─────────────────────────────────────────────────────────────────────────────
 const LEAD_CONFIG = {
   EMAILJS_PUBLIC_KEY:       'YOUR_EMAILJS_PUBLIC_KEY',
   EMAILJS_SERVICE_ID:       'YOUR_EMAILJS_SERVICE_ID',
   EMAILJS_ADMIN_TEMPLATE:   'YOUR_QUIZ_ADMIN_TEMPLATE_ID',
   EMAILJS_LEAD_TEMPLATE:    'YOUR_QUIZ_LEAD_TEMPLATE_ID',
-  ADMIN_EMAIL:              'YOUR_EMAIL@outlook.com',
   GOOGLE_SHEET_ENDPOINT:    'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL',
+  SHEET_SECRET:             'REPLACE_WITH_YOUR_OWN_SECRET',
 };
 
 (function initEmailJS() {
@@ -1038,7 +1044,7 @@ async function logToSheets(payload) {
     await fetch(LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT, {
       method: 'POST',
       mode:   'no-cors',
-      body:   JSON.stringify(payload),
+      body:   JSON.stringify({ ...payload, secret: LEAD_CONFIG.SHEET_SECRET }),
     });
   } catch (err) {
     console.warn('Sheet logging error:', err);
@@ -1398,8 +1404,7 @@ async function submitLead() {
     await Promise.all([
       logToSheets(quizData),
       ...(emailReady ? [
-        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE,
-          { ...quizData, to_email: LEAD_CONFIG.ADMIN_EMAIL }),
+        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE, quizData),
         emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_LEAD_TEMPLATE,
           { ...quizData, to_email: em }),
       ] : []),

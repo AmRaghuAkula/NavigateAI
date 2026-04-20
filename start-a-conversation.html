@@ -358,34 +358,47 @@ textarea{resize:vertical;min-height:90px;}
 //   • email the lead a copy of what they submitted (confirmation)
 //   • log every submission to your Google Sheet
 //
+// SECURITY NOTES
+//   These values are visible in page source — that is unavoidable for a static
+//   site. The following measures limit what an attacker can do with them:
+//   • EmailJS Public Key: restrict it to your domain in the EmailJS dashboard
+//       Account → Security → Allowed Origins → add your domain
+//       This blocks use of your key from any other website.
+//   • SHEET_SECRET: a shared secret checked server-side in Apps Script.
+//       Anyone without this exact string cannot write to your sheet.
+//   • Rate limiting: Apps Script rejects repeated submissions from the same
+//       email within 5 minutes (enforced server-side, not spoofable).
+//   • Admin email: kept inside your EmailJS template only — not in this code.
+//       Set the "To email" field inside the template on emailjs.com.
+//
 // EMAILJS SETUP  (free · 200 emails/month · https://www.emailjs.com)
-//   1. Sign up and go to Email Services → Add New Service → Microsoft Outlook
+//   1. Sign up → Email Services → Add New Service → Microsoft Outlook
 //      Connect your Outlook account → copy the Service ID
-//   2. Go to Email Templates → Create New Template
-//      Template A — "Admin Notification" (sent to you)
-//        Subject : New lead: {{lead_name}} from {{lead_company}}
-//        Body    : use any/all of these variables —
-//                  {{lead_name}}  {{lead_email}}  {{lead_company}}  {{lead_phone}}
-//                  {{preferred_time}}  {{context_message}}  {{submitted_at}}
-//        To      : {{to_email}}
+//   2. Email Templates → Create New Template
+//      Template A — "Admin Notification" (your copy)
+//        To     : your-email@outlook.com  ← set directly in template, not here
+//        Subject: New lead: {{lead_name}} from {{lead_company}}
+//        Body   : {{lead_name}} {{lead_email}} {{lead_company}} {{lead_phone}}
+//                 {{preferred_time}} {{context_message}} {{submitted_at}}
 //      Template B — "Lead Confirmation" (sent to the person who submitted)
-//        Subject : Your NavigateAI Discovery Request — Confirmation
-//        Body    : include {{lead_name}}, {{lead_company}}, {{preferred_time}},
-//                  {{context_message}}, {{submitted_at}}
-//        To      : {{to_email}}
-//   3. Copy your Public Key from Account → General
+//        To     : {{to_email}}
+//        Subject: Your NavigateAI Discovery Request — Confirmation
+//        Body   : {{lead_name}} {{lead_company}} {{preferred_time}}
+//                 {{context_message}} {{submitted_at}}
+//   3. Account → General → copy Public Key
+//   4. Account → Security → Allowed Origins → add your site's domain
 //
 // GOOGLE SHEETS SETUP  (free · exportable · see setup/google-apps-script.gs)
-//   Follow the instructions at the top of setup/google-apps-script.gs,
-//   then paste the deployed Web App URL below.
+//   Follow setup/google-apps-script.gs, set SUBMIT_SECRET there to match
+//   SHEET_SECRET below, then paste the Web App URL into GOOGLE_SHEET_ENDPOINT.
 // ─────────────────────────────────────────────────────────────────────────────
 const LEAD_CONFIG = {
   EMAILJS_PUBLIC_KEY:         'YOUR_EMAILJS_PUBLIC_KEY',
   EMAILJS_SERVICE_ID:         'YOUR_EMAILJS_SERVICE_ID',
   EMAILJS_ADMIN_TEMPLATE:     'YOUR_CONTACT_ADMIN_TEMPLATE_ID',
   EMAILJS_LEAD_TEMPLATE:      'YOUR_CONTACT_LEAD_TEMPLATE_ID',
-  ADMIN_EMAIL:                'YOUR_EMAIL@outlook.com',
   GOOGLE_SHEET_ENDPOINT:      'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL',
+  SHEET_SECRET:               'REPLACE_WITH_YOUR_OWN_SECRET',
 };
 
 (function initEmailJS() {
@@ -400,7 +413,7 @@ async function logToSheets(payload) {
     await fetch(LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT, {
       method: 'POST',
       mode:   'no-cors',
-      body:   JSON.stringify(payload),
+      body:   JSON.stringify({ ...payload, secret: LEAD_CONFIG.SHEET_SECRET }),
     });
   } catch (err) {
     console.warn('Sheet logging error:', err);
@@ -459,8 +472,7 @@ async function submitForm() {
     await Promise.all([
       logToSheets({ form_type: 'contact', ...vars }),
       ...(emailReady ? [
-        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE,
-          { ...vars, to_email: LEAD_CONFIG.ADMIN_EMAIL }),
+        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE, vars),
         emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_LEAD_TEMPLATE,
           { ...vars, to_email: email }),
       ] : []),

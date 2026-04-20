@@ -7,37 +7,61 @@
 //
 //  2. In the spreadsheet, open  Extensions → Apps Script.
 //
-//  3. Delete all default code in the editor, paste this entire file, and save
-//     (Ctrl+S / Cmd+S). Name the project "NavigateAI Lead Capture".
+//  3. Delete all default code, paste this entire file, and save (Ctrl+S).
+//     Name the project "NavigateAI Lead Capture".
 //
-//  4. Click  Deploy → New Deployment
+//  4. IMPORTANT — set your shared secret:
+//     Change SUBMIT_SECRET below to any long random string you choose,
+//     e.g.  "nai-2026-xK9mPqR7vLw3"
+//     Then copy that exact string into LEAD_CONFIG.SHEET_SECRET in both
+//     start-a-conversation.html and ai-diagnostic-quiz-v6.html.
+//     This ensures only your pages can write to your sheet.
+//
+//  5. Click  Deploy → New Deployment
 //       Type              : Web App
 //       Execute as        : Me  (your Google account)
 //       Who has access    : Anyone
 //     → Click Deploy.
 //
-//  5. Grant permissions when prompted (this lets the script write to your sheet).
+//  6. Grant permissions when prompted.
 //
-//  6. Copy the Web App URL that appears after deployment.
+//  7. Copy the Web App URL and paste it into LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT
+//     in both HTML files.
 //
-//  7. Paste that URL into LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT in both:
-//       • start-a-conversation.html
-//       • ai-diagnostic-quiz-v6.html
+// The script auto-creates two tabs:
+//   "Contact Form Leads"  — discovery intake form submissions
+//   "Quiz Leads"          — AI readiness diagnostic submissions
 //
-// The script auto-creates two tabs in your spreadsheet:
-//   "Contact Form Leads"  — submissions from the discovery intake form
-//   "Quiz Leads"          — submissions from the AI readiness diagnostic
-//
-// To export leads: File → Download → CSV (current sheet) or XLSX (entire sheet).
+// Export: File → Download → CSV (current sheet) or XLSX (entire workbook).
 // ─────────────────────────────────────────────────────────────────────────────
 
-var CONTACT_TAB = 'Contact Form Leads';
-var QUIZ_TAB    = 'Quiz Leads';
+// ── Change this to your own secret string ──────────────────────────────────
+var SUBMIT_SECRET = 'REPLACE_WITH_YOUR_OWN_SECRET';
+// ───────────────────────────────────────────────────────────────────────────
+
+var CONTACT_TAB      = 'Contact Form Leads';
+var QUIZ_TAB         = 'Quiz Leads';
+var RATE_LIMIT_MINS  = 5;   // block same email re-submitting within 5 minutes
 
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
-    var ss   = SpreadsheetApp.getActiveSpreadsheet();
+
+    // ── 1. Secret check — reject anything that doesn't know the secret ──
+    if (data.secret !== SUBMIT_SECRET) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ success: false, error: 'Unauthorized' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ── 2. Rate limit — prevent the same email spamming submissions ─────
+    if (data.lead_email && isRateLimited(data.lead_email)) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ success: false, error: 'Rate limited' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
 
     if (data.form_type === 'contact') {
       appendContact(ss, data);
@@ -54,6 +78,19 @@ function doPost(e) {
       .createTextOutput(JSON.stringify({ success: false, error: err.message }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// ── Rate limiting via PropertiesService (server-side, not spoofable) ────────
+function isRateLimited(email) {
+  var store = PropertiesService.getScriptProperties();
+  var key   = 'rl_' + email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  var last  = store.getProperty(key);
+  var now   = Date.now();
+  if (last && (now - parseInt(last)) < RATE_LIMIT_MINS * 60 * 1000) {
+    return true;
+  }
+  store.setProperty(key, String(now));
+  return false;
 }
 
 function appendContact(ss, d) {
@@ -101,17 +138,17 @@ function appendQuiz(ss, d) {
     sheet.setColumnWidth(4, 200);
   }
   sheet.appendRow([
-    d.submitted_at    || new Date().toISOString(),
-    d.first_name      || '',
-    d.last_name       || '',
-    d.lead_email      || '',
-    d.lead_company    || '',
-    d.tier            || '',
-    d.score_strategy  || 0,
-    d.score_problems  || 0,
-    d.score_data      || 0,
-    d.score_security  || 0,
-    d.score_org       || 0,
-    d.avg_score       || 0,
+    d.submitted_at   || new Date().toISOString(),
+    d.first_name     || '',
+    d.last_name      || '',
+    d.lead_email     || '',
+    d.lead_company   || '',
+    d.tier           || '',
+    d.score_strategy || 0,
+    d.score_problems || 0,
+    d.score_data     || 0,
+    d.score_security || 0,
+    d.score_org      || 0,
+    d.avg_score      || 0,
   ]);
 }
