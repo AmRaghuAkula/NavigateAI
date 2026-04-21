@@ -43,6 +43,28 @@ var CONTACT_TAB      = 'Contact Form Leads';
 var QUIZ_TAB         = 'Quiz Leads';
 var RATE_LIMIT_MINS  = 5;   // block same email re-submitting within 5 minutes
 
+// Handles GET requests (used by the website — POST redirects to GET via Apps Script)
+function doGet(e) {
+  try {
+    var p = e.parameter;
+    if (p.secret !== SUBMIT_SECRET) {
+      return ContentService.createTextOutput(JSON.stringify({ success: false, error: 'Unauthorized' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    if (p.form_type === 'contact') {
+      appendContact(ss, p);
+    } else if (p.form_type === 'quiz') {
+      appendQuiz(ss, p);
+    }
+    return ContentService.createTextOutput(JSON.stringify({ success: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ success: false, error: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
