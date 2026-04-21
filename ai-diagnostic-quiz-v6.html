@@ -1041,11 +1041,8 @@ const LEAD_CONFIG = {
 async function logToSheets(payload) {
   if (LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT.startsWith('YOUR_')) return;
   try {
-    await fetch(LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT, {
-      method: 'POST',
-      mode:   'no-cors',
-      body:   JSON.stringify({ ...payload, secret: LEAD_CONFIG.SHEET_SECRET }),
-    });
+    const params = new URLSearchParams({ ...payload, secret: LEAD_CONFIG.SHEET_SECRET });
+    await fetch(`${LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT}?${params.toString()}`, { mode: 'no-cors' });
   } catch (err) {
     console.warn('Sheet logging error:', err);
   }
