@@ -759,8 +759,9 @@ body { padding-top:4rem;
   <div id="thankYouScreen" class="screen">
     <div class="thankyou-screen">
       <div class="ty-icon">🎯</div>
-      <h2 class="ty-title">You're all set!</h2>
-      <p class="ty-subtitle">Your personalised AI Readiness Report is on its way to your inbox. In the meantime, start exploring the NavigateAI framework — your journey begins now.</p>
+      <h2 class="ty-title">Your report is being generated.</h2>
+      <p class="ty-subtitle">Our AI is analysing all of your responses right now and composing a consulting-grade assessment — covering all 5 dimensions, your top 3 priority actions, risk flags, and tool recommendations tailored to your specific situation.</p>
+      <p class="ty-subtitle" style="margin-top:12px;font-size:14px;opacity:0.75;">Expect it in your inbox within the next 2 minutes.</p>
       <div class="ty-actions">
         <button class="ty-btn primary" onclick="alert('→ Navigate to Framework page')">Explore the Framework →</button>
         <button class="ty-btn secondary" onclick="restartQuiz()">Retake the Diagnostic</button>
@@ -1045,6 +1046,22 @@ async function logToSheets(payload) {
     await fetch(`${LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT}?${params.toString()}`, { mode: 'no-cors' });
   } catch (err) {
     console.warn('Sheet logging error:', err);
+  }
+}
+
+// Sends full quiz payload (including all answers) via POST for Claude analysis
+async function submitQuizToGAS(payload) {
+  if (LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT.startsWith('YOUR_')) return;
+  try {
+    await fetch(LEAD_CONFIG.GOOGLE_SHEET_ENDPOINT, {
+      method: 'POST',
+      // text/plain avoids CORS preflight while GAS still receives the JSON body
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ ...payload, secret: LEAD_CONFIG.SHEET_SECRET }),
+      mode: 'no-cors',
+    });
+  } catch (err) {
+    console.warn('GAS submit error:', err);
   }
 }
 
@@ -1370,73 +1387,43 @@ async function submitLead() {
 
   const btn = document.querySelector('.btn-unlock');
   btn.disabled    = true;
-  btn.textContent = 'Sending…';
+  btn.textContent = '⏳ Generating your report…';
 
   const scores      = calcDimScores();
   const tier        = getTier(scores);
   const avgScore    = Math.round(scores.reduce((a, b) => a + b, 0) / 5);
   const submittedAt = new Date().toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short' });
 
-  const adminBody = `AI Readiness Diagnostic completed via NavigateAI.
-
-Name:             ${fn} ${ln}
-Email:            ${em}
-Company:          ${co}
-Readiness Tier:   ${tier.name}
-Submitted:        ${submittedAt}
-
-Dimension Scores:
-  Strategic Clarity:      ${scores[0]}%
-  Problem Identification: ${scores[1]}%
-  Data Readiness:         ${scores[2]}%
-  Security & Governance:  ${scores[3]}%
-  Org Readiness:          ${scores[4]}%
-  Average Score:          ${avgScore}%
-
----
-Reply to: ${em}`;
-
-  const leadBody = `Hi ${fn},
-
-Thank you for completing the NavigateAI AI Readiness Diagnostic.
-
-YOUR READINESS TIER: ${tier.name}
-${tier.desc}
-
-YOUR DIMENSION SCORES:
-  Strategic Clarity:      ${scores[0]}%
-  Problem Identification: ${scores[1]}%
-  Data Readiness:         ${scores[2]}%
-  Security & Governance:  ${scores[3]}%
-  Org Readiness:          ${scores[4]}%
-  Overall Average:        ${avgScore}%
-
-WHAT IS NEXT
-Your full personalised report with a prioritised action plan across all 5 dimensions is being prepared. We will be in touch shortly.
-
-Explore the NavigateAI framework in the meantime:
-https://amraghuakula.github.io/NavigateAI/navigate-hub.html
-
-Warm regards,
-Raghu Akula
-NavigateAI`;
-
-  const emailReady = !LEAD_CONFIG.EMAILJS_PUBLIC_KEY.startsWith('YOUR_');
+  const quizPayload = {
+    form_type:      'quiz',
+    first_name:     fn,
+    last_name:      ln,
+    lead_email:     em,
+    lead_company:   co,
+    tier:           tier.name,
+    score_strategy: scores[0],
+    score_problems: scores[1],
+    score_data:     scores[2],
+    score_security: scores[3],
+    score_org:      scores[4],
+    avg_score:      avgScore,
+    submitted_at:   submittedAt,
+    answers:        answers,  // all 29 raw answers for Claude analysis
+  };
 
   try {
-    await Promise.all([
-      logToSheets({ form_type:'quiz', first_name:fn, last_name:ln, lead_email:em, lead_company:co,
-        tier:tier.name, score_strategy:scores[0], score_problems:scores[1], score_data:scores[2],
-        score_security:scores[3], score_org:scores[4], avg_score:avgScore, submitted_at:submittedAt }),
-      ...(emailReady ? [
-        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE,
-          { subject: `Quiz: ${fn} ${ln} from ${co} — ${tier.name}`, message_body: adminBody }),
-        emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_LEAD_TEMPLATE,
-          { to_email: em, subject: 'Your AI Readiness Results — NavigateAI', message_body: leadBody }),
-      ] : []),
-    ]);
+    // POST to GAS — GAS calls Claude, generates HTML report, emails it to the lead
+    await submitQuizToGAS(quizPayload);
+
+    // Admin ping via EmailJS (fast, fire-and-forget)
+    if (!LEAD_CONFIG.EMAILJS_PUBLIC_KEY.startsWith('YOUR_')) {
+      const adminBody = `New lead: ${fn} ${ln} | ${co} | ${em}\nTier: ${tier.name} | Score: ${avgScore}%`;
+      emailjs.send(LEAD_CONFIG.EMAILJS_SERVICE_ID, LEAD_CONFIG.EMAILJS_ADMIN_TEMPLATE,
+        { subject: `Quiz: ${fn} ${ln} — ${tier.name}`, message_body: adminBody }
+      ).catch(e => console.warn('EmailJS admin ping failed:', e));
+    }
   } catch (err) {
-    console.error('Quiz lead capture error:', err);
+    console.error('Quiz submission error:', err);
   }
 
   btn.disabled    = false;
