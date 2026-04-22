@@ -99,14 +99,14 @@ function doPost(e) {
     if (data.form_type === 'quiz') {
       appendQuiz(ss, data);
       try {
-        var analysis = callClaude(data.answers || [], data);
+        var analysis = callLLM(data.answers || [], data);
         if (analysis) {
           var html = generateHTMLReport(analysis, data);
           sendReportEmail(data.lead_email, data.first_name, data.last_name, data.lead_company, html);
           sendAdminNotification(data, analysis);
         }
-      } catch(claudeErr) {
-        Logger.log('Claude error: ' + claudeErr.message);
+      } catch(llmErr) {
+        Logger.log('LLM error: ' + llmErr.message);
       }
       return jsonOut({success:true});
     }
@@ -123,14 +123,27 @@ function jsonOut(obj) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CLAUDE API
+// LLM ROUTER — uses Claude if CLAUDE_API_KEY is set, otherwise Gemini
 // ─────────────────────────────────────────────────────────────────────────────
 
-function callClaude(answers, userData) {
-  var props   = PropertiesService.getScriptProperties();
-  var apiKey  = props.getProperty('CLAUDE_API_KEY');
-  if (!apiKey) { Logger.log('CLAUDE_API_KEY not set'); return null; }
+function callLLM(answers, userData) {
+  var props     = PropertiesService.getScriptProperties();
+  var claudeKey = props.getProperty('CLAUDE_API_KEY');
+  var geminiKey = props.getProperty('GEMINI_API_KEY');
 
+  if (claudeKey) {
+    Logger.log('Using Claude');
+    return callClaude(answers, userData, claudeKey);
+  }
+  if (geminiKey) {
+    Logger.log('Using Gemini');
+    return callGemini(answers, userData, geminiKey);
+  }
+  Logger.log('No LLM API key set. Add CLAUDE_API_KEY or GEMINI_API_KEY to Script Properties.');
+  return null;
+}
+
+function callClaude(answers, userData, apiKey) {
   var prompt  = buildPrompt(answers, userData);
   var payload = { model:'claude-sonnet-4-6', max_tokens:4096,
                   messages:[{role:'user', content:prompt}] };
@@ -149,8 +162,34 @@ function callClaude(answers, userData) {
   }
 
   var text = JSON.parse(resp.getContentText()).content[0].text;
+  return parseJsonFromLLM(text);
+}
 
-  // Extract JSON block from Claude's response
+function callGemini(answers, userData, apiKey) {
+  var prompt  = buildPrompt(answers, userData);
+  var payload = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { maxOutputTokens: 4096, temperature: 0.3 }
+  };
+
+  var url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+  var resp = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  if (resp.getResponseCode() !== 200) {
+    Logger.log('Gemini HTTP ' + resp.getResponseCode() + ': ' + resp.getContentText().substring(0,400));
+    return null;
+  }
+
+  var text = JSON.parse(resp.getContentText()).candidates[0].content.parts[0].text;
+  return parseJsonFromLLM(text);
+}
+
+function parseJsonFromLLM(text) {
   var m = text.match(/```json\s*([\s\S]*?)\s*```/);
   if (m) return JSON.parse(m[1]);
   try { return JSON.parse(text); } catch(e) {
