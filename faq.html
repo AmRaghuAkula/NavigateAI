@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — NavigateAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#111118;--paper:#f8f8f7;--teal:#12828a;--teal-lt:#38b5bc;--slate:#444450;--mist:#e0e0de;--rust:#0c5f66;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:'Epilogue',sans-serif;overflow-x:hidden;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.1rem 4rem;background:rgba(248,248,247,0.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--mist);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--ink);text-decoration:none;letter-spacing:-0.01em;}
+.nav-logo span{color:var(--teal);}
+.nav-right{display:flex;align-items:center;gap:2rem;}
+.nav-link{text-decoration:none;color:var(--slate);font-size:0.82rem;font-weight:500;transition:color 0.2s;}
+.nav-link:hover,.nav-link.nav-active{color:var(--teal);}
+.nav-cta{background:var(--ink);color:var(--paper);padding:0.55rem 1.3rem;border-radius:2px;font-size:0.78rem;font-weight:500;text-decoration:none;transition:background 0.2s;}
+.nav-cta:hover{background:var(--teal);}
+
+/* HERO */
+.hero{padding:8rem 6rem 5rem;background:var(--ink);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 70% 50%,rgba(18,130,138,0.1) 0%,transparent 55%);pointer-events:none;}
+.hero-inner{max-width:1320px;margin:0 auto;position:relative;z-index:1;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal-lt);background:rgba(56,181,188,0.12);border:1px solid rgba(56,181,188,0.22);padding:0.28rem 0.8rem;border-radius:2px;margin-bottom:1.6rem;}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,5vw,4.5rem);font-weight:700;line-height:1.05;letter-spacing:-0.02em;color:white;margin-bottom:1.3rem;}
+.hero-title em{color:var(--teal-lt);font-style:italic;}
+.hero-sub{font-size:1rem;line-height:1.8;color:rgba(220,224,232,0.8);font-weight:300;max-width:600px;}
+
+/* LAYOUT */
+.faq-outer{max-width:1000px;margin:0 auto;padding:5rem 2rem 6rem;}
+
+/* INTRO */
+.faq-intro{text-align:center;margin-bottom:4rem;}
+.faq-intro-label{font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);display:block;margin-bottom:1rem;}
+.faq-intro-text{font-size:1.05rem;line-height:1.8;color:var(--slate);max-width:680px;margin:0 auto;}
+
+/* CATEGORY */
+.faq-category{margin-bottom:4rem;}
+.cat-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.8rem;padding-bottom:0.8rem;border-bottom:1px solid var(--mist);}
+.cat-num{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--teal);opacity:0.35;min-width:2.5rem;}
+.cat-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--ink);letter-spacing:-0.01em;}
+
+/* ACCORDION */
+details{border:1px solid var(--mist);border-radius:4px;margin-bottom:0.75rem;background:white;overflow:hidden;transition:box-shadow 0.2s;}
+details[open]{box-shadow:0 4px 20px rgba(17,17,24,0.06);}
+details summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;padding:1.25rem 1.5rem;cursor:pointer;font-size:0.95rem;font-weight:500;color:var(--ink);line-height:1.4;user-select:none;}
+details summary::-webkit-details-marker{display:none;}
+details summary::after{content:'+';font-size:1.3rem;font-weight:300;color:var(--teal);flex-shrink:0;transition:transform 0.2s;line-height:1;}
+details[open] summary::after{content:'−';}
+details summary:hover{color:var(--teal);}
+.faq-answer{padding:0 1.5rem 1.5rem;font-size:0.92rem;line-height:1.85;color:var(--slate);border-top:1px solid var(--mist);}
+.faq-answer p{padding-top:1.2rem;}
+.faq-answer p+p{padding-top:0.8rem;}
+.faq-answer strong{color:var(--ink);font-weight:500;}
+
+/* CTA BAND */
+.cta-band{background:var(--ink);padding:4rem 6rem;display:flex;align-items:center;justify-content:space-between;gap:3rem;flex-wrap:wrap;}
+.cb-label{font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal-lt);opacity:0.7;display:block;margin-bottom:0.7rem;}
+.cta-band h2{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:white;line-height:1.1;margin-bottom:0.7rem;}
+.cta-band p{font-size:0.92rem;line-height:1.7;color:rgba(220,224,232,0.7);max-width:480px;}
+.cb-actions{display:flex;gap:1rem;align-items:center;flex-shrink:0;}
+.btn-p{background:var(--teal);color:white;padding:0.75rem 1.8rem;border-radius:2px;font-size:0.82rem;font-weight:500;text-decoration:none;transition:background 0.2s;white-space:nowrap;}
+.btn-p:hover{background:var(--teal-lt);}
+.btn-s{color:rgba(255,255,255,0.45);font-size:0.82rem;text-decoration:none;transition:color 0.2s;white-space:nowrap;}
+.btn-s:hover{color:white;}
+
+@media(max-width:768px){
+  nav{padding:1rem 1.5rem;}
+  .nav-right{gap:1.2rem;}
+  .hero{padding:7rem 1.5rem 3.5rem;}
+  .faq-outer{padding:3rem 1.5rem 4rem;}
+  .cta-band{padding:3rem 1.5rem;}
+  .cb-actions{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="ai-framework-homepage.html" class="nav-logo">Navigate<span>AI</span></a>
+  <div class="nav-right">
+    <a href="why-navigate-ai.html" class="nav-link">Why Us</a>
+    <a href="our-model.html" class="nav-link">Our Model</a>
+    <a href="navigate-hub.html" class="nav-link">Framework</a>
+    <a href="about-us.html" class="nav-link">About</a>
+    <a href="faq.html" class="nav-link nav-active">FAQ</a>
+    <a href="start-a-conversation.html" class="nav-cta">Start a Conversation →</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">✦ Frequently Asked Questions</div>
+    <h1 class="hero-title">The questions founders<br>ask <em>before they decide.</em></h1>
+    <p class="hero-sub">Straight answers to the things most on your mind — about what we do, how we work, what it costs, and what you can realistically expect.</p>
+  </div>
+</div>
+
+<div class="faq-outer">
+
+  <div class="faq-intro">
+    <span class="faq-intro-label">✦ 20 Questions</span>
+    <p class="faq-intro-text">These are the questions we hear most often from founders and senior leaders at the start of their AI journey. We've tried to answer them honestly — including the ones where the honest answer is "it depends."</p>
+  </div>
+
+  <!-- CATEGORY 1: Understanding NavigateAI -->
+  <div class="faq-category">
+    <div class="cat-header">
+      <span class="cat-num">01</span>
+      <span class="cat-title">Understanding NavigateAI</span>
+    </div>
+
+    <details>
+      <summary>What exactly does NavigateAI do?</summary>
+      <div class="faq-answer">
+        <p>NavigateAI helps established businesses — typically with 50 to 1,000 employees — move from AI curiosity to AI in production. We advise on where AI can genuinely add value, build the systems to deliver it, and take responsibility for running and maintaining those systems once they're live.</p>
+        <p>We work end-to-end: strategy, implementation, and ongoing operations. Our job isn't to hand you a report or sell you a licence — it's to have working AI inside your business that creates a measurable difference.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Who is NavigateAI built for?</summary>
+      <div class="faq-answer">
+        <p>We primarily work with founders, CEOs, and senior leaders at profitable mid-market companies who know AI matters to their business but aren't sure where to start — or have started and got stuck.</p>
+        <p>You don't need a technical background. What helps most is a clear sense of the business problems you're trying to solve and a genuine willingness to engage in the process. The framework was designed specifically for non-technical decision-makers.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Are you consultants, a software company, or something else?</summary>
+      <div class="faq-answer">
+        <p>Neither, exactly. Traditional consultants hand you a report. Software companies sell you a product and leave you to figure out how to use it. We're an AI implementation partner: we sit alongside your team, define the problem, build the solution, and stay accountable for the outcome.</p>
+        <p>Think of us as a specialist team that arrives, delivers, and doesn't disappear after the launch call.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Who is behind NavigateAI?</summary>
+      <div class="faq-answer">
+        <p>NavigateAI was founded by practitioners who spent years building AI systems inside technology and consulting organisations — not watching from the sidelines. We've seen firsthand what makes AI implementations succeed and fail in real businesses, and this framework is the product of that experience.</p>
+        <p>We're not a large firm with layers between you and the people doing the work. When you engage with us, you're working directly with the people who built the methodology.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- CATEGORY 2: The Process & Engagement -->
+  <div class="faq-category">
+    <div class="cat-header">
+      <span class="cat-num">02</span>
+      <span class="cat-title">The Process &amp; What to Expect</span>
+    </div>
+
+    <details>
+      <summary>What does an engagement actually look like from start to finish?</summary>
+      <div class="faq-answer">
+        <p>We start with a <strong>Discovery Sprint</strong> — a focused, fixed-scope engagement to map your business, surface where AI can genuinely help, and define a clear implementation brief. It takes roughly two weeks and ends with a concrete recommendation you can evaluate before committing to anything further.</p>
+        <p>If you proceed, we move through our 7-stage framework: defining strategy, identifying specific problems, prioritising by impact, selecting the right tools, preparing your data and security environment, building and testing the system, and then monitoring it in production. Most clients reach live production within 60–90 days of implementation beginning.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>How long before we see something working?</summary>
+      <div class="faq-answer">
+        <p>The Discovery Sprint takes approximately two weeks and ends with a concrete recommendation — a clear picture of what we'd build, why, and what you could reasonably expect. That's useful on its own, even if you don't proceed.</p>
+        <p>Full implementation typically takes 60–90 days from that point to a working system in production. We don't promise overnight transformation. We promise a structured path with clear checkpoints so you always know where you stand.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>What happens after we go live — are we on our own?</summary>
+      <div class="faq-answer">
+        <p>No. Going live is the beginning of the work, not the end of it. AI systems in production need to be monitored, maintained, and adjusted over time. We include ongoing operations as part of our model — not as an optional add-on.</p>
+        <p>We set up performance tracking from day one, establish clear reporting, and stay engaged as your system encounters real-world conditions and your business evolves. Stage 7 of our framework — Monitor &amp; Evolve — exists specifically because we believe this is where most implementations fail.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>How involved do we need to be during the project?</summary>
+      <div class="faq-answer">
+        <p>Your team doesn't need to manage the project — that's our job. But the best outcomes happen when someone on your side is genuinely engaged: available to answer questions, able to validate that outputs make sense in your context, and interested in the direction we're heading.</p>
+        <p>Typically this is a 2–4 hour commitment per week for one or two people on your team. We'll tell you clearly what we need from you and when, so it doesn't feel like a moving target.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- CATEGORY 3: Cost & Commitment -->
+  <div class="faq-category">
+    <div class="cat-header">
+      <span class="cat-num">03</span>
+      <span class="cat-title">Cost &amp; Commitment</span>
+    </div>
+
+    <details>
+      <summary>How much does this cost?</summary>
+      <div class="faq-answer">
+        <p>We work on a subscription model rather than large one-time project fees. That means predictable monthly costs instead of unpredictable invoices — which matters when you're managing a budget.</p>
+        <p>Our pricing is positioned for mid-market businesses: significantly less than enterprise consulting engagements, structured so you're not overcommitting before you've seen results. The Discovery Sprint is a standalone fixed-fee engagement, so you can evaluate fit before a larger commitment. We share specific numbers in our first conversation — we don't hide pricing behind vague "contact us" language.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Is there a minimum commitment, or can we start small?</summary>
+      <div class="faq-answer">
+        <p>You can start with just the Discovery Sprint. It's a fixed-scope, standalone engagement with a defined fee — no strings attached. It gives you a clear picture of what's possible and what it would take, without committing to a full implementation.</p>
+        <p>If you want to proceed after the Sprint, you do. If not, you'll still walk away with a useful analysis of your AI readiness and where your highest-value opportunities lie.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>What if we decide it's not working — can we stop?</summary>
+      <div class="faq-answer">
+        <p>Yes. We use a subscription model with regular review points built in. We're not interested in holding clients in engagements that aren't delivering value — that's not good for you, and it's not good for us.</p>
+        <p>If something isn't working, we'd rather surface it clearly, understand why, and address it directly. If the right answer is to stop, we'll say so. What we won't do is keep billing you while quietly hoping things improve.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- CATEGORY 4: Technical & Data -->
+  <div class="faq-category">
+    <div class="cat-header">
+      <span class="cat-num">04</span>
+      <span class="cat-title">Technical &amp; Data Questions</span>
+    </div>
+
+    <details>
+      <summary>We're not technical at all — is that a problem?</summary>
+      <div class="faq-answer">
+        <p>Not at all. The framework was built specifically for non-technical founders and senior leaders. You don't need to understand how AI models work — you need to understand what business problem you're trying to solve. We handle the rest.</p>
+        <p>We explain our approach in plain language at every stage. We'll tell you what we're doing and why, without hiding behind technical jargon. If something we say doesn't make sense, we'd rather you push back than nod along.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Do we need to have our data ready before we start?</summary>
+      <div class="faq-answer">
+        <p>Not necessarily. Data readiness is something we assess explicitly in Stage 5 of our framework — before any building begins, not after. Some clients come to us with well-organised, accessible data. Others don't. Both are workable starting points.</p>
+        <p>What matters is being honest about what your data can and can't support. We'll tell you clearly what we find — including if there are gaps that need closing before implementation can begin. We won't build on a foundation that won't hold.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>How do you handle data privacy and security?</summary>
+      <div class="faq-answer">
+        <p>Security and data privacy is a dedicated stage in our framework — not an afterthought. Before we build anything, we assess your data environment, identify risks, and put appropriate safeguards in place. This happens before implementation begins, not after something goes wrong.</p>
+        <p>We can work within existing security policies and governance requirements. If we identify constraints or risks, we'll name them explicitly so you can make informed decisions. We don't make security decisions for you — we make sure you have the information to make them yourself.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>We already use some AI tools — can you still help us?</summary>
+      <div class="faq-answer">
+        <p>Yes. We regularly work with businesses that have already started experimenting with AI — sometimes successfully, sometimes not. The starting point doesn't need to be zero.</p>
+        <p>We can assess what you have, identify gaps or risks you might not have noticed, build on what's working, and help you move from ad hoc experiments to a coherent, well-managed AI capability. If what you already have is good, we'll say so and work with it.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- CATEGORY 5: Outcomes & Confidence -->
+  <div class="faq-category">
+    <div class="cat-header">
+      <span class="cat-num">05</span>
+      <span class="cat-title">Outcomes &amp; Honest Expectations</span>
+    </div>
+
+    <details>
+      <summary>How do you define success, and how do we know if it's working?</summary>
+      <div class="faq-answer">
+        <p>We define success criteria before we start building — not after. That means agreeing upfront on what the AI system should do, what a measurable improvement looks like, and how we'll track it. There's no ambiguity about what "working" means.</p>
+        <p>Once the system is live, we set up reporting so you can see performance against those criteria in clear terms. If it's not meeting them, we treat that as a signal to investigate and fix — not something to explain away or minimise.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>What kinds of results can companies like ours realistically expect?</summary>
+      <div class="faq-answer">
+        <p>It depends on the use case and the quality of your data — and we won't pretend otherwise. We've seen AI genuinely reduce time spent on repetitive tasks, improve the speed and consistency of decisions, and surface insights that were previously buried in data too large for anyone to process manually.</p>
+        <p>We won't quote you an ROI number before we've assessed your situation — that would be guesswork. What we can promise is that we'll be honest about what's realistic before you commit to anything, and that success criteria will be defined before any money changes hands.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>What if the AI doesn't perform as expected after launch?</summary>
+      <div class="faq-answer">
+        <p>That's a normal part of AI implementation, and it's why Stage 7 of our framework exists. AI systems in production encounter edge cases, data quality issues, and conditions that testing doesn't fully anticipate. We build that expectation in from the start.</p>
+        <p>When performance falls short of the agreed criteria, we investigate, diagnose, and iterate. Our engagement doesn't end at launch — and the monitoring and maintenance phase is where a lot of the real value gets built.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>There's a lot of AI hype right now — how do we know this is worth it?</summary>
+      <div class="faq-answer">
+        <p>We share that scepticism. A lot of AI projects fail — not because the technology is fundamentally broken, but because the problem wasn't clearly defined, the data wasn't ready, or the implementation wasn't properly managed. Those are solvable problems, and our framework exists because we've seen that pattern enough times to build a system around preventing it.</p>
+        <p>We won't recommend AI for a problem where it isn't the right solution. And if the expected return doesn't justify the investment in your specific situation, we'll tell you that too — even if it means a smaller engagement for us. We're more interested in earning a long-term relationship than closing a single project.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>How is this different from just buying off-the-shelf AI software?</summary>
+      <div class="faq-answer">
+        <p>Off-the-shelf software solves generic problems. Your business has specific workflows, specific data, and specific constraints that generic tools rarely fit well without significant customisation — customisation that often doesn't happen, leaving you with a tool that's used at 20% of its potential.</p>
+        <p>We build AI that's designed around your actual problem, connected to your actual data, and measured against your actual business outcomes. That said, if an off-the-shelf tool genuinely fits what you need, we'll tell you. We're not in the business of building custom solutions for their own sake.</p>
+      </div>
+    </details>
+
+  </div>
+
+</div>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <div>
+    <span class="cb-label">✦ Still have questions?</span>
+    <h2>Let's talk through your situation.</h2>
+    <p>A 45-minute discovery call costs you nothing. We review your submission before we meet — so when we do talk, we're already focused on your specific context.</p>
+  </div>
+  <div class="cb-actions">
+    <a href="start-a-conversation.html" class="btn-p">Start a Conversation →</a>
+    <a href="our-model.html" class="btn-s">See Our Model</a>
+  </div>
+</div>
+
+</body>
+</html>
