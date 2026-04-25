@@ -423,10 +423,46 @@ body { padding-top:4rem;
 .form-note { font-size:0.72rem; color:rgba(255,255,255,0.2); text-align:center; }
 
 /* thank you */
-.thankyou-screen { text-align:center; animation:cardIn 0.5s ease both; }
-.ty-icon { font-size:4rem; margin-bottom:1.5rem; }
-.ty-title { font-family:'Playfair Display', serif; font-size:2.5rem; margin-bottom:1rem; }
-.ty-subtitle { font-size:1rem; color:rgba(220,224,232,0.82); line-height:1.7; max-width:500px; margin:0 auto 2.5rem; }
+.thankyou-screen { text-align:center; animation:cardIn 0.6s ease both; padding:2rem 0; }
+.ty-pulse {
+  width:72px; height:72px; margin:0 auto 1.6rem;
+  border-radius:50%; background:rgba(56,181,188,0.15);
+  border:2px solid rgba(56,181,188,0.35);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.8rem;
+  animation:tyPulse 2s ease-in-out infinite;
+}
+@keyframes tyPulse {
+  0%,100% { box-shadow:0 0 0 0 rgba(56,181,188,0.25); }
+  50%      { box-shadow:0 0 0 16px rgba(56,181,188,0); }
+}
+.ty-title { font-family:'Playfair Display', serif; font-size:2.2rem; margin-bottom:0.5rem; }
+.ty-tier-tag {
+  display:inline-block; border-radius:20px; padding:4px 16px;
+  font-size:0.8rem; font-weight:600; letter-spacing:0.05em;
+  margin-bottom:1.4rem;
+}
+.ty-subtitle { font-size:0.95rem; color:rgba(220,224,232,0.78); line-height:1.75; max-width:480px; margin:0 auto 1.6rem; }
+.ty-report-list {
+  display:flex; flex-direction:column; gap:0;
+  max-width:400px; margin:0 auto 2rem;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px; overflow:hidden;
+}
+.ty-report-item {
+  display:flex; align-items:center; gap:0.9rem;
+  padding:0.75rem 1.2rem;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  font-size:0.88rem; color:rgba(220,224,232,0.8);
+  text-align:left;
+}
+.ty-report-item:last-child { border-bottom:none; }
+.ty-report-icon { font-size:1rem; flex-shrink:0; }
+.ty-eta {
+  font-size:0.82rem; color:rgba(220,224,232,0.45);
+  margin-bottom:2rem; letter-spacing:0.02em;
+}
 .ty-actions { display:flex; flex-direction:column; gap:0.9rem; max-width:380px; margin:0 auto; }
 .ty-btn {
   padding:1rem 2rem; border-radius:4px; font-size:0.92rem;
@@ -758,12 +794,20 @@ body { padding-top:4rem;
   <!-- THANK YOU -->
   <div id="thankYouScreen" class="screen">
     <div class="thankyou-screen">
-      <div class="ty-icon">🎯</div>
-      <h2 class="ty-title">Your report is being generated.</h2>
-      <p class="ty-subtitle">Our AI is analysing all of your responses right now and composing a consulting-grade assessment — covering all 5 dimensions, your top 3 priority actions, risk flags, and tool recommendations tailored to your specific situation.</p>
-      <p class="ty-subtitle" style="margin-top:12px;font-size:14px;opacity:0.75;">Expect it in your inbox within the next 2 minutes.</p>
+      <div class="ty-pulse">✦</div>
+      <h2 class="ty-title">Thanks, <span id="tyFirstName">there</span>.</h2>
+      <div class="ty-tier-tag" id="tyTierTag"></div>
+      <p class="ty-subtitle">Your answers are being analysed right now. We're composing a report that speaks directly to your situation — not a template.</p>
+      <div class="ty-report-list">
+        <div class="ty-report-item"><span class="ty-report-icon">📊</span> 5-dimension analysis with narrative</div>
+        <div class="ty-report-item"><span class="ty-report-icon">🎯</span> Top 3 priority actions for the next 90 days</div>
+        <div class="ty-report-item"><span class="ty-report-icon">⚠️</span> Risk flags specific to your situation</div>
+        <div class="ty-report-item"><span class="ty-report-icon">🛠️</span> Tool &amp; vendor recommendations</div>
+        <div class="ty-report-item"><span class="ty-report-icon">🗺️</span> Your recommended NavigateAI entry point</div>
+      </div>
+      <p class="ty-eta">Arriving in your inbox within 2 minutes.</p>
       <div class="ty-actions">
-        <button class="ty-btn primary" onclick="alert('→ Navigate to Framework page')">Explore the Framework →</button>
+        <a class="ty-btn primary" href="navigate-hub.html">Explore the Framework →</a>
         <button class="ty-btn secondary" onclick="restartQuiz()">Retake the Diagnostic</button>
       </div>
     </div>
@@ -1429,14 +1473,30 @@ async function submitLead() {
   btn.disabled    = false;
   btn.textContent = '✦ Send My Full Report';
 
-  document.getElementById('teaserScreen').classList.remove('active');
+  // Personalise the thank you screen before showing it
+  document.getElementById('tyFirstName').textContent = fn;
+  const tyTag = document.getElementById('tyTierTag');
+  const tierColors = {'AI Leader':'#2e7d5a','AI Builder':'#38b5bc','AI Explorer':'#c9a84c','AI Beginner':'#c07040'};
+  tyTag.textContent = tier.name;
+  tyTag.style.background = (tierColors[tier.name] || '#38b5bc') + '22';
+  tyTag.style.color       = tierColors[tier.name] || '#38b5bc';
+  tyTag.style.border      = '1px solid ' + (tierColors[tier.name] || '#38b5bc') + '55';
+
+  // Hide teaser — clear both the class and the inline style set by showTeaser()
+  const teaserEl = document.getElementById('teaserScreen');
+  teaserEl.classList.remove('active');
+  teaserEl.style.display = 'none';
+
   document.getElementById('thankYouScreen').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function restartQuiz() {
   currentQ = 0;
   answers = new Array(29).fill("");
   ['thankYouScreen','teaserScreen'].forEach(id => document.getElementById(id).classList.remove('active'));
+  const teaserEl = document.getElementById('teaserScreen');
+  teaserEl.style.display = '';
   document.getElementById('quizHeader').style.display = 'none';
   document.getElementById('progressContainer').style.display = 'none';
   document.getElementById('quizScreen').classList.remove('active');
